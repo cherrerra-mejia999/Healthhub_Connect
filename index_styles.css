@@ -1,0 +1,15 @@
+/*CSS for index.html*/
+h1 {
+    color: black;
+    text-align: center;
+    margin: 0;
+}
+h2 {
+    color: black;
+    text-align: center;
+}
+/*for hyperlinks*/
+.Navigations {
+    display: flex;
+    justify-content: space-evenly;
+}
