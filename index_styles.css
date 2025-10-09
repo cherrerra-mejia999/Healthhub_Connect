@@ -1,4 +1,8 @@
 /*CSS for index.html*/
+.Title {
+    background-color: aqua;
+    padding: 30px;
+}
 h1 {
     color: black;
     text-align: center;
