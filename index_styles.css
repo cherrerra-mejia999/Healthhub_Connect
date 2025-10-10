@@ -16,3 +16,57 @@ h2 {
     display: flex;
     justify-content: space-evenly;
 }
+
+.Navigations {
+  display: flex;
+  flex-wrap: wrap;        
+  gap: 0.6rem;             
+  justify-content: center; 
+  margin: 0.5rem 0;        
+  padding: 0;
+}
+
+.Navigations a {
+  display: inline-block;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid #e6e6e6;
+  border-radius: 9999px;    /* This allows our features to appear pill shaped */
+  text-decoration: none;
+  font-weight: 600;
+  color: #4b3fa6;
+  background: #fff;
+  line-height: 1;
+}
+
+.Navigations a:hover,
+.Navigations a:focus {
+  border-color: #b5a8ff;
+  box-shadow: 0 0 0 3px rgba(181,168,255,0.25);
+  outline: none;
+}
+
+/* This is just to ensure that the visited links don’t turn purple */
+.Navigations a:visited { color: #4b3fa6; }
+
+/* Sign In button */
+.top-bar {
+  text-align: right;
+  padding: 10px 20px;
+}
+
+/* Style of the sign in button */
+.signin-btn {
+  background-color: #4b3fa6;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.signin-btn:hover {
+  background-color: #3a2f88;
+  transform: translateY(-2px);
+}
