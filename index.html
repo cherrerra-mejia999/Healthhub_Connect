@@ -14,7 +14,7 @@
     </div>
     
     <div class="top-bar">
-        <button class="signin-btn" id="authButton" onclick="handleAuth()">Sign In</button>
+        <button class="signin-btn" id="authButton">Sign In</button>
     </div>
     
     <hr>
@@ -57,80 +57,41 @@
         </ul>
     </section>
     
-    <img src="health_placeholder.jpeg" alt="Healthub Connect" style="width:100%;max-width:600px; display: block; margin: 20px auto;">
+    <div style="text-align: center; margin: 20px 0;">
+        <a href="register-simple.html" class="signin-btn" style="display: inline-block; text-decoration: none;">Get Started - Register Now</a>
+    </div>
 
     <script>
-        // Simple Supabase initialization for index page
+        // Simple auth check for GitHub Pages
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, waiting for Supabase...');
+            const authButton = document.getElementById('authButton');
+            const userInfo = document.getElementById('userInfo');
             
-            setTimeout(function() {
-                try {
-                    const supabaseUrl = 'https://hbtgwzneuhdqlmriwvje.supabase.co';
-                    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhidGd3em5ldWhkcWxtcml3dmplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNDI5MTQsImV4cCI6MjA3NTkxODkxNH0.1v1OLYSEPRBKaZWQu1sJo8DoRzYePfdc7Zcs8i8TF78';
-                    
-                    if (typeof window.supabase === 'undefined') {
-                        const script = document.createElement('script');
-                        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
-                        script.onload = function() {
-                            initializeApp();
-                        };
-                        document.head.appendChild(script);
-                    } else {
-                        initializeApp();
-                    }
-                    
-                    function initializeApp() {
-                        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-                        console.log('✅ Supabase initialized for index!');
-                        
-                        // Check authentication state
-                        async function checkAuth() {
-                            const { data: { session } } = await supabase.auth.getSession();
-                            const authButton = document.getElementById('authButton');
-                            const userInfo = document.getElementById('userInfo');
+            // Check if user is logged in (simple version for demo)
+            const isLoggedIn = localStorage.getItem('healthhub_logged_in');
+            const userName = localStorage.getItem('healthhub_username');
+            
+            if (isLoggedIn && userName) {
+                userInfo.innerHTML = `Hello, ${userName} — <a href="#" onclick="signOut()">Sign Out</a>`;
+                authButton.style.display = 'none';
+            } else {
+                userInfo.innerHTML = '';
+                authButton.style.display = 'block';
+                authButton.textContent = 'Sign In';
+                authButton.onclick = function() {
+                    window.location.href = 'signin.html';
+                };
+            }
 
-                            if (session) {
-                                // User is signed in
-                                console.log('User is signed in:', session.user);
-                                const firstName = session.user.user_metadata?.first_name || session.user.email;
-                                userInfo.innerHTML = `Hello, ${firstName} — <a href="#" onclick="signOut()">Sign Out</a>`;
-                                authButton.style.display = 'none';
-                            } else {
-                                // User is signed out
-                                userInfo.innerHTML = '';
-                                authButton.style.display = 'block';
-                                authButton.textContent = 'Sign In';
-                            }
-                        }
-
-                        window.handleAuth = function() {
-                            window.location.href = 'signin.html';
-                        }
-
-                        window.signOut = async function() {
-                            await supabase.auth.signOut();
-                            window.location.reload();
-                        }
-
-                        // Check auth state on page load
-                        checkAuth();
-
-                        // Listen for auth state changes
-                        supabase.auth.onAuthStateChange((event, session) => {
-                            console.log('Auth state changed:', event);
-                            if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-                                checkAuth();
-                            }
-                        });
-                    }
-                    
-                } catch (error) {
-                    console.error('Initialization error:', error);
-                }
-            }, 100);
+            window.signOut = function() {
+                localStorage.removeItem('healthhub_logged_in');
+                localStorage.removeItem('healthhub_username');
+                window.location.reload();
+            }
         });
     </script>
 </body>
 </html>
+
+
 
