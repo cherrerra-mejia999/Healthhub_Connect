@@ -190,6 +190,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script>
+        const STORAGE_BUCKET_NAME = 'health-documents';  // ← Fixed to match your bucket name!
+        
         // Initialize Supabase
         const supabaseUrl = 'https://hbtgwzneuhdqlmriwvje.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhidGd3em5ldWhkcWxtcml3dmplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNDI5MTQsImV4cCI6MjA3NTkxODkxNH0.1v1OLYSEPRBKaZWQu1sJo8DoRzYePfdc7Zcs8i8TF78';
@@ -344,7 +346,7 @@
                 
                 // Upload file to Supabase Storage
                 const { data: uploadData, error: uploadError } = await supabase.storage
-                    .from('health-documents')
+                    .from(STORAGE_BUCKET_NAME)
                     .upload(filePath, file, {
                         cacheControl: '3600',
                         upsert: false
@@ -374,7 +376,7 @@
                 
                 if (dbError) {
                     // If database insert fails, try to delete the uploaded file
-                    await supabase.storage.from('health-documents').remove([filePath]);
+                    await supabase.storage.from(STORAGE_BUCKET_NAME).remove([filePath]);
                     throw new Error(`Database error: ${dbError.message}`);
                 }
                 
@@ -460,10 +462,11 @@
         async function viewDocument(filePath, fileName) {
             try {
                 console.log('Viewing document:', filePath);
+                console.log('Using bucket:', STORAGE_BUCKET_NAME);
                 
                 // Get public URL for the file
                 const { data } = supabase.storage
-                    .from('health-documents')
+                    .from(STORAGE_BUCKET_NAME)
                     .getPublicUrl(filePath);
                 
                 if (data && data.publicUrl) {
@@ -472,7 +475,7 @@
                 } else {
                     // Fallback: download the file
                     const { data: downloadData, error } = await supabase.storage
-                        .from('health-documents')
+                        .from(STORAGE_BUCKET_NAME)
                         .download(filePath);
                     
                     if (error) throw error;
@@ -500,10 +503,11 @@
             
             try {
                 console.log('Deleting document:', documentId, filePath);
+                console.log('Using bucket:', STORAGE_BUCKET_NAME);
                 
                 // Delete from storage
                 const { error: storageError } = await supabase.storage
-                    .from('health-documents')
+                    .from(STORAGE_BUCKET_NAME)
                     .remove([filePath]);
                 
                 if (storageError) {
