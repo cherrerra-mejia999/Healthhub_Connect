@@ -190,7 +190,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script>
-        const STORAGE_BUCKET_NAME = 'health-documents';  // ← Fixed to match your bucket name!
+        // ============================================
+        // CONFIGURATION - CHANGE THIS IF NEEDED
+        // ============================================
+        const STORAGE_BUCKET_NAME = 'health-documents';  // ← Matches your code!
         
         // Initialize Supabase
         const supabaseUrl = 'https://hbtgwzneuhdqlmriwvje.supabase.co';
@@ -200,13 +203,27 @@
         let currentUserId = null;
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Check if Supabase library is loaded
+            if (typeof window.supabase === 'undefined') {
+                console.error('❌ Supabase library not loaded!');
+                document.getElementById('content').innerHTML = '<div style="text-align:center; padding:40px;"><p style="color:red;">Error: Supabase library failed to load. Please refresh the page.</p></div>';
+                return;
+            }
+            
             // Initialize Supabase
             supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
             console.log('✅ Supabase initialized');
-            checkAuth();
+            
+            // Wait a moment to ensure Supabase is fully ready
+            setTimeout(checkAuth, 100);
         });
 
         async function checkAuth() {
+            if (!supabase) {
+                console.error('❌ Supabase not initialized');
+                return;
+            }
+            
             const { data: { session } } = await supabase.auth.getSession();
             const authButton = document.getElementById('authButton');
             const userInfo = document.getElementById('userInfo');
@@ -305,6 +322,11 @@
 
         async function handleUpload(e) {
             e.preventDefault();
+            
+            if (!supabase) {
+                showMessage('❌ System not ready. Please refresh the page.', 'error');
+                return;
+            }
             
             const uploadBtn = document.getElementById('uploadBtn');
             const documentType = document.getElementById('document_type').value;
@@ -411,14 +433,26 @@
         }
 
         async function loadDocuments(userId) {
+            if (!supabase) {
+                console.error('❌ Supabase not initialized');
+                return;
+            }
+            
             try {
+                console.log('📄 Loading documents for user:', userId);
+                
                 const { data: documents, error } = await supabase
                     .from('documents')
                     .select('*')
                     .eq('user_id', userId)
                     .order('uploaded_at', { ascending: false });
 
-                if (error) throw error;
+                if (error) {
+                    console.error('Database error:', error);
+                    throw error;
+                }
+                
+                console.log('✅ Found', documents?.length || 0, 'documents');
 
                 const docsList = document.getElementById('documentsList');
                 
@@ -434,6 +468,8 @@
                             'imaging': '🔬 Imaging',
                             'other': '📄 Other'
                         }[doc.document_type] || '📄 Document';
+                        
+                        console.log('Document file path:', doc.file_path);
                         
                         return `
                             <div class="document-item">
@@ -460,36 +496,53 @@
         }
 
         async function viewDocument(filePath, fileName) {
+            if (!supabase) {
+                showMessage('❌ System not ready. Please refresh the page.', 'error');
+                return;
+            }
+            
             try {
                 console.log('Viewing document:', filePath);
                 console.log('Using bucket:', STORAGE_BUCKET_NAME);
                 
-                // Get public URL for the file
-                const { data } = supabase.storage
+                // For private buckets, we need to download the file
+                // Public URLs won't work for private buckets
+                const { data: downloadData, error } = await supabase.storage
                     .from(STORAGE_BUCKET_NAME)
-                    .getPublicUrl(filePath);
+                    .download(filePath);
                 
-                if (data && data.publicUrl) {
-                    // Open in new tab
-                    window.open(data.publicUrl, '_blank');
+                if (error) {
+                    console.error('Download error:', error);
+                    throw error;
+                }
+                
+                console.log('✅ File downloaded successfully');
+                
+                // Create a blob URL and open/download it
+                const blob = new Blob([downloadData], { type: downloadData.type });
+                const url = URL.createObjectURL(blob);
+                
+                // Check file type
+                const fileExt = fileName.split('.').pop().toLowerCase();
+                const isPDF = fileExt === 'pdf';
+                const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExt);
+                
+                if (isPDF || isImage) {
+                    // Open in new tab for PDFs and images
+                    window.open(url, '_blank');
                 } else {
-                    // Fallback: download the file
-                    const { data: downloadData, error } = await supabase.storage
-                        .from(STORAGE_BUCKET_NAME)
-                        .download(filePath);
-                    
-                    if (error) throw error;
-                    
-                    // Create download link
-                    const url = URL.createObjectURL(downloadData);
+                    // Download for other file types
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = fileName;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
                 }
+                
+                // Clean up the blob URL after a delay
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+                
             } catch (error) {
                 console.error('Error viewing document:', error);
                 showMessage('❌ Error opening document: ' + error.message, 'error');
@@ -497,6 +550,11 @@
         }
 
         async function deleteDocument(documentId, filePath) {
+            if (!supabase) {
+                showMessage('❌ System not ready. Please refresh the page.', 'error');
+                return;
+            }
+            
             if (!confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
                 return;
             }
@@ -549,16 +607,24 @@
         }
 
         async function signOut() {
+            if (!supabase) return;
             await supabase.auth.signOut();
             window.location.reload();
         }
 
         // Listen for auth state changes
-        supabase.auth.onAuthStateChange((event, session) => {
-            console.log('Auth state changed:', event);
-            if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-                checkAuth();
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for supabase to be initialized before setting up listener
+            setTimeout(function() {
+                if (supabase) {
+                    supabase.auth.onAuthStateChange((event, session) => {
+                        console.log('Auth state changed:', event);
+                        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                            checkAuth();
+                        }
+                    });
+                }
+            }, 200);
         });
     </script>
 </body>
