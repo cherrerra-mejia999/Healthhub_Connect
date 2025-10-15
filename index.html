@@ -1,51 +1,136 @@
-<!doctype html>
-<html>
-    <head>
-        <!--Basic setups for flexibility-->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1"> 
-        <title>Healthub Connect</title>
-        <!--CSS-->
-        <link rel="stylesheet" href="index_styles.css">
-    </head>
-    <body>
-        <div class="Title">
-            <img src="healthhub-logo.svg" alt="HealthHub Connect Logo" style="width:300px;">
-            <h1>
-                Welcome to Healthub Connect!
-            </h1>
-        </div>
-        <div class="top-bar">
-            <button class="signin-btn" onclick="location.href='signin.html'">Sign In</button>
-        </div>
-        <hr>
-        <h2 class="Navigations">
-        <!--Hyper links to other pages-->
-            <a href="documents.html">Documents</a>
-            <a href="tracker.html">Trackers</a>
-            <a href="tracker.html">AI Health Assistant</a>
-            <a href="tracker.html">Appointments</a>
-            <a href="tracker.html">Insurance Hub</a>
-            <a href="tracker.html">Visit Summaries</a>
-            <a href="tracker.html">Family Access</a>
-            <a href="tracker.html">Payments</a>
-            <a href="tracker.html">Support Call Center</a>
-            <a href="tracker.html">Helpful Links</a>
-            <a href="tracker.html">About</a>
-        </h2>
-        <hr>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthub Connect</title>
+    <link rel="stylesheet" href="index_styles.css">
+</head>
+<body>
+    <div class="Title">
+        <h1>Welcome to Healthub Connect!</h1>
+        <div id="userInfo" style="margin:0; text-align: center;"></div>
+    </div>
+    
+    <div class="top-bar">
+        <button class="signin-btn" id="authButton">Sign In</button>
+    </div>
+    
+    <hr>
+    
+    <h2 class="Navigations">
+        <a href="documents.html">Documents</a>
+        <a href="tracker.html">Trackers</a>
+        <a href="assistant.html">AI Health Assistant</a>
+        <a href="appointments.html">Appointments</a>
+        <a href="insurance.html">Insurance Hub</a>
+        <a href="summaries.html">Visit Summaries</a>
+        <a href="family.html">Family Access</a>
+        <a href="payments.html">Payments</a>
+        <a href="support.html">Support Call Center</a>
+        <a href="links.html">Helpful Links</a>
+        <a href="about.html">About</a>
+    </h2>
+    
+    <hr>
+    
     <section>
-      <h2>About Healthub Connect</h2>
-      <p>
-        Healthub Connect is a modern health platform that helps users manage
-        their personal and medical data efficiently. From tracking your daily
-        vitals to managing appointments, our mission is to keep you connected to
-        your health.
-      </p>
+        <h2>About Healthub Connect</h2>
+        <p>
+            Healthub Connect is a modern health platform that helps users manage
+            their personal and medical data efficiently. From tracking your daily
+            vitals to managing appointments, our mission is to keep you connected to
+            your health.
+        </p>
     </section>
+    
+    <section>
+        <h2>Core Features</h2>
+        <ul>
+            <li>Upload and access health documents anytime</li>
+            <li>Track your heart rate and blood sugar daily</li>
+            <li>Set reminders for medication and appointments</li>
+            <li>Communicate directly with a medical AI chatbot</li>
+            <li>Securely manage insurance and payment details</li>
+            <li>And more</li>  
+        </ul>
+    </section>
+    
+    <div style="text-align: center; margin: 20px 0;">
+        <a href="register-simple.html" class="signin-btn" style="display: inline-block; text-decoration: none;">Get Started - Register Now</a>
+    </div>
+
+    <!-- Load Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+        // Initialize Supabase
+        const supabaseUrl = 'https://hbtgwzneuhdqlmriwvje.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhidGd3em5ldWhkcWxtcml3dmplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNDI5MTQsImV4cCI6MjA3NTkxODkxNH0.1v1OLYSEPRBKaZWQu1sJo8DoRzYePfdc7Zcs8i8TF78';
         
-        <div style="text-align:center;">
-            <img src="health_placeholder.jpeg" alt="Healthub Connect" style="width:100%;max-width:600px;">
-        </div>
-    </body>
+        let supabase;
+
+        // Wait for everything to load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Supabase
+            supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+            console.log('Supabase initialized');
+            
+            // Check auth state
+            checkAuthState();
+        });
+
+        async function checkAuthState() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                const authButton = document.getElementById('authButton');
+                const userInfo = document.getElementById('userInfo');
+                
+                console.log('Auth check:', session);
+
+                if (session && session.user) {
+                    // User is signed in
+                    const firstName = session.user.user_metadata?.first_name || session.user.email;
+                    userInfo.innerHTML = `Hello, ${firstName} — <a href="#" onclick="signOut(); return false;">Sign Out</a>`;
+                    authButton.textContent = 'Sign Out';
+                    authButton.onclick = signOut; // Set click to sign out
+                } else {
+                    // User is signed out
+                    userInfo.innerHTML = '';
+                    authButton.textContent = 'Sign In';
+                    authButton.onclick = function() {
+                        window.location.href = 'signin.html'; // Set click to go to sign in
+                    };
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+            }
+        }
+
+        
+
+        async function signOut() {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+                
+                console.log('Signed out successfully');
+                // Refresh the page to update UI
+                window.location.reload();
+            } catch (error) {
+                console.error('Sign out error:', error);
+            }
+        }
+
+        // Listen for auth state changes
+        supabase.auth.onAuthStateChange((event, session) => {
+            console.log('Auth state changed:', event);
+            checkAuthState();
+        });
+    </script>
+</body>
 </html>
+
+
+
+
+

@@ -1,16 +1,205 @@
-<!--Document Saver Page-->
-<!doctype html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1"> 
-        <title>Healthub Connect Document Saver</title>
-    </head>
-    <body>
-        <h1>This is Document Savers!</h1>
-        <hr>
-        <h2>
-            <a href="index.php">homepage</a>
-        </h2>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"> 
+    <title>Healthub Connect Document Saver</title>
+    <link rel="stylesheet" href="index_styles.css">
+    <style>
+        section {
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .upload-area {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px dashed #4b3fa6;
+        }
+        .document-list {
+            margin-top: 30px;
+        }
+        .document-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border-left: 4px solid #4b3fa6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .login-prompt {
+            text-align: center;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="Title">
+        <h1>Healthub Connect Document Saver</h1>
+        <div id="userInfo" style="margin:0; text-align: center;"></div>
+    </div>
+    
+    <div class="top-bar">
+        <button class="signin-btn" id="authButton" onclick="handleAuth()">Sign In</button>
+    </div>
+    
+    <hr>
+    
+    <h2 class="Navigations">
+        <a href="index.html">Home</a>
+        <a href="documents.html">Documents</a>
+        <a href="tracker.html">Trackers</a>
+        <a href="assistant.html">AI Health Assistant</a>
+        <a href="appointments.html">Appointments</a>
+        <a href="insurance.html">Insurance Hub</a>
+        <a href="summaries.html">Visit Summaries</a>
+        <a href="family.html">Family Access</a>
+        <a href="payments.html">Payments</a>
+        <a href="support.html">Support Call Center</a>
+        <a href="links.html">Helpful Links</a>
+        <a href="about.html">About</a>
+    </h2>
+    
+    <hr>
+    
+    <section>
+        <div id="content">
+            <!-- Content will be loaded based on auth status -->
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+        // Initialize Supabase
+        const supabaseUrl = 'https://hbtgwzneuhdqlmriwvje.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhidGd3em5ldWhkcWxtcml3dmplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNDI5MTQsImV4cCI6MjA3NTkxODkxNH0.1v1OLYSEPRBKaZWQu1sJo8DoRzYePfdc7Zcs8i8TF78';
+        
+        let supabase;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Supabase
+            supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+            console.log('✅ Supabase initialized');
+            checkAuth();
+        });
+
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            const authButton = document.getElementById('authButton');
+            const userInfo = document.getElementById('userInfo');
+            const content = document.getElementById('content');
+
+            if (session) {
+                // User is signed in
+                console.log('User is authenticated:', session.user.id);
+                
+                // Get user info from profiles
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('first_name, last_name')
+                    .eq('user_id', session.user.id)
+                    .single();
+
+                const firstName = profile?.first_name || session.user.email;
+                userInfo.innerHTML = `Hello, ${firstName} — <a href="#" onclick="signOut(); return false;">Sign Out</a>`;
+                authButton.style.display = 'none';
+                
+                // Load documents content
+                content.innerHTML = `
+                    <h2>Your Health Documents</h2>
+                    <p>Upload, view, and manage your health documents securely.</p>
+                    
+                    <div class="upload-area">
+                        <h3>Upload New Document</h3>
+                        <form id="uploadForm">
+                            <label>Document Type:</label>
+                            <select name="document_type" required style="width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: 1px solid #aaa;">
+                                <option value="prescription">Prescription</option>
+                                <option value="lab_report">Lab Report</option>
+                                <option value="imaging">Imaging</option>
+                                <option value="other">Other</option>
+                            </select>
+                            
+                            <label>Select File:</label>
+                            <input type="file" name="document_file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required style="width: 100%; padding: 10px; margin: 10px 0;">
+                            
+                            <button type="submit" style="margin-top: 10px; background: #4b3fa6; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer;">Upload Document</button>
+                        </form>
+                    </div>
+                    
+                    <div class="document-list">
+                        <h3>Your Documents</h3>
+                        <div id="documentsList">
+                            <p>Loading documents...</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Load existing documents
+                loadDocuments(session.user.id);
+            } else {
+                // User is signed out
+                console.log('User is not authenticated');
+                userInfo.innerHTML = '';
+                authButton.style.display = 'block';
+                authButton.textContent = 'Sign In';
+                
+                content.innerHTML = `
+                    <div class="login-prompt">
+                        <h3>Please Sign In to Access Documents</h3>
+                        <p>You need to be logged in to view and upload health documents.</p>
+                        <button onclick="handleAuth()" class="signin-btn">Sign In</button>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadDocuments(userId) {
+            try {
+                const { data: documents, error } = await supabase
+                    .from('documents')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('uploaded_at', { ascending: false });
+
+                if (error) throw error;
+
+                const docsList = document.getElementById('documentsList');
+                
+                if (!documents || documents.length === 0) {
+                    docsList.innerHTML = '<p>No documents uploaded yet.</p>';
+                } else {
+                    docsList.innerHTML = documents.map(doc => `
+                        <div class="document-item">
+                            <strong>${doc.file_name || 'Untitled'}</strong>
+                            <p>Type: ${doc.document_type} | Uploaded: ${new Date(doc.uploaded_at).toLocaleDateString()}</p>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading documents:', error);
+                document.getElementById('documentsList').innerHTML = '<p>Error loading documents.</p>';
+            }
+        }
+
+        function handleAuth() {
+            window.location.href = 'signin.html';
+        }
+
+        async function signOut() {
+            await supabase.auth.signOut();
+            window.location.reload();
+        }
+
+        // Listen for auth state changes
+        supabase.auth.onAuthStateChange((event, session) => {
+            console.log('Auth state changed:', event);
+            if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                checkAuth();
+            }
+        });
+    </script>
+</body>
 </html>

@@ -1,97 +1,93 @@
-CREATE DATABASE IF NOT EXISTS HealthHubDB
-    DEFAULT CHARACTER SET utf8mb4
-    DEFAULT COLLATE utf8mb4_general_ci;
-USE HealthHubDB;
-
 -- Users Table
-CREATE TABLE Users (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
+CREATE TABLE users (
+    user_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(15),
     date_of_birth DATE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    role ENUM('patient', 'doctor', 'admin') DEFAULT 'patient'
-)
-ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
+    role VARCHAR(20) DEFAULT 'patient' CHECK (role IN ('patient', 'doctor', 'admin'))
+);
 
 -- Profiles Table
-CREATE TABLE Profiles (
-    profile_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+CREATE TABLE profiles (
+    profile_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
     first_name VARCHAR(50),
     last_name VARCHAR(50),
-    gender ENUM('male', 'female', 'other') NOT NULL,
+    gender VARCHAR(10) DEFAULT 'other' CHECK (gender IN ('male', 'female', 'other')),
     insurance_id VARCHAR(50),
     address TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY uk_profiles_user (user_id)
-)
-ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
+    UNIQUE(user_id)
+);
 
-
--- Foreign Key Constraint
-ALTER TABLE Profiles
-ADD CONSTRAINT fk_user
-FOREIGN KEY (user_id) REFERENCES Users(user_id)
-ON DELETE CASCADE;
-
--- Daily_Tracker Table
-CREATE TABLE Daily_Tracker (
-    tracker_id int auto_increment primary key,
-    user_id int not null,
-    date date not null,
-    heart_rate int,
+-- Daily Tracker Table
+CREATE TABLE daily_tracker (
+    tracker_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    date DATE NOT NULL,
+    heart_rate INTEGER,
     blood_pressure VARCHAR(10),
     sleep_cycles_hours DECIMAL(5,2),
-    steps int,
-    calories_burned int,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
-    UNIQUE KEY uk_tracker_user_date (user_id, date),
-    KEY idx_tracker_date (date)
-)
-ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    steps INTEGER,
+    calories_burned INTEGER,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
+    UNIQUE(user_id, date)
+);
 
--- Call_Center Table
-CREATE TABLE Call_Center (
-    call_id INT auto_increment PRIMARY KEY,
-    user_id INT NOT NULL,
-    agent_namme VARCHAR(100),
-    issue_type ENUM('technical', 'billing', 'general') NOT NULL,
+-- Call Center Table
+CREATE TABLE call_center (
+    call_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    agent_name VARCHAR(100),
+    issue_type VARCHAR(20) CHECK (issue_type IN ('technical', 'billing', 'general')),
     note TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
-)
-ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
+);
 
-
--- Docments Table
-CREATE TABLE Documents (
-    document_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    document_type ENUM('prescription', 'lab_report', 'imaging', 'other') NOT NULL,
+-- Documents Table
+CREATE TABLE documents (
+    document_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    document_type VARCHAR(20) CHECK (document_type IN ('prescription', 'lab_report', 'imaging', 'other')),
     file_path VARCHAR(255) NOT NULL,
-    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
-    KEY idx_documents_user (user_id)
-)
-ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    file_name VARCHAR(255),
+    file_size INTEGER,
+    uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
+);
 
 -- Medications Table
-CREATE TABLE Medications (
-    medication_id int auto_increment primary key,
-    user_id int not null,
+CREATE TABLE medications (
+    medication_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
     medication_name VARCHAR(100) NOT NULL,
     dosage VARCHAR(50),
     frequency VARCHAR(50),
     start_date DATE,
     end_date DATE,
     refill_date DATE,
-    Foreign Key (user_id) REFERENCES Users(user_id) on delete cascade,
-    KEY idx_medications_user (user_id)
-)
-ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
+);
+
+-- Enable Row Level Security
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE daily_tracker ENABLE ROW LEVEL SECURITY;
+ALTER TABLE call_center ENABLE ROW LEVEL SECURITY;
+ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE medications ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies
+-- Users can only see their own data
+CREATE POLICY "Users can view own data" ON users FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can update own data" ON users FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Profiles are user specific" ON profiles FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Tracker data is user specific" ON daily_tracker FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Call center data is user specific" ON call_center FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Documents are user specific" ON documents FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Medications are user specific" ON medications FOR ALL USING (auth.uid() = user_id);
 
