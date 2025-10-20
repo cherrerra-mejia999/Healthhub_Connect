@@ -175,8 +175,8 @@
                     }
 
                     if (data.user) {
-                        console.log('✅ Sign in successful!', data.user);
-                        showMessage('✅ Sign in successful! Redirecting...', 'success');
+                        console.log('Sign in successful!', data.user);
+                        showMessage('Sign in successful! Redirecting...', 'success');
                         
                         // Wait a moment then redirect
                         setTimeout(() => {
@@ -188,11 +188,11 @@
                     console.error('Sign in error:', error);
                     
                     if (error.message.includes('Invalid login credentials')) {
-                        showMessage('❌ Invalid email or password. Please try again.', 'error');
+                        showMessage('Invalid email or password. Please try again.', 'error');
                     } else if (error.message.includes('Email not confirmed')) {
-                        showMessage('❌ Please check your email and verify your account first.', 'error');
+                        showMessage('Please check your email and verify your account first.', 'error');
                     } else {
-                        showMessage('❌ ' + error.message, 'error');
+                        showMessage( error.message, 'error');
                     }
                 } finally {
                     submitBtn.disabled = false;

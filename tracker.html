@@ -210,7 +210,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-            console.log('✅ Supabase initialized');
+            console.log('Supabase initialized');
             checkAuth();
         });
 
@@ -246,7 +246,7 @@
                     
                     <div class="tracker-container">
                         <div class="tracker-card">
-                            <h3>📊 Enter Today's Data</h3>
+                            <h3> Enter Today's Data</h3>
                             <form id="trackerForm">
                                 <div class="form-group">
                                     <label>Date</label>
@@ -283,7 +283,7 @@
                         </div>
                         
                         <div class="tracker-card">
-                            <h3>📅 Recent History (Last 7 Days)</h3>
+                            <h3> Recent History (Last 7 Days)</h3>
                             <div id="historyList">
                                 <p>Loading history...</p>
                             </div>
@@ -291,7 +291,7 @@
                     </div>
                     
                     <div class="tracker-card" style="margin-top: 20px;">
-                        <h3>📈 All Entries</h3>
+                        <h3> All Entries</h3>
                         <div id="allHistory">
                             <p>Loading all entries...</p>
                         </div>
@@ -341,7 +341,7 @@
                 if (data && !error) {
                     todayEntry.innerHTML = `
                         <div class="current-entry">
-                            <h4>✅ Today's Entry (${new Date(data.date).toLocaleDateString()})</h4>
+                            <h4> Today's Entry (${new Date(data.date).toLocaleDateString()})</h4>
                             <div class="metrics">
                                 ${data.heart_rate ? `<span>❤️ Heart Rate: <strong>${data.heart_rate} bpm</strong></span> | ` : ''}
                                 ${data.blood_pressure ? `<span>🩺 BP: <strong>${data.blood_pressure}</strong></span> | ` : ''}
@@ -516,7 +516,7 @@
 
                 if (error) throw error;
 
-                showMessage('✅ Entry saved successfully!', 'success');
+                showMessage('Entry saved successfully!', 'success');
                 
                 // Reload data
                 loadTodayEntry();
@@ -525,7 +525,7 @@
                 
             } catch (error) {
                 console.error('Error saving entry:', error);
-                showMessage(`❌ ${error.message}`, 'error');
+                showMessage(`${error.message}`, 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Save Entry';

@@ -205,14 +205,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Check if Supabase library is loaded
             if (typeof window.supabase === 'undefined') {
-                console.error('❌ Supabase library not loaded!');
+                console.error('Supabase library not loaded');
                 document.getElementById('content').innerHTML = '<div style="text-align:center; padding:40px;"><p style="color:red;">Error: Supabase library failed to load. Please refresh the page.</p></div>';
                 return;
             }
             
             // Initialize Supabase
             supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-            console.log('✅ Supabase initialized');
+            console.log('Supabase initialized');
             
             // Wait a moment to ensure Supabase is fully ready
             setTimeout(checkAuth, 100);
@@ -220,7 +220,7 @@
 
         async function checkAuth() {
             if (!supabase) {
-                console.error('❌ Supabase not initialized');
+                console.error('Supabase not initialized');
                 return;
             }
             
@@ -324,7 +324,7 @@
             e.preventDefault();
             
             if (!supabase) {
-                showMessage('❌ System not ready. Please refresh the page.', 'error');
+                showMessage('System not ready. Please refresh the page.', 'error');
                 return;
             }
             
@@ -355,7 +355,7 @@
             document.getElementById('uploadProgress').style.display = 'block';
             
             try {
-                console.log('🚀 Starting file upload...');
+                console.log('Starting file upload...');
                 
                 // Create unique file path: userId/timestamp_filename
                 const timestamp = Date.now();
@@ -378,7 +378,7 @@
                     throw new Error(`Upload failed: ${uploadError.message}`);
                 }
                 
-                console.log('✅ File uploaded to storage:', uploadData);
+                console.log('File uploaded to storage:', uploadData);
                 
                 // Update progress
                 document.getElementById('uploadProgressBar').style.width = '80%';
@@ -402,13 +402,13 @@
                     throw new Error(`Database error: ${dbError.message}`);
                 }
                 
-                console.log('✅ Metadata saved to database:', dbData);
+                console.log('Metadata saved to database:', dbData);
                 
                 // Update progress to 100%
                 document.getElementById('uploadProgressBar').style.width = '100%';
                 document.getElementById('uploadProgressBar').textContent = '100%';
                 
-                showMessage('✅ Document uploaded successfully!', 'success');
+                showMessage('Document uploaded successfully!', 'success');
                 
                 // Reset form
                 document.getElementById('uploadForm').reset();
@@ -423,8 +423,8 @@
                 loadDocuments(currentUserId);
                 
             } catch (error) {
-                console.error('❌ Upload error:', error);
-                showMessage('❌ ' + error.message, 'error');
+                console.error('Upload error:', error);
+                showMessage(error.message, 'error');
                 document.getElementById('uploadProgress').style.display = 'none';
             } finally {
                 uploadBtn.disabled = false;
@@ -434,12 +434,12 @@
 
         async function loadDocuments(userId) {
             if (!supabase) {
-                console.error('❌ Supabase not initialized');
+                console.error('Supabase not initialized');
                 return;
             }
             
             try {
-                console.log('📄 Loading documents for user:', userId);
+                console.log('Loading documents for user:', userId);
                 
                 const { data: documents, error } = await supabase
                     .from('documents')
@@ -452,7 +452,7 @@
                     throw error;
                 }
                 
-                console.log('✅ Found', documents?.length || 0, 'documents');
+                console.log('Found', documents?.length || 0, 'documents');
 
                 const docsList = document.getElementById('documentsList');
                 
@@ -463,11 +463,11 @@
                         const sizeMB = (doc.file_size / (1024 * 1024)).toFixed(2);
                         const uploadDate = new Date(doc.uploaded_at).toLocaleString();
                         const typeLabel = {
-                            'prescription': '💊 Prescription',
-                            'lab_report': '🧪 Lab Report',
-                            'imaging': '🔬 Imaging',
-                            'other': '📄 Other'
-                        }[doc.document_type] || '📄 Document';
+                            'prescription': 'Prescription',
+                            'lab_report': 'Lab Report',
+                            'imaging': 'Imaging',
+                            'other': 'Other'
+                        }[doc.document_type] || 'Document';
                         
                         console.log('Document file path:', doc.file_path);
                         
@@ -479,10 +479,10 @@
                                 </div>
                                 <div class="document-actions">
                                     <button class="btn-view" onclick="viewDocument('${doc.file_path}', '${doc.file_name}')">
-                                        👁️ View
+                                        View
                                     </button>
                                     <button class="btn-delete" onclick="deleteDocument('${doc.document_id}', '${doc.file_path}')">
-                                        🗑️ Delete
+                                        Delete
                                     </button>
                                 </div>
                             </div>
@@ -497,7 +497,7 @@
 
         async function viewDocument(filePath, fileName) {
             if (!supabase) {
-                showMessage('❌ System not ready. Please refresh the page.', 'error');
+                showMessage('System not ready. Please refresh the page.', 'error');
                 return;
             }
             
@@ -516,7 +516,7 @@
                     throw error;
                 }
                 
-                console.log('✅ File downloaded successfully');
+                console.log('File downloaded successfully');
                 
                 // Create a blob URL and open/download it
                 const blob = new Blob([downloadData], { type: downloadData.type });
@@ -545,13 +545,13 @@
                 
             } catch (error) {
                 console.error('Error viewing document:', error);
-                showMessage('❌ Error opening document: ' + error.message, 'error');
+                showMessage('Error opening document: ' + error.message, 'error');
             }
         }
 
         async function deleteDocument(documentId, filePath) {
             if (!supabase) {
-                showMessage('❌ System not ready. Please refresh the page.', 'error');
+                showMessage('System not ready. Please refresh the page.', 'error');
                 return;
             }
             
@@ -581,14 +581,14 @@
                 
                 if (dbError) throw dbError;
                 
-                showMessage('✅ Document deleted successfully!', 'success');
+                showMessage('Document deleted successfully!', 'success');
                 
                 // Reload documents list
                 loadDocuments(currentUserId);
                 
             } catch (error) {
                 console.error('Error deleting document:', error);
-                showMessage('❌ Error deleting document: ' + error.message, 'error');
+                showMessage('Error deleting document: ' + error.message, 'error');
             }
         }
 
