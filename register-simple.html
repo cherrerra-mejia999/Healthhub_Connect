@@ -172,7 +172,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize Supabase
             supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-            console.log('✅ Supabase initialized');
+            console.log('Supabase initialized');
             
             document.getElementById('registerForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -235,17 +235,17 @@
                         throw new Error(`Authentication failed: ${authError.message}`);
                     }
 
-                    console.log('✅ Auth user created:', authData.user.id);
+                    console.log('Auth user created:', authData.user.id);
 
                     // Check if email confirmation is required
                     if (authData.session) {
                         // Email confirmation is DISABLED - we have a session!
-                        console.log('✅ Session created immediately');
+                        console.log('Session created immediately');
                         
                         // Insert into database tables
                         await insertUserData(authData.user.id, formData);
                         
-                        showMessage('✅ Account created successfully! Redirecting...', 'success');
+                        showMessage('Account created successfully! Redirecting...', 'success');
                         setTimeout(() => {
                             window.location.href = 'index.html';
                         }, 2000);
@@ -255,7 +255,7 @@
                         console.log('📧 Email confirmation required');
                         
                         showMessage(
-                            '✅ Account created! Please check your email to verify your account. After verification, your profile will be completed automatically.',
+                            'Account created! Please check your email to verify your account. After verification, your profile will be completed automatically.',
                             'info'
                         );
                         
@@ -265,8 +265,8 @@
                     }
 
                 } catch (error) {
-                    console.error('❌ Registration error:', error);
-                    showMessage('❌ ' + error.message, 'error');
+                    console.error('Registration error:', error);
+                    showMessage( error.message, 'error');
                 } finally {
                     // Reset loading state
                     submitBtn.disabled = false;
@@ -291,11 +291,11 @@
                     }]);
 
                 if (userError) {
-                    console.error('❌ User table error:', userError);
+                    console.error('User table error:', userError);
                     throw new Error(`Failed to create user record: ${userError.message}`);
                 }
                 
-                console.log('✅ User record created in users table');
+                console.log('User record created in users table');
 
                 // Insert into profiles table
                 const { error: profileError } = await supabase
@@ -308,11 +308,11 @@
                     }]);
 
                 if (profileError) {
-                    console.error('❌ Profile table error:', profileError);
+                    console.error('Profile table error:', profileError);
                     throw new Error(`Failed to create profile: ${profileError.message}`);
                 }
                 
-                console.log('✅ Profile record created in profiles table');
+                console.log('Profile record created in profiles table');
             } catch (error) {
                 throw error;
             }
