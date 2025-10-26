@@ -448,6 +448,14 @@
             supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
             const savedGoal = localStorage.getItem('calorieGoal');
             if (savedGoal) calorieGoal = parseInt(savedGoal);
+            
+            // Set up auth state listener after supabase is initialized
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                    checkAuth();
+                }
+            });
+            
             checkAuth();
         });
 
@@ -649,9 +657,11 @@
                 const todayEntry = document.getElementById('todayEntry');
                 
                 if (data && !error) {
+                    // Fix timezone issue by treating date as local
+                    const entryDate = new Date(data.date + 'T00:00:00');
                     todayEntry.innerHTML = `
                         <div class="current-entry">
-                            <h4>Today's Entry (${new Date(data.date).toLocaleDateString()})</h4>
+                            <h4>Today's Entry (${entryDate.toLocaleDateString()})</h4>
                             <div class="metrics-row">
                                 ${data.heart_rate ? `<span class="metric-item">Heart Rate: <strong>${data.heart_rate} bpm</strong></span>` : ''}
                                 ${data.blood_pressure ? `<span class="metric-item">BP: <strong>${data.blood_pressure}</strong></span>` : ''}
@@ -734,7 +744,10 @@
                 if (error) throw error;
                 if (!data || data.length === 0) return;
 
-                const dates = data.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                const dates = data.map(d => {
+                    const date = new Date(d.date + 'T00:00:00');
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
                 const steps = data.map(d => d.steps || 0);
                 const heartRates = data.map(d => d.heart_rate || null);
                 const sleepHours = data.map(d => d.sleep_cycles_hours || null);
@@ -943,9 +956,13 @@
             e.preventDefault();
             
             const submitBtn = document.getElementById('submitBtn');
+            
+            // Get the date value directly as string (YYYY-MM-DD format)
+            const dateValue = document.getElementById('entry_date').value;
+            
             const formData = {
                 user_id: currentUserId,
-                date: document.getElementById('entry_date').value,
+                date: dateValue, // Keep as string in YYYY-MM-DD format
                 heart_rate: document.getElementById('heart_rate').value ? parseInt(document.getElementById('heart_rate').value) : null,
                 blood_pressure: document.getElementById('blood_pressure').value || null,
                 sleep_cycles_hours: document.getElementById('sleep_cycles_hours').value ? parseFloat(document.getElementById('sleep_cycles_hours').value) : null,
@@ -962,6 +979,8 @@
             submitBtn.textContent = 'Saving...';
 
             try {
+                console.log('Submitting data:', formData); // Debug log
+                
                 const { error } = await supabase
                     .from('daily_tracker')
                     .upsert(formData, { onConflict: 'user_id,date' });
@@ -1065,7 +1084,7 @@
                         y = 20;
                     }
                     
-                    const date = new Date(entry.date).toLocaleDateString();
+                    const date = new Date(entry.date + 'T00:00:00').toLocaleDateString();
                     doc.setFont(undefined, 'bold');
                     doc.text(`${date}`, 20, y);
                     doc.setFont(undefined, 'normal');
@@ -1119,13 +1138,6 @@
             await supabase.auth.signOut();
             window.location.reload();
         }
-
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-                checkAuth();
-            }
-        });
     </script>
 </body>
 </html>
-
