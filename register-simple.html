@@ -223,16 +223,14 @@
                         options: {
                             emailRedirectTo: 'https://cherrerra-mejia999.github.io/signin.html',
                             data: {
-                        username: formData.username,
-                        first_name: formData.first_name,
-                        last_name: formData.last_name,
-                        phone: formData.phone,
-                        date_of_birth: formData.date_of_birth
-                    }
-                }
-            }
-});
-
+                                username: formData.username,
+                                first_name: formData.first_name,
+                                last_name: formData.last_name,
+                                phone: formData.phone,
+                                date_of_birth: formData.date_of_birth
+                            }
+                        }
+                    });
 
                     if (authError) {
                         throw new Error(`Authentication failed: ${authError.message}`);
