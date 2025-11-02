@@ -112,6 +112,18 @@
             color: #060;
             text-align: center;
         }
+
+        .info {
+            background: #e6f3ff;
+            border: 1px solid #9bcdff;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            color: #004085;
+            text-align: center;
+            font-size: 13px;
+        }
+
     </style>
 </head>
 <body>
@@ -130,6 +142,8 @@
             <button type="submit" id="submitBtn">Sign In</button>
             <p>Don't have an account? <a href="register-simple.html">Register here</a></p>
         </form>
+
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -139,76 +153,125 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhidGd3em5ldWhkcWxtcml3dmplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNDI5MTQsImV4cCI6MjA3NTkxODkxNH0.1v1OLYSEPRBKaZWQu1sJo8DoRzYePfdc7Zcs8i8TF78';
         
         let supabase;
+        let debugMode = false; // Debug mode disabled for production
+
+        function debugLog(message) {
+            console.log(message);
+            if (debugMode) {
+                const debugInfo = document.getElementById('debugInfo');
+                const debugLog = document.getElementById('debugLog');
+                debugInfo.style.display = 'block';
+                const timestamp = new Date().toLocaleTimeString();
+                debugLog.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+                debugLog.scrollTop = debugLog.scrollHeight;
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
-            supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+            debugLog('Page loaded, initializing Supabase...');
             
-            supabase.auth.onAuthStateChange(async (event, session) => {
-                if (event === "SIGNED_IN") {
-                    console.log("User signed in after email confirmation:", session);
-                    window.location.href = "index.html";
-                }
-            });
-            supabase.auth.getSessionFromUrl({ storeSession: true })
-                .then(({ data, error }) => {
-                    if (data?.session) {
-                        console.log("Session stored after redirect:", data.session);
-                        window.location.href = "index.html";
-                    } else if (error) {
-                        console.error("URL session error:", error);
-                    }
-                });
+            // Check if Supabase loaded
+            if (typeof window.supabase === 'undefined') {
+                showMessage('Error: Supabase library failed to load. Please refresh.', 'error');
+                debugLog('ERROR: Supabase library not loaded!');
+                return;
+            }
+
+            supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+            debugLog('Supabase client created');
             
             // Check if user is already logged in
-            supabase.auth.getSession().then(({ data: { session } }) => {
-                if (session) {
-                    console.log('User already logged in, redirecting...');
-                    window.location.href = 'index.html';
+            supabase.auth.getSession().then(({ data: { session }, error }) => {
+                if (error) {
+                    debugLog('Session check error: ' + error.message);
+                } else if (session) {
+                    debugLog('User already logged in! Redirecting...');
+                    showMessage('Already logged in! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 500);
+                } else {
+                    debugLog('No active session found');
                 }
             });
 
+            // Listen for auth state changes
+            supabase.auth.onAuthStateChange((event, session) => {
+                debugLog(`Auth state changed: ${event}`);
+                if (event === 'SIGNED_IN' && session) {
+                    debugLog('Sign in detected! Session: ' + (session ? 'YES' : 'NO'));
+                    showMessage('Sign in successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                }
+            });
+
+            // Handle form submission
             document.getElementById('signinForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
+                debugLog('Form submitted');
                 
                 const submitBtn = document.getElementById('submitBtn');
-                const email = document.getElementById('email').value;
+                const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
+
+                // Validation
+                if (!email || !password) {
+                    showMessage('Please enter both email and password.', 'error');
+                    debugLog('Validation failed: missing email or password');
+                    return;
+                }
 
                 // Show loading state
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Signing In...';
+                debugLog(`Attempting sign in for: ${email}`);
 
                 try {
-                    console.log('Attempting sign in...');
                     const { data, error } = await supabase.auth.signInWithPassword({
                         email: email,
                         password: password,
                     });
 
                     if (error) {
-                        console.error('Sign in error:', error);
+                        debugLog('Sign in error: ' + error.message);
                         throw error;
                     }
 
-                    if (data.user) {
-                        console.log('Sign in successful!', data.user);
+                    debugLog('Sign in response received');
+                    debugLog('User: ' + (data.user ? data.user.id : 'null'));
+                    debugLog('Session: ' + (data.session ? 'YES' : 'NO'));
+
+                    if (data.user && data.session) {
+                        debugLog('✓ Sign in successful! User authenticated.');
                         showMessage('Sign in successful! Redirecting...', 'success');
                         
-                        // Wait a moment then redirect
+                        // Wait a moment for session to be fully established
                         setTimeout(() => {
+                            debugLog('Redirecting to index.html...');
                             window.location.href = 'index.html';
-                        }, 1000);
+                        }, 1500);
+                    } else if (data.user && !data.session) {
+                        debugLog('⚠ User exists but no session - likely email not confirmed');
+                        showMessage('Please verify your email address before signing in.', 'error');
+                    } else {
+                        debugLog('⚠ Unexpected response - no user or session');
+                        showMessage('Sign in failed. Please try again.', 'error');
                     }
 
                 } catch (error) {
-                    console.error('Sign in error:', error);
+                    debugLog('Exception caught: ' + error.message);
+                    console.error('Full error:', error);
                     
                     if (error.message.includes('Invalid login credentials')) {
                         showMessage('Invalid email or password. Please try again.', 'error');
                     } else if (error.message.includes('Email not confirmed')) {
                         showMessage('Please check your email and verify your account first.', 'error');
+                    } else if (error.message.includes('fetch')) {
+                        showMessage('Network error. Please check your internet connection.', 'error');
                     } else {
-                        showMessage( error.message, 'error');
+                        showMessage('Error: ' + error.message, 'error');
                     }
                 } finally {
                     submitBtn.disabled = false;
@@ -218,11 +281,18 @@
         });
 
         function showMessage(message, type) {
-            document.getElementById('message').innerHTML = message;
-            document.getElementById('message').className = type === 'error' ? 'error' : 'success';
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = message;
+            messageDiv.className = type === 'error' ? 'error' : (type === 'info' ? 'info' : 'success');
+            
+            // Auto-clear success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageDiv.innerHTML = '';
+                    messageDiv.className = '';
+                }, 5000);
+            }
         }
     </script>
 </body>
 </html>
-
-
