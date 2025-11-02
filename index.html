@@ -3,21 +3,432 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Healthub Connect</title>
-    <link rel="stylesheet" href="index_styles.css">
+    <title>HealthHub Connect - Your Health, Connected</title>
     <style>
-        /* Chat Bubble Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8fafc;
+        }
+
+        /* Header/Navigation */
+        .header {
+            background: #00d4d4;
+            color: #1e293b;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-section img {
+            height: 50px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #1e293b;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        .user-greeting {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #5b21b6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4c1d95;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #1e293b;
+            border: 2px solid #1e293b;
+        }
+
+        .btn-secondary:hover {
+            background: #1e293b;
+            color: white;
+        }
+
+        /* Navigation Pills */
+        .nav-section {
+            background: white;
+            padding: 20px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .nav-pills {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .nav-pills a {
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            color: #5b21b6;
+            background: #f1f5f9;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .nav-pills a:hover {
+            background: #5b21b6;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: #00d4d4;
+            background-image: url('hero-background.png');
+            background-size: cover;
+            background-position: center;
+            color: #1e293b;
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 212, 212, 0.85);
+            z-index: 1;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 30px;
+            color: #1e293b;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-large {
+            padding: 14px 32px;
+            font-size: 16px;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+
+        .section-header p {
+            font-size: 18px;
+            color: #64748b;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(91, 33, 182, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(91, 33, 182, 0.15);
+            border-color: #5b21b6;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: #5b21b6;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card p {
+            color: #64748b;
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Image Section */
+        .image-section {
+            background: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .image-section img {
+            max-width: 800px;
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        /* Monitoring Section */
+        .monitoring-section {
+            background: white;
+            padding: 80px 20px;
+        }
+
+        .monitoring-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .monitoring-text h2 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .monitoring-text p {
+            font-size: 18px;
+            color: #64748b;
+            margin-bottom: 30px;
+            line-height: 1.7;
+        }
+
+        .monitoring-image img {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 12px 24px rgba(91, 33, 182, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .monitoring-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: #00d4d4;
+            color: #1e293b;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        /* Trust Section */
+        .trust-section {
+            background: #f8fafc;
+            padding: 80px 20px;
+        }
+
+        .trust-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .trust-content h2 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 60px;
+        }
+
+        .trust-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 50px;
+        }
+
+        .trust-item {
+            text-align: center;
+        }
+
+        .trust-item img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .trust-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .trust-item h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+
+        .trust-item p {
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1e293b;
+        }
+
+        .cta-section p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            color: #1e293b;
+        }
+
+        /* Chat Bubble */
         .chat-bubble-trigger {
             position: fixed;
             bottom: 30px;
             right: 30px;
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #5b21b6;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            display: flex;
+            box-shadow: 0 4px 20px rgba(91, 33, 182, 0.4);
+            display: none;
             align-items: center;
             justify-content: center;
             z-index: 1000;
@@ -26,6 +437,10 @@
 
         .chat-bubble-trigger:hover {
             transform: scale(1.1);
+        }
+
+        .chat-bubble-trigger.show {
+            display: flex;
         }
 
         .chat-bubble-trigger svg {
@@ -38,6 +453,7 @@
             display: none;
         }
 
+        /* Chat Window */
         .chat-window {
             position: fixed;
             bottom: 30px;
@@ -45,8 +461,8 @@
             width: 380px;
             height: 550px;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
             display: none;
             flex-direction: column;
             z-index: 1001;
@@ -70,9 +486,9 @@
         }
 
         .chat-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #5b21b6;
             color: white;
-            padding: 16px;
+            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -80,7 +496,7 @@
 
         .chat-header h3 {
             margin: 0;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
         }
 
@@ -88,11 +504,11 @@
             background: none;
             border: none;
             color: white;
-            font-size: 24px;
+            font-size: 28px;
             cursor: pointer;
             padding: 0;
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -106,38 +522,39 @@
 
         .chat-body {
             flex: 1;
-            padding: 16px;
+            padding: 20px;
             overflow-y: auto;
-            background: #f7f7fb;
+            background: #f8fafc;
         }
 
         .chat-footer {
             display: flex;
-            gap: 8px;
-            padding: 12px;
-            border-top: 1px solid #e5e5e5;
+            gap: 10px;
+            padding: 15px;
+            border-top: 1px solid #e2e8f0;
             background: white;
         }
 
         .chat-input {
             flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 20px;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 24px;
             font-size: 14px;
             outline: none;
+            transition: border-color 0.3s;
         }
 
         .chat-input:focus {
-            border-color: #667eea;
+            border-color: #5b21b6;
         }
 
         .chat-send-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #5b21b6;
             color: white;
             border: none;
-            padding: 10px 18px;
-            border-radius: 20px;
+            padding: 12px 20px;
+            border-radius: 24px;
             cursor: pointer;
             font-weight: 600;
             font-size: 14px;
@@ -155,7 +572,7 @@
 
         .msg {
             display: flex;
-            margin: 10px 0;
+            margin: 15px 0;
             max-width: 85%;
         }
 
@@ -170,97 +587,268 @@
         }
 
         .bubble {
-            padding: 10px 14px;
+            padding: 12px 16px;
             border-radius: 16px;
             font-size: 14px;
-            line-height: 1.4;
+            line-height: 1.5;
             white-space: pre-wrap;
             word-wrap: break-word;
         }
 
         .bubble.user {
-            background: #f2f2f7;
-            color: #333;
+            background: #f1f5f9;
+            color: #1e293b;
+            border-bottom-right-radius: 4px;
         }
 
         .bubble.ai {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #5b21b6;
             color: white;
+            border-bottom-left-radius: 4px;
         }
 
+        /* Footer */
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .footer p {
+            margin: 10px 0;
+            opacity: 0.8;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .hero p {
+                font-size: 18px;
+            }
+
+            .section-header h2 {
+                font-size: 28px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
             .chat-window {
                 width: calc(100% - 40px);
                 height: calc(100% - 40px);
                 bottom: 20px;
                 right: 20px;
             }
-            
+
             .chat-bubble-trigger {
                 bottom: 20px;
                 right: 20px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .user-info {
+                flex-direction: column;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-large {
+                width: 100%;
+                max-width: 300px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="Title">
-        <img src="healthhub-logo.svg" alt="HealthHub Connect Logo" style="width:300px;">
-        <h1>Welcome to Healthub Connect!</h1>
-        <div id="userInfo" style="margin:0; text-align: center;"></div>
-    </div>
-    
-    <div class="top-bar">
-        <button class="signin-btn" onclick="location.href='signin.html'">Sign In</button>
-    </div>
-    
-    <hr>
-    
-    <h2 class="Navigations">
-        <a href="documents.html">Documents</a>
-        <a href="tracker.html">Trackers</a>
-        <a href="appointments.html">Appointments</a>
-        <a href="insurance.html">Insurance Hub</a>
-        <a href="summaries.html">Visit Summaries</a>
-        <a href="family.html">Family Access</a>
-        <a href="payments.html">Payments</a>
-        <a href="support.html">Support Call Center</a>
-        <a href="links.html">Helpful Links</a>
-        <a href="about.html">About</a>
-    </h2>
-    
-    <hr>
-    
-    <section>
-        <h2>About Healthub Connect</h2>
-        <p>
-            Healthub Connect is a modern health platform that helps users manage
-            their personal and medical data efficiently. From tracking your daily
-            vitals to managing appointments, our mission is to keep you connected to
-            your health.
-        </p>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="healthhub-logo.svg" alt="HealthHub Connect Logo">
+                <div class="logo-text">HealthHub Connect</div>
+            </div>
+            <div class="user-info">
+                <div id="userGreeting" class="user-greeting"></div>
+                <button class="btn btn-primary" id="authButton" onclick="handleAuth()">Sign In</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Pills -->
+    <nav class="nav-section">
+        <div class="nav-pills">
+            <a href="index.html">Home</a>
+            <a href="documents.html">Documents</a>
+            <a href="tracker.html">Trackers</a>
+            <a href="appointments.html">Appointments</a>
+            <a href="insurance.html">Insurance Hub</a>
+            <a href="summaries.html">Visit Summaries</a>
+            <a href="family.html">Family Access</a>
+            <a href="payments.html">Payments</a>
+            <a href="support.html">Support Call Center</a>
+            <a href="links.html">Helpful Links</a>
+            <a href="about.html">About</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Your Health, Connected</h1>
+            <p>A modern health platform that helps you manage your personal and medical data efficiently. Track vitals, manage appointments, and stay connected to your health.</p>
+            <div class="hero-buttons" id="heroButtons">
+                <a href="register-simple.html" class="btn btn-secondary btn-large">Get Started Free</a>
+                <a href="#features" class="btn btn-primary btn-large">Learn More</a>
+            </div>
+        </div>
     </section>
-    
-    <section>
-        <h2>Core Features</h2>
-        <ul>
-            <li>Upload and access health documents anytime</li>
-            <li>Track your heart rate and blood sugar daily</li>
-            <li>Set reminders for medication and appointments</li>
-            <li>Communicate directly with a medical AI chatbot</li>
-            <li>Securely manage insurance and payment details</li>
-            <li>And more</li>  
-        </ul>
+
+    <!-- Health Monitoring Visualization -->
+    <section class="monitoring-section">
+        <div class="monitoring-content">
+            <div class="monitoring-text">
+                <h2>Real-Time Health Monitoring</h2>
+                <p>Track your vitals with beautiful, intuitive visualizations. Monitor your heart rate, sleep patterns, activity levels, and more - all in one place.</p>
+                <a href="tracker.html" class="btn btn-primary btn-large">Start Tracking</a>
+            </div>
+            <div class="monitoring-image">
+                <img src="health-monitoring.png" alt="Health Monitoring Visualization">
+            </div>
+        </div>
     </section>
-    <div style="text-align:center;">
-        <img src="health_placeholder.jpeg" alt="Healthub Connect" style="width:100%;max-width:600px;">
-    </div>
-    <div id="registerSection" style="text-align: center; margin: 20px 0;">
-        <a href="register-simple.html" class="signin-btn" style="display: inline-block; text-decoration: none;">Get Started - Register Now</a>
-    </div>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <h2>Everything You Need</h2>
+            <p>Comprehensive health management tools designed for your peace of mind</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                </div>
+                <h3>Document Storage</h3>
+                <p>Upload and access your health documents anytime, anywhere. Keep all your medical records in one secure place.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                </div>
+                <h3>Health Tracking</h3>
+                <p>Track your heart rate, blood pressure, sleep, and daily activity. Visualize your health trends with beautiful charts.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                </div>
+                <h3>Medication Reminders</h3>
+                <p>Never miss a dose with smart medication reminders and refill notifications tailored to your schedule.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </div>
+                <h3>AI Health Assistant</h3>
+                <p>Get instant answers to your health questions with our medical AI chatbot, available 24/7.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <h3>Secure & Private</h3>
+                <p>Your data is encrypted and protected. We take your privacy seriously with industry-leading security.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <h3>Family Access</h3>
+                <p>Manage health records for your entire family in one place. Perfect for parents and caregivers.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Image Section -->
+    <section class="image-section">
+        <img src="dashboard-preview.png" alt="HealthHub Connect Dashboard Preview">
+    </section>
+
+    <!-- Trust Section -->
+    <section class="trust-section">
+        <div class="trust-content">
+            <h2>Why Choose HealthHub Connect?</h2>
+            <div class="trust-grid">
+                <div class="trust-item">
+                    <img src="heart-icon.png" alt="Patient Care">
+                    <h3>Patient-Centered</h3>
+                    <p>Designed with your health and convenience in mind</p>
+                </div>
+                <div class="trust-item">
+                    <img src="shield-icon.png" alt="Secure">
+                    <h3>Bank-Level Security</h3>
+                    <p>Your health data is encrypted and fully protected</p>
+                </div>
+                <div class="trust-item">
+                    <img src="check-icon.png" alt="Trusted">
+                    <h3>HIPAA Compliant</h3>
+                    <p>Meeting all healthcare privacy standards</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section" id="ctaSection">
+        <h2>Ready to Take Control of Your Health?</h2>
+        <p>Join thousands of users who trust HealthHub Connect for their health management</p>
+        <a href="register-simple.html" class="btn btn-primary btn-large">Create Free Account</a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p><strong>HealthHub Connect</strong></p>
+        <p>Your health, your data, your peace of mind</p>
+        <p>&copy; 2025 HealthHub Connect. All rights reserved.</p>
+    </footer>
 
     <!-- Chat Bubble (only shown when logged in) -->
-    <div id="chatBubbleTrigger" class="chat-bubble-trigger" style="display: none;" onclick="openChat()">
+    <div id="chatBubbleTrigger" class="chat-bubble-trigger" onclick="openChat()">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
             <path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/>
@@ -293,52 +881,44 @@
         let convo = [];
         let isLoggedIn = false;
 
-        // Wait for everything to load
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Supabase
             supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
             console.log('Supabase initialized');
             
-            // Check auth state
             checkAuthState();
-            
-            // Initialize chat conversation
             initializeChat();
         });
 
         async function checkAuthState() {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
-                const authButton = document.querySelector('.signin-btn');
-                const userInfo = document.getElementById('userInfo');
+                const authButton = document.getElementById('authButton');
+                const userGreeting = document.getElementById('userGreeting');
                 const chatBubble = document.getElementById('chatBubbleTrigger');
-                const registerSection = document.getElementById('registerSection');
+                const ctaSection = document.getElementById('ctaSection');
+                const heroButtons = document.getElementById('heroButtons');
                 
                 console.log('Auth check:', session);
 
                 if (session && session.user) {
-                    // User is signed in
                     isLoggedIn = true;
-                    const firstName = session.user.user_metadata?.first_name || session.user.email;
-                    userInfo.innerHTML = `Hello, ${firstName} — <a href="#" onclick="signOut(); return false;">Sign Out</a>`;
+                    const firstName = session.user.user_metadata?.first_name || session.user.email.split('@')[0];
+                    userGreeting.textContent = `Hello, ${firstName}!`;
                     authButton.textContent = 'Sign Out';
                     authButton.onclick = signOut;
                     
-                    // Show chat bubble and hide register section
-                    chatBubble.style.display = 'flex';
-                    if (registerSection) registerSection.style.display = 'none';
+                    chatBubble.classList.add('show');
+                    if (ctaSection) ctaSection.style.display = 'none';
+                    if (heroButtons) heroButtons.style.display = 'none';
                 } else {
-                    // User is signed out
                     isLoggedIn = false;
-                    userInfo.innerHTML = '';
+                    userGreeting.textContent = '';
                     authButton.textContent = 'Sign In';
                     authButton.onclick = function() {
                         window.location.href = 'signin.html';
                     };
                     
-                    // Hide chat bubble and show register section
-                    chatBubble.style.display = 'none';
-                    if (registerSection) registerSection.style.display = 'block';
+                    chatBubble.classList.remove('show');
                     closeChat();
                 }
             } catch (error) {
@@ -347,7 +927,6 @@
         }
 
         function initializeChat() {
-            // Initialize conversation with system message
             convo = [{
                 role: "system",
                 content: "You are a professional medical assistant. Keep answers short, factual, direct, and medically accurate. You only answer medical-related questions. If a question is not medical, respond with: 'Sorry, I can only answer medical-related questions.' If a request is unsafe (self-harm, drugs, medical prescriptions, or illegal topics), respond with: 'I can't help with that. Please contact a licensed medical professional or emergency services if needed.' Never break character. Do not provide emotional therapy."
@@ -363,13 +942,11 @@
             chatWindow.classList.add('open');
             chatBubble.classList.add('open');
             
-            // Show greeting if no messages yet
             const chatBody = document.getElementById('chatBody');
             if (chatBody.children.length === 0) {
-                addMessage('ai', "Hello. I am the AI Health Assistant. I can help answer health questions and provide medical information. How may I assist you?");
+                addMessage('ai', "Hello! I'm your AI Health Assistant. I can help answer health questions and provide medical information. How may I assist you?");
             }
             
-            // Focus input
             document.getElementById('chatInput').focus();
         }
 
@@ -400,20 +977,16 @@
             const text = input.value.trim();
             if (!text) return;
 
-            // Add user message
             addMessage('user', text);
             convo.push({ role: 'user', content: text });
             input.value = '';
 
-            // Disable send button
             const sendBtn = document.getElementById('chatSendBtn');
             sendBtn.disabled = true;
             sendBtn.textContent = 'Thinking...';
 
-            // Call AI
             await callAI();
             
-            // Re-enable send button
             sendBtn.disabled = false;
             sendBtn.textContent = 'Send';
         }
@@ -454,14 +1027,16 @@
                 if (error) throw error;
                 
                 console.log('Signed out successfully');
-                // Refresh the page to update UI
                 window.location.reload();
             } catch (error) {
                 console.error('Sign out error:', error);
             }
         }
 
-        // Listen for auth state changes
+        function handleAuth() {
+            window.location.href = 'signin.html';
+        }
+
         supabase.auth.onAuthStateChange((event, session) => {
             console.log('Auth state changed:', event);
             checkAuthState();
