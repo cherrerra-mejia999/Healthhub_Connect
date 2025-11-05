@@ -64,8 +64,16 @@
         }
 
         .user-greeting {
-            font-weight: 500;
+            font-weight: 600;
             color: #1e293b;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .user-greeting:hover {
+            background: rgba(30, 41, 59, 0.1);
         }
 
         .btn {
@@ -692,14 +700,10 @@
         <div class="nav-pills">
             <a href="index.html">Home</a>
             <a href="documents.html">Documents</a>
-            <a href="tracker.html">Trackers</a>
+            <a href="tracker.html">Health Tracker</a>
             <a href="appointments.html">Appointments</a>
-            <a href="insurance.html">Insurance Hub</a>
-            <a href="summaries.html">Visit Summaries</a>
-            <a href="family.html">Family Access</a>
-            <a href="payments.html">Payments</a>
-            <a href="support.html">Support Call Center</a>
-            <a href="links.html">Helpful Links</a>
+            <a href="medications.html">Medications</a>
+            <a href="support.html">Support</a>
             <a href="about.html">About</a>
         </div>
     </nav>
@@ -904,6 +908,10 @@
                     isLoggedIn = true;
                     const firstName = session.user.user_metadata?.first_name || session.user.email.split('@')[0];
                     userGreeting.textContent = `Hello, ${firstName}!`;
+                    userGreeting.style.cursor = 'pointer';
+                    userGreeting.onclick = function() {
+                        window.location.href = 'profile.html';
+                    };
                     authButton.textContent = 'Sign Out';
                     authButton.onclick = signOut;
                     
@@ -913,6 +921,8 @@
                 } else {
                     isLoggedIn = false;
                     userGreeting.textContent = '';
+                    userGreeting.style.cursor = 'default';
+                    userGreeting.onclick = null;
                     authButton.textContent = 'Sign In';
                     authButton.onclick = function() {
                         window.location.href = 'signin.html';
@@ -1027,7 +1037,7 @@
                 if (error) throw error;
                 
                 console.log('Signed out successfully');
-                window.location.reload();
+                window.location.href = 'index.html';
             } catch (error) {
                 console.error('Sign out error:', error);
             }
