@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Health Resources - HealthHub Connect</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f8fafc;
+    }
+
+    /* Header */
+    .header {
+      background: #00d4d4;
+      color: #1e293b;
+      padding: 1.5rem 0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1001;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-section img {
+      height: 50px;
+    }
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 14px;
+    }
+
+    .user-greeting {
+      font-weight: 600;
+      color: #1e293b;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .user-greeting:hover {
+      background: rgba(30, 41, 59, 0.1);
+    }
+
+    .btn {
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: #5b21b6;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #4c1d95;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+    }
+
+    .btn-secondary {
+  background: transparent;
+  color: #1e293b;
+  border: 2px solid #1e293b;
+}
+
+.btn-secondary:hover {
+  background: #1e293b;
+  color: white;
+}
+
+
+    /* Navigation */
+    .nav-section {
+      background: white;
+      padding: 20px 0;
+      border-bottom: 1px solid #e2e8f0;
+      position: relative;
+      z-index: 500;
+    }
+
+    .nav-pills {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .nav-pills a {
+      padding: 10px 20px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: 600;
+      color: #5b21b6;
+      background: #f1f5f9;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+
+    .nav-pills a:hover {
+      background: #5b21b6;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+    }
+
+    .nav-pills a.active {
+      background: #5b21b6;
+      color: white;
+    }
+
+    /* Page layout */
+    section {
+      padding: 40px 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .page-title {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .page-title h1 {
+      font-size: 36px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 10px;
+    }
+
+    .page-title p {
+      font-size: 18px;
+      color: #64748b;
+    }
+
+    /* Resource Cards */
+    .resource-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .resource-card {
+      background: white;
+      border-left: 4px solid #5b21b6;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+    }
+
+    .resource-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .resource-card h3 {
+      color: #1e293b;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .resource-card p {
+      color: #64748b;
+      margin-bottom: 5px;
+    }
+
+    .resource-card a {
+      color: #5b21b6;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .resource-card a:hover {
+      text-decoration: underline;
+    }
+
+    /* Footer */
+    .footer {
+      background: #1e293b;
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+      margin-top: 60px;
+    }
+
+    .footer p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo-section">
+        <img src="healthhub-logo.svg" alt="HealthHub Connect Logo">
+        <div class="logo-text">HealthHub Connect</div>
+      </div>
+      <div class="user-info">
+        <span class="user-greeting" id="userGreeting"></span>
+        <button id="authButton" class="btn btn-primary" onclick="handleAuth()">Sign In</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav class="nav-section">
+    <div class="nav-pills">
+      <a href="index.html">Home</a>
+      <a href="documents.html">Documents</a>
+      <a href="tracker.html">Health Tracker</a>
+      <a href="appointments.html">Appointments</a>
+      <a href="medications.html">Medications</a>
+      <a href="support.html">Support</a>
+      <a href="helpfullink.html" class="active">Helpful Links</a>
+    </div>
+  </nav>
+
+  <!-- Resource Section -->
+  <section>
+    <div class="page-title">
+      <h1>Health Resources</h1>
+      <p>Explore trusted medical websites for accurate information and support</p>
+    </div>
+
+    <div class="resource-list">
+      <div class="resource-card">
+        <h3>Centers for Disease Control and Prevention (CDC)</h3>
+        <p>Authoritative source for public health information and disease prevention.</p>
+        <p><a href="https://www.cdc.gov" target="_blank">Visit CDC.gov →</a></p>
+      </div>
+
+      <div class="resource-card">
+        <h3>Mayo Clinic</h3>
+        <p>Comprehensive medical information from top healthcare professionals.</p>
+        <p><a href="https://www.mayoclinic.org" target="_blank">Visit MayoClinic.org →</a></p>
+      </div>
+
+      <div class="resource-card">
+        <h3>WebMD</h3>
+        <p>Easy-to-understand health guides and symptom checker for patients.</p>
+        <p><a href="https://www.webmd.com" target="_blank">Visit WebMD.com →</a></p>
+      </div>
+
+      <div class="resource-card">
+        <h3>National Institutes of Health (NIH)</h3>
+        <p>Official U.S. medical research agency providing science-based health resources.</p>
+        <p><a href="https://www.nih.gov" target="_blank">Visit NIH.gov →</a></p>
+      </div>
+
+      <div class="resource-card">
+        <h3>MedlinePlus</h3>
+        <p>Trusted health information curated by the U.S. National Library of Medicine.</p>
+        <p><a href="https://medlineplus.gov" target="_blank">Visit MedlinePlus.gov →</a></p>
+      </div>
+
+      <div class="resource-card">
+        <h3>World Health Organization (WHO)</h3>
+        <p>International health updates, disease data, and wellness programs.</p>
+        <p><a href="https://www.who.int" target="_blank">Visit WHO.int →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p><strong>HealthHub Connect</strong></p>
+    <p>Your health, your data, your peace of mind</p>
+    <p>&copy; 2025 HealthHub Connect. All rights reserved.</p>
+  </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+        const supabaseUrl = 'https://hbtgwzneuhdqlmriwvje.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhidGd3em5ldWhkcWxtcml3dmplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNDI5MTQsImV4cCI6MjA3NTkxODkxNH0.1v1OLYSEPRBKaZWQu1sJo8DoRzYePfdc7Zcs8i8TF78';
+        let supabase;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (typeof window.supabase === 'undefined') {
+                console.error('Supabase not loaded');
+                return;
+            }
+
+            supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            const authButton = document.getElementById('authButton');
+            const userGreeting = document.getElementById('userGreeting');
+
+            if (session && session.user) {
+                const firstName = session.user.user_metadata?.first_name || session.user.email.split('@')[0];
+                userGreeting.textContent = `Hello, ${firstName}!`;
+                authButton.textContent = 'Sign Out';
+                authButton.classList.remove('btn-secondary');
+                authButton.classList.add('btn-primary');
+                authButton.onclick = signOut;
+            } else {
+                userGreeting.textContent = '';
+                authButton.textContent = 'Sign In';
+                authButton.classList.remove('btn-primary');
+                authButton.classList.add('btn-secondary');
+                authButton.onclick = () => window.location.href = 'signin.html';
+            }
+        });
+
+        async function signOut() {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        function handleAuth() {
+            window.location.href = 'signin.html';
+        }
+    </script>
+</body>
+</html>
