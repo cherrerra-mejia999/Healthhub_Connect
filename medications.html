@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medication Tracker - HealthHub Connect</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8fafc;
+        }
+
+        /* Header/Navigation */
+        .header {
+            background: #00d4d4;
+            color: #1e293b;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        .user-greeting {
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .user-greeting:hover {
+            background: rgba(30, 41, 59, 0.1);
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #5b21b6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4c1d95;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #1e293b;
+            border: 2px solid #1e293b;
+        }
+
+        .btn-secondary:hover {
+            background: #1e293b;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        /* Navigation Pills */
+        .nav-section {
+            background: white;
+            padding: 20px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .nav-pills {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .nav-pills a {
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            color: #5b21b6;
+            background: #f1f5f9;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .nav-pills a:hover {
+            background: #5b21b6;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+        }
+
+        .nav-pills a.active {
+            background: #5b21b6;
+            color: white;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .page-header p {
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        /* Notification Banner */
+        .notification-banner {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .notification-banner.show {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notification-banner strong {
+            color: #856404;
+        }
+
+        .notification-banner button {
+            margin-left: auto;
+        }
+
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        .card h2 {
+            color: #5b21b6;
+            margin-bottom: 20px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #e0d5f7;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .card h3 {
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #5b21b6;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Time Input Container */
+        .time-inputs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .time-input-group {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .time-input-group input {
+            width: 100px;
+        }
+
+        .time-input-group button {
+            padding: 8px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Medication List */
+        .medication-item {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #5b21b6;
+        }
+
+        .medication-item.inactive {
+            opacity: 0.6;
+            border-left-color: #94a3b8;
+        }
+
+        .medication-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .medication-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #1e293b;
+        }
+
+        .medication-dosage {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .medication-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .medication-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .medication-detail {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .detail-value {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        /* Schedule Item */
+        .schedule-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #ffc107;
+        }
+
+        .schedule-item.taken {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+
+        .schedule-item.skipped {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        .schedule-time {
+            font-weight: 700;
+            color: #5b21b6;
+            font-size: 16px;
+        }
+
+        .schedule-medication {
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        .schedule-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Refill Alert */
+        .refill-alert {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .refill-alert.urgent {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .refill-medication {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 15px;
+        }
+
+        .refill-date {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Doctor's Note */
+        .doctors-note {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .doctors-note.completed {
+            opacity: 0.6;
+            border-color: #94a3b8;
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .note-title {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .note-doctor {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .note-content {
+            color: #1e293b;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .note-reminder {
+            color: #2196f3;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Log Entry */
+        .log-entry {
+            padding: 12px;
+            border-left: 4px solid #94a3b8;
+            background: #f8fafc;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .log-entry.error {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .log-entry.info {
+            border-left-color: #2196f3;
+            background: #f0f9ff;
+        }
+
+        .log-entry.success {
+            border-left-color: #28a745;
+            background: #f0fdf4;
+        }
+
+        .log-time {
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .log-message {
+            color: #1e293b;
+            margin-top: 5px;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background: #e0d5f7;
+            color: #5b21b6;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #28a745;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .empty-state h3 {
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #64748b;
+            line-height: 1;
+        }
+
+        .close-modal:hover {
+            color: #1e293b;
+        }
+
+        /* Message */
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1e293b;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 60px;
+        }
+
+        .footer p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-text">HealthHub Connect</div>
+            </div>
+            <div class="user-info">
+                <span class="user-greeting" id="userGreeting"></span>
+                <button id="authButton" class="btn btn-secondary">Sign In</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-section">
+        <div class="nav-pills">
+            <a href="index.html">Home</a>
+            <a href="documents.html">Documents</a>
+            <a href="tracker.html">Health Tracker</a>
+            <a href="appointments.html">Appointments</a>
+            <a href="medications.html" class="active">Medications</a>
+            <a href="support.html">Support</a>
+            <a href="about.html">About</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Medication Tracker</h1>
+            <p>Manage your medications, track doses, and never miss a refill</p>
+        </div>
+
+        <!-- Notification Permission Banner -->
+        <div id="notificationBanner" class="notification-banner">
+            <span><strong>Enable Notifications:</strong> Receive medication reminders at scheduled times</span>
+            <button onclick="requestNotificationPermission()" class="btn btn-primary btn-small">Enable Notifications</button>
+            <button onclick="dismissNotificationBanner()" class="btn btn-secondary btn-small">Later</button>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Today's Schedule -->
+            <div class="card">
+                <h2>Today's Schedule</h2>
+                <div id="todaySchedule">
+                    <div class="loading">Loading schedule...</div>
+                </div>
+            </div>
+
+            <!-- Upcoming Refills -->
+            <div class="card">
+                <h2>Upcoming Refills</h2>
+                <div id="upcomingRefills">
+                    <div class="loading">Loading refills...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Medication -->
+        <div class="card full-width">
+            <h2>Add New Medication</h2>
+            <form id="medicationForm" onsubmit="addMedication(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Medication Name *</label>
+                        <input type="text" id="medicationName" required placeholder="e.g., Aspirin">
+                    </div>
+                    <div class="form-group">
+                        <label>Dosage *</label>
+                        <input type="text" id="dosage" required placeholder="e.g., 100mg">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Frequency *</label>
+                        <select id="frequency" required>
+                            <option value="">Select frequency...</option>
+                            <option value="once daily">Once Daily</option>
+                            <option value="twice daily">Twice Daily</option>
+                            <option value="three times daily">Three Times Daily</option>
+                            <option value="every 4 hours">Every 4 Hours</option>
+                            <option value="every 6 hours">Every 6 Hours</option>
+                            <option value="every 8 hours">Every 8 Hours</option>
+                            <option value="every 12 hours">Every 12 Hours</option>
+                            <option value="as needed">As Needed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Refill Date</label>
+                        <input type="date" id="refillDate">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Time(s) of Day *</label>
+                    <div class="time-inputs" id="timeInputs">
+                        <div class="time-input-group">
+                            <input type="time" class="time-input" value="08:00" required>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addTimeInput()" class="btn btn-secondary btn-small" style="margin-top: 10px;">Add Time</button>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Prescription Number</label>
+                        <input type="text" id="prescriptionNumber" placeholder="Optional">
+                    </div>
+                    <div class="form-group">
+                        <label>Prescribing Doctor</label>
+                        <input type="text" id="prescribingDoctor" placeholder="Optional">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Pharmacy Name</label>
+                    <input type="text" id="pharmacyName" placeholder="Optional">
+                </div>
+
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="notes" rows="3" placeholder="Any special instructions..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-success">Add Medication</button>
+            </form>
+        </div>
+
+        <!-- My Medications -->
+        <div class="card full-width">
+            <h2>My Medications</h2>
+            <div id="medicationsList">
+                <div class="loading">Loading medications...</div>
+            </div>
+        </div>
+
+        <!-- Doctor's Notes -->
+        <div class="card full-width">
+            <h2>Doctor's Notes</h2>
+            <button onclick="openDoctorNoteModal()" class="btn btn-primary btn-small" style="margin-bottom: 15px;">Add Doctor's Note</button>
+            <div id="doctorsNotes">
+                <div class="loading">Loading notes...</div>
+            </div>
+        </div>
+
+        <!-- Activity Logs -->
+        <div class="card full-width">
+            <h2>Activity & Error Logs</h2>
+            <div id="activityLogs">
+                <div class="loading">Loading logs...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Medication Modal -->
+    <div id="editMedicationModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeEditMedicationModal()">&times;</span>
+            <h3>Edit Medication</h3>
+            <div id="editMessage"></div>
+            <form id="editMedicationForm" onsubmit="updateMedication(event)">
+                <input type="hidden" id="editMedicationId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Medication Name *</label>
+                        <input type="text" id="editMedicationName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Dosage *</label>
+                        <input type="text" id="editDosage" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Frequency *</label>
+                        <select id="editFrequency" required>
+                            <option value="once daily">Once Daily</option>
+                            <option value="twice daily">Twice Daily</option>
+                            <option value="three times daily">Three Times Daily</option>
+                            <option value="every 4 hours">Every 4 Hours</option>
+                            <option value="every 6 hours">Every 6 Hours</option>
+                            <option value="every 8 hours">Every 8 Hours</option>
+                            <option value="every 12 hours">Every 12 Hours</option>
+                            <option value="as needed">As Needed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Refill Date</label>
+                        <input type="date" id="editRefillDate">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Prescribing Doctor</label>
+                    <input type="text" id="editPrescribingDoctor">
+                </div>
+
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="editNotes" rows="3"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-success" style="flex: 1;">Update Medication</button>
+                    <button type="button" onclick="closeEditMedicationModal()" class="btn btn-secondary" style="flex: 1;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Doctor's Note Modal -->
+    <div id="doctorNoteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeDoctorNoteModal()">&times;</span>
+            <h3>Add Doctor's Note</h3>
+            <div id="noteMessage"></div>
+            <form id="doctorNoteForm" onsubmit="addDoctorNote(event)">
+                <div class="form-group">
+                    <label>Note Title *</label>
+                    <input type="text" id="noteTitle" required placeholder="e.g., Follow-up appointment">
+                </div>
+
+                <div class="form-group">
+                    <label>Doctor Name</label>
+                    <input type="text" id="doctorName" placeholder="Optional">
+                </div>
+
+                <div class="form-group">
+                    <label>Related Medication</label>
+                    <select id="relatedMedication">
+                        <option value="">None (general note)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Note Content *</label>
+                    <textarea id="noteContent" rows="4" required placeholder="Doctor's instructions or notes..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Reminder Date</label>
+                    <input type="date" id="reminderDate">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-success" style="flex: 1;">Add Note</button>
+                    <button type="button" onclick="closeDoctorNoteModal()" class="btn btn-secondary" style="flex: 1;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p><strong>HealthHub Connect</strong></p>
+        <p>Your health, your data, your peace of mind</p>
+        <p>&copy; 2025 HealthHub Connect. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+        const supabaseUrl = 'https://hbtgwzneuhdqlmriwvje.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhidGd3em5ldWhkcWxtcml3dmplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNDI5MTQsImV4cCI6MjA3NTkxODkxNH0.1v1OLYSEPRBKaZWQu1sJo8DoRzYePfdc7Zcs8i8TF78';
+        
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        let currentUser = null;
+        let notificationPermission = 'default';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuth();
+            checkNotificationPermission();
+        });
+
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            const userGreeting = document.getElementById('userGreeting');
+            const authButton = document.getElementById('authButton');
+            
+            if (session && session.user) {
+                currentUser = session.user;
+                const firstName = session.user.user_metadata?.first_name || 
+                                 session.user.email.split('@')[0];
+                userGreeting.textContent = `Hello, ${firstName}!`;
+                userGreeting.onclick = function() {
+                    window.location.href = 'profile.html';
+                };
+                authButton.textContent = 'Sign Out';
+                authButton.onclick = async function() {
+                    await supabase.auth.signOut();
+                    window.location.href = 'index.html';
+                };
+                
+                // Load all data
+                await loadAllData();
+            } else {
+                userGreeting.textContent = '';
+                authButton.textContent = 'Sign In';
+                authButton.onclick = function() {
+                    window.location.href = 'signin.html';
+                };
+                
+                // Show sign in message
+                document.querySelector('.container').innerHTML = `
+                    <div class="empty-state" style="padding: 100px 20px;">
+                        <h3>Please Sign In</h3>
+                        <p>You need to be logged in to track your medications.</p>
+                        <button onclick="window.location.href='signin.html'" class="btn btn-primary">Sign In</button>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadAllData() {
+            try {
+                await Promise.all([
+                    loadTodaySchedule(),
+                    loadUpcomingRefills(),
+                    loadMedications(),
+                    loadDoctorsNotes(),
+                    loadActivityLogs()
+                ]);
+            } catch (error) {
+                console.error('Error loading data:', error);
+                logEvent('error', 'Failed to load medication data: ' + error.message);
+            }
+        }
+
+        // Notification Functions
+        function checkNotificationPermission() {
+            if ('Notification' in window) {
+                notificationPermission = Notification.permission;
+                if (notificationPermission === 'default') {
+                    document.getElementById('notificationBanner').classList.add('show');
+                }
+            }
+        }
+
+        async function requestNotificationPermission() {
+            if ('Notification' in window) {
+                const permission = await Notification.requestPermission();
+                notificationPermission = permission;
+                
+                if (permission === 'granted') {
+                    showNotification('Notifications Enabled', 'You will now receive medication reminders');
+                    logEvent('info', 'Notification permission granted');
+                    dismissNotificationBanner();
+                } else {
+                    logEvent('error', 'Notification permission denied');
+                    alert('Please enable notifications in your browser settings to receive medication reminders.');
+                }
+            }
+        }
+
+        function dismissNotificationBanner() {
+            document.getElementById('notificationBanner').classList.remove('show');
+        }
+
+        function showNotification(title, body) {
+            if (notificationPermission === 'granted') {
+                new Notification(title, {
+                    body: body,
+                    icon: '/healthhub-logo.svg'
+                });
+            }
+        }
+
+        // Time Input Management
+        function addTimeInput() {
+            const container = document.getElementById('timeInputs');
+            const newInput = document.createElement('div');
+            newInput.className = 'time-input-group';
+            newInput.innerHTML = `
+                <input type="time" class="time-input" required>
+                <button type="button" onclick="removeTimeInput(this)">Remove</button>
+            `;
+            container.appendChild(newInput);
+        }
+
+        function removeTimeInput(button) {
+            button.parentElement.remove();
+        }
+
+        // Add Medication
+        async function addMedication(event) {
+            event.preventDefault();
+            
+            const medicationName = document.getElementById('medicationName').value;
+            const dosage = document.getElementById('dosage').value;
+            const frequency = document.getElementById('frequency').value;
+            const refillDate = document.getElementById('refillDate').value || null;
+            const prescriptionNumber = document.getElementById('prescriptionNumber').value || null;
+            const prescribingDoctor = document.getElementById('prescribingDoctor').value || null;
+            const pharmacyName = document.getElementById('pharmacyName').value || null;
+            const notes = document.getElementById('notes').value || null;
+            
+            // Get all time inputs
+            const timeInputs = document.querySelectorAll('.time-input');
+            const times = Array.from(timeInputs).map(input => input.value);
+            
+            if (times.length === 0) {
+                alert('Please add at least one time of day');
+                return;
+            }
+
+            try {
+                // Insert medication
+                const { data: medication, error } = await supabase
+                    .from('medications')
+                    .insert([{
+                        user_id: currentUser.id,
+                        medication_name: medicationName,
+                        dosage: dosage,
+                        frequency: frequency,
+                        time_of_day: times,
+                        refill_date: refillDate,
+                        prescription_number: prescriptionNumber,
+                        prescribing_doctor: prescribingDoctor,
+                        pharmacy_name: pharmacyName,
+                        notes: notes
+                    }])
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                // Generate schedule for next 30 days
+                await supabase.rpc('generate_medication_schedule', {
+                    med_id: medication.medication_id,
+                    u_id: currentUser.id,
+                    times: times
+                });
+
+                // Create reminders
+                for (let time of times) {
+                    await supabase
+                        .from('medication_reminders')
+                        .insert([{
+                            medication_id: medication.medication_id,
+                            user_id: currentUser.id,
+                            reminder_type: 'dose',
+                            reminder_time: time
+                        }]);
+                }
+
+                // Create refill reminder if date is set
+                if (refillDate) {
+                    await supabase
+                        .from('medication_reminders')
+                        .insert([{
+                            medication_id: medication.medication_id,
+                            user_id: currentUser.id,
+                            reminder_type: 'refill',
+                            days_before_refill: 3
+                        }]);
+                }
+
+                logEvent('info', `Added medication: ${medicationName}`);
+                alert('Medication added successfully!');
+                document.getElementById('medicationForm').reset();
+                document.getElementById('timeInputs').innerHTML = `
+                    <div class="time-input-group">
+                        <input type="time" class="time-input" value="08:00" required>
+                    </div>
+                `;
+                loadAllData();
+
+            } catch (error) {
+                console.error('Error adding medication:', error);
+                logEvent('error', 'Failed to add medication: ' + error.message);
+                alert('Error adding medication: ' + error.message);
+            }
+        }
+
+        // Load Today's Schedule
+        async function loadTodaySchedule() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                
+                const { data, error } = await supabase
+                    .from('medication_schedule')
+                    .select(`
+                        *,
+                        medications (medication_name, dosage)
+                    `)
+                    .eq('user_id', currentUser.id)
+                    .eq('scheduled_date', today)
+                    .order('scheduled_time', { ascending: true });
+
+                if (error) throw error;
+
+                const container = document.getElementById('todaySchedule');
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>No medications scheduled for today</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                data.forEach(schedule => {
+                    const statusClass = schedule.is_taken ? 'taken' : schedule.skipped ? 'skipped' : '';
+                    const time = schedule.scheduled_time.slice(0, 5);
+                    
+                    html += `
+                        <div class="schedule-item ${statusClass}">
+                            <div>
+                                <div class="schedule-time">${time}</div>
+                                <div class="schedule-medication">${schedule.medications.medication_name} - ${schedule.medications.dosage}</div>
+                            </div>
+                            <div class="schedule-actions">
+                                ${!schedule.is_taken && !schedule.skipped ? `
+                                    <button onclick="markAsTaken('${schedule.schedule_id}')" class="btn btn-success btn-small">Mark Taken</button>
+                                    <button onclick="markAsSkipped('${schedule.schedule_id}')" class="btn btn-secondary btn-small">Skip</button>
+                                ` : schedule.is_taken ? `
+                                    <span class="badge badge-success">Taken</span>
+                                ` : `
+                                    <span class="badge badge-danger">Skipped</span>
+                                `}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading schedule:', error);
+                document.getElementById('todaySchedule').innerHTML = `
+                    <div class="message error">Error loading schedule</div>
+                `;
+            }
+        }
+
+        // Mark as Taken
+        async function markAsTaken(scheduleId) {
+            try {
+                const { error } = await supabase
+                    .from('medication_schedule')
+                    .update({
+                        is_taken: true,
+                        taken_at: new Date().toISOString()
+                    })
+                    .eq('schedule_id', scheduleId);
+
+                if (error) throw error;
+
+                logEvent('success', 'Medication marked as taken');
+                showNotification('Medication Taken', 'Great job staying on track!');
+                loadTodaySchedule();
+
+            } catch (error) {
+                console.error('Error marking as taken:', error);
+                logEvent('error', 'Failed to mark medication as taken');
+            }
+        }
+
+        // Mark as Skipped
+        async function markAsSkipped(scheduleId) {
+            try {
+                const { error } = await supabase
+                    .from('medication_schedule')
+                    .update({ skipped: true })
+                    .eq('schedule_id', scheduleId);
+
+                if (error) throw error;
+
+                logEvent('info', 'Medication marked as skipped');
+                loadTodaySchedule();
+
+            } catch (error) {
+                console.error('Error marking as skipped:', error);
+                logEvent('error', 'Failed to mark medication as skipped');
+            }
+        }
+
+        // Load Upcoming Refills
+        async function loadUpcomingRefills() {
+            try {
+                const today = new Date();
+                const in30Days = new Date();
+                in30Days.setDate(today.getDate() + 30);
+
+                const { data, error } = await supabase
+                    .from('medications')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .eq('is_active', true)
+                    .not('refill_date', 'is', null)
+                    .gte('refill_date', today.toISOString().split('T')[0])
+                    .lte('refill_date', in30Days.toISOString().split('T')[0])
+                    .order('refill_date', { ascending: true });
+
+                if (error) throw error;
+
+                const container = document.getElementById('upcomingRefills');
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>No upcoming refills in the next 30 days</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                data.forEach(med => {
+                    const refillDate = new Date(med.refill_date);
+                    const daysUntil = Math.ceil((refillDate - today) / (1000 * 60 * 60 * 24));
+                    const isUrgent = daysUntil <= 7;
+                    
+                    html += `
+                        <div class="refill-alert ${isUrgent ? 'urgent' : ''}">
+                            <div class="refill-medication">${med.medication_name}</div>
+                            <div class="refill-date">Refill in ${daysUntil} day${daysUntil !== 1 ? 's' : ''} - ${refillDate.toLocaleDateString()}</div>
+                            ${med.pharmacy_name ? `<div style="color: #64748b; font-size: 13px; margin-top: 5px;">Pharmacy: ${med.pharmacy_name}</div>` : ''}
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading refills:', error);
+                document.getElementById('upcomingRefills').innerHTML = `
+                    <div class="message error">Error loading refills</div>
+                `;
+            }
+        }
+
+        // Load Medications List
+        async function loadMedications() {
+            try {
+                const { data, error } = await supabase
+                    .from('medications')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('is_active', { ascending: false })
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const container = document.getElementById('medicationsList');
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No Medications Yet</h3>
+                            <p>Add your first medication using the form above</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                data.forEach(med => {
+                    const times = med.time_of_day ? med.time_of_day.join(', ') : 'Not specified';
+                    const refillDate = med.refill_date ? new Date(med.refill_date).toLocaleDateString() : 'N/A';
+                    
+                    html += `
+                        <div class="medication-item ${!med.is_active ? 'inactive' : ''}">
+                            <div class="medication-header">
+                                <div>
+                                    <div class="medication-name">${med.medication_name}</div>
+                                    <div class="medication-dosage">${med.dosage} - ${med.frequency}</div>
+                                </div>
+                                <div class="medication-actions">
+                                    <button onclick='editMedication(${JSON.stringify(med).replace(/'/g, "&apos;")})' class="btn btn-primary btn-small">Edit</button>
+                                    <button onclick="toggleMedicationActive('${med.medication_id}', ${!med.is_active})" class="btn btn-secondary btn-small">
+                                        ${med.is_active ? 'Deactivate' : 'Activate'}
+                                    </button>
+                                    <button onclick="deleteMedication('${med.medication_id}', '${med.medication_name}')" class="btn btn-danger btn-small">Delete</button>
+                                </div>
+                            </div>
+                            <div class="medication-details">
+                                <div class="medication-detail">
+                                    <span class="detail-label">Times</span>
+                                    <span class="detail-value">${times}</span>
+                                </div>
+                                ${med.refill_date ? `
+                                <div class="medication-detail">
+                                    <span class="detail-label">Refill Date</span>
+                                    <span class="detail-value">${refillDate}</span>
+                                </div>
+                                ` : ''}
+                                ${med.prescribing_doctor ? `
+                                <div class="medication-detail">
+                                    <span class="detail-label">Doctor</span>
+                                    <span class="detail-value">${med.prescribing_doctor}</span>
+                                </div>
+                                ` : ''}
+                                ${med.pharmacy_name ? `
+                                <div class="medication-detail">
+                                    <span class="detail-label">Pharmacy</span>
+                                    <span class="detail-value">${med.pharmacy_name}</span>
+                                </div>
+                                ` : ''}
+                            </div>
+                            ${med.notes ? `<div style="margin-top: 10px; color: #64748b; font-size: 13px;">${med.notes}</div>` : ''}
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+                // Also update related medication dropdown for doctor's notes
+                updateRelatedMedicationDropdown(data.filter(m => m.is_active));
+
+            } catch (error) {
+                console.error('Error loading medications:', error);
+                document.getElementById('medicationsList').innerHTML = `
+                    <div class="message error">Error loading medications</div>
+                `;
+            }
+        }
+
+        function updateRelatedMedicationDropdown(medications) {
+            const select = document.getElementById('relatedMedication');
+            select.innerHTML = '<option value="">None (general note)</option>';
+            
+            medications.forEach(med => {
+                const option = document.createElement('option');
+                option.value = med.medication_id;
+                option.textContent = `${med.medication_name} - ${med.dosage}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Edit Medication
+        function editMedication(medication) {
+            document.getElementById('editMedicationId').value = medication.medication_id;
+            document.getElementById('editMedicationName').value = medication.medication_name;
+            document.getElementById('editDosage').value = medication.dosage;
+            document.getElementById('editFrequency').value = medication.frequency;
+            document.getElementById('editRefillDate').value = medication.refill_date || '';
+            document.getElementById('editPrescribingDoctor').value = medication.prescribing_doctor || '';
+            document.getElementById('editNotes').value = medication.notes || '';
+            
+            document.getElementById('editMedicationModal').classList.add('active');
+        }
+
+        function closeEditMedicationModal() {
+            document.getElementById('editMedicationModal').classList.remove('active');
+            document.getElementById('editMessage').innerHTML = '';
+        }
+
+        async function updateMedication(event) {
+            event.preventDefault();
+            
+            const medicationId = document.getElementById('editMedicationId').value;
+            const medicationName = document.getElementById('editMedicationName').value;
+            const dosage = document.getElementById('editDosage').value;
+            const frequency = document.getElementById('editFrequency').value;
+            const refillDate = document.getElementById('editRefillDate').value || null;
+            const prescribingDoctor = document.getElementById('editPrescribingDoctor').value || null;
+            const notes = document.getElementById('editNotes').value || null;
+
+            try {
+                const { error } = await supabase
+                    .from('medications')
+                    .update({
+                        medication_name: medicationName,
+                        dosage: dosage,
+                        frequency: frequency,
+                        refill_date: refillDate,
+                        prescribing_doctor: prescribingDoctor,
+                        notes: notes,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('medication_id', medicationId);
+
+                if (error) throw error;
+
+                logEvent('info', `Updated medication: ${medicationName}`);
+                closeEditMedicationModal();
+                loadMedications();
+                alert('Medication updated successfully!');
+
+            } catch (error) {
+                console.error('Error updating medication:', error);
+                document.getElementById('editMessage').innerHTML = `
+                    <div class="message error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Toggle Medication Active
+        async function toggleMedicationActive(medicationId, newStatus) {
+            try {
+                const { error } = await supabase
+                    .from('medications')
+                    .update({ is_active: newStatus })
+                    .eq('medication_id', medicationId);
+
+                if (error) throw error;
+
+                logEvent('info', `Medication ${newStatus ? 'activated' : 'deactivated'}`);
+                loadMedications();
+                loadTodaySchedule();
+
+            } catch (error) {
+                console.error('Error toggling medication:', error);
+                logEvent('error', 'Failed to toggle medication status');
+            }
+        }
+
+        // Delete Medication
+        async function deleteMedication(medicationId, medicationName) {
+            if (!confirm(`Are you sure you want to delete ${medicationName}? This will also delete all associated schedules and reminders.`)) {
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('medications')
+                    .delete()
+                    .eq('medication_id', medicationId);
+
+                if (error) throw error;
+
+                logEvent('info', `Deleted medication: ${medicationName}`);
+                loadAllData();
+                alert('Medication deleted successfully');
+
+            } catch (error) {
+                console.error('Error deleting medication:', error);
+                logEvent('error', 'Failed to delete medication');
+                alert('Error deleting medication: ' + error.message);
+            }
+        }
+
+        // Doctor's Notes Functions
+        function openDoctorNoteModal() {
+            document.getElementById('doctorNoteModal').classList.add('active');
+        }
+
+        function closeDoctorNoteModal() {
+            document.getElementById('doctorNoteModal').classList.remove('active');
+            document.getElementById('noteMessage').innerHTML = '';
+            document.getElementById('doctorNoteForm').reset();
+        }
+
+        async function addDoctorNote(event) {
+            event.preventDefault();
+            
+            const noteTitle = document.getElementById('noteTitle').value;
+            const doctorName = document.getElementById('doctorName').value || null;
+            const relatedMedication = document.getElementById('relatedMedication').value || null;
+            const noteContent = document.getElementById('noteContent').value;
+            const reminderDate = document.getElementById('reminderDate').value || null;
+
+            try {
+                const { error } = await supabase
+                    .from('doctors_notes')
+                    .insert([{
+                        user_id: currentUser.id,
+                        medication_id: relatedMedication,
+                        doctor_name: doctorName,
+                        note_title: noteTitle,
+                        note_content: noteContent,
+                        reminder_date: reminderDate
+                    }]);
+
+                if (error) throw error;
+
+                logEvent('info', `Added doctor's note: ${noteTitle}`);
+                alert('Doctor\'s note added successfully!');
+                closeDoctorNoteModal();
+                loadDoctorsNotes();
+
+            } catch (error) {
+                console.error('Error adding note:', error);
+                document.getElementById('noteMessage').innerHTML = `
+                    <div class="message error">Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function loadDoctorsNotes() {
+            try {
+                const { data, error } = await supabase
+                    .from('doctors_notes')
+                    .select(`
+                        *,
+                        medications (medication_name)
+                    `)
+                    .eq('user_id', currentUser.id)
+                    .order('is_completed', { ascending: true })
+                    .order('reminder_date', { ascending: true });
+
+                if (error) throw error;
+
+                const container = document.getElementById('doctorsNotes');
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>No doctor's notes yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                data.forEach(note => {
+                    const reminderDate = note.reminder_date ? new Date(note.reminder_date).toLocaleDateString() : null;
+                    
+                    html += `
+                        <div class="doctors-note ${note.is_completed ? 'completed' : ''}">
+                            <div class="note-header">
+                                <div>
+                                    <div class="note-title">${note.note_title}</div>
+                                    ${note.doctor_name ? `<div class="note-doctor">Dr. ${note.doctor_name}</div>` : ''}
+                                    ${note.medications ? `<div class="note-doctor">Re: ${note.medications.medication_name}</div>` : ''}
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    ${!note.is_completed ? `
+                                        <button onclick="markNoteComplete('${note.note_id}')" class="btn btn-success btn-small">Mark Complete</button>
+                                    ` : ''}
+                                    <button onclick="deleteNote('${note.note_id}')" class="btn btn-danger btn-small">Delete</button>
+                                </div>
+                            </div>
+                            <div class="note-content">${note.note_content}</div>
+                            ${reminderDate ? `<div class="note-reminder">Reminder Date: ${reminderDate}</div>` : ''}
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading notes:', error);
+                document.getElementById('doctorsNotes').innerHTML = `
+                    <div class="message error">Error loading notes</div>
+                `;
+            }
+        }
+
+        async function markNoteComplete(noteId) {
+            try {
+                const { error } = await supabase
+                    .from('doctors_notes')
+                    .update({ is_completed: true })
+                    .eq('note_id', noteId);
+
+                if (error) throw error;
+
+                logEvent('success', 'Doctor\'s note marked as complete');
+                loadDoctorsNotes();
+
+            } catch (error) {
+                console.error('Error marking note complete:', error);
+                logEvent('error', 'Failed to mark note as complete');
+            }
+        }
+
+        async function deleteNote(noteId) {
+            if (!confirm('Are you sure you want to delete this note?')) {
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('doctors_notes')
+                    .delete()
+                    .eq('note_id', noteId);
+
+                if (error) throw error;
+
+                logEvent('info', 'Doctor\'s note deleted');
+                loadDoctorsNotes();
+
+            } catch (error) {
+                console.error('Error deleting note:', error);
+                logEvent('error', 'Failed to delete note');
+            }
+        }
+
+        // Activity Logs
+        async function loadActivityLogs() {
+            try {
+                const { data, error } = await supabase
+                    .from('medication_logs')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+
+                if (error) throw error;
+
+                const container = document.getElementById('activityLogs');
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>No activity logs yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                data.forEach(log => {
+                    const timestamp = new Date(log.created_at).toLocaleString();
+                    
+                    html += `
+                        <div class="log-entry ${log.log_type}">
+                            <div class="log-time">${timestamp}</div>
+                            <div class="log-message">${log.log_message}</div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading logs:', error);
+                document.getElementById('activityLogs').innerHTML = `
+                    <div class="message error">Error loading logs</div>
+                `;
+            }
+        }
+
+        async function logEvent(logType, logMessage, medicationId = null) {
+            try {
+                await supabase
+                    .from('medication_logs')
+                    .insert([{
+                        user_id: currentUser.id,
+                        log_type: logType,
+                        log_message: logMessage,
+                        medication_id: medicationId
+                    }]);
+                
+                // Reload logs
+                loadActivityLogs();
+            } catch (error) {
+                console.error('Error logging event:', error);
+            }
+        }
+    </script>
+</body>
+</html>
