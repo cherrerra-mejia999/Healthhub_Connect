@@ -6,9 +6,9 @@
     <title>Medication Tracker - HealthHub Connect</title>
     <style>
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
@@ -36,17 +36,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            flex-wrap: wrap;
         }
 
         .logo-text {
             font-size: 24px;
             font-weight: 700;
+            letter-spacing: -0.5px;
             color: #1e293b;
         }
 
@@ -65,7 +61,7 @@
             border-radius: 8px;
             transition: all 0.3s ease;
         }
-        
+
         .user-greeting:hover {
             background: rgba(30, 41, 59, 0.1);
         }
@@ -191,153 +187,203 @@
             font-size: 16px;
         }
 
-        /* Notification Banner */
-        .notification-banner {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 12px;
-            padding: 15px 20px;
-            margin-bottom: 30px;
-            display: none;
-            font-size: 14px;
-        }
-
-        .notification-banner.show {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .notification-banner strong {
-            color: #856404;
-        }
-
-        .notification-banner button {
-            margin-left: auto;
-        }
-
-        /* Grid Layout */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        @media (max-width: 968px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
         /* Cards */
         .card {
             background: white;
             padding: 25px;
             border-radius: 12px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-            transition: box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            margin-bottom: 30px;
         }
 
         .card h2 {
             color: #5b21b6;
             margin-bottom: 20px;
             font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding-bottom: 15px;
-            border-bottom: 3px solid #e0d5f7;
             font-weight: 700;
-            letter-spacing: -0.5px;
         }
 
-        .card h3 {
-            color: #1e293b;
-            margin-bottom: 15px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .full-width {
-            grid-column: 1 / -1;
-        }
-
-        /* Form Styles */
-        .form-group {
+        /* Calendar */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
         }
 
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #1e293b;
-            font-size: 14px;
+        .calendar-header h2 {
+            margin: 0;
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e5e5e5;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #5b21b6;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Time Input Container */
-        .time-inputs {
+        .calendar-nav {
             display: flex;
-            flex-wrap: wrap;
             gap: 10px;
-            margin-top: 10px;
         }
 
-        .time-input-group {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-        }
-
-        .time-input-group input {
-            width: 100px;
-        }
-
-        .time-input-group button {
-            padding: 8px;
-            background: #dc3545;
+        .calendar-nav button {
+            padding: 8px 16px;
+            background: #5b21b6;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
         }
 
-        /* Medication List */
+        .calendar-nav button:hover {
+            background: #4c1d95;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-weight: 700;
+            color: #5b21b6;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 8px;
+        }
+
+        .calendar-day:hover {
+            border-color: #5b21b6;
+            background: #f8f5ff;
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        .calendar-day.other-month:hover {
+            border-color: #e5e5e5;
+            background: white;
+        }
+
+        .calendar-day.today {
+            border-color: #5b21b6;
+            background: #f8f5ff;
+            font-weight: 700;
+        }
+
+        .calendar-day.selected {
+            background: #5b21b6;
+            border-color: #5b21b6;
+            color: white;
+        }
+
+        .calendar-day.has-medications {
+            border-color: #ffc107;
+            background: #fffbf0;
+        }
+
+        .calendar-day.has-medications.all-taken {
+            border-color: #28a745;
+            background: #f0fff4;
+        }
+
+        .calendar-day-number {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .calendar-day-indicator {
+            width: 6px;
+            height: 6px;
+            background: #ffc107;
+            border-radius: 50%;
+            margin-top: 4px;
+        }
+
+        .calendar-day.has-medications.all-taken .calendar-day-indicator {
+            background: #28a745;
+        }
+
+        /* Day Details */
+        .day-details {
+            margin-top: 20px;
+        }
+
+        .day-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e5e5;
+        }
+
+        .day-details-header h3 {
+            color: #1e293b;
+            font-size: 18px;
+        }
+
+        .medication-entry {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #5b21b6;
+        }
+
+        .medication-entry.taken {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+
+        .medication-entry.skipped {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        .medication-info {
+            flex: 1;
+        }
+
+        .medication-name {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .medication-time {
+            color: #5b21b6;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .medication-dosage {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .medication-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Manage Medications Section */
         .medication-item {
             background: #f8fafc;
             padding: 20px;
@@ -356,22 +402,19 @@
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        .medication-name {
+        .medication-header-name {
             font-weight: 700;
             font-size: 16px;
             color: #1e293b;
         }
 
-        .medication-dosage {
+        .medication-header-dosage {
             color: #64748b;
             font-size: 14px;
-        }
-
-        .medication-actions {
-            display: flex;
-            gap: 8px;
         }
 
         .medication-details {
@@ -397,171 +440,95 @@
             font-weight: 600;
         }
 
-        /* Schedule Item */
-        .schedule-item {
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid #ffc107;
-        }
-
-        .schedule-item.taken {
-            background: #d4edda;
-            border-left-color: #28a745;
-        }
-
-        .schedule-item.skipped {
-            background: #f8d7da;
-            border-left-color: #dc3545;
-        }
-
-        .schedule-time {
-            font-weight: 700;
-            color: #5b21b6;
-            font-size: 16px;
-        }
-
-        .schedule-medication {
-            color: #1e293b;
-            font-size: 14px;
-        }
-
-        .schedule-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        /* Refill Alert */
-        .refill-alert {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .refill-alert.urgent {
-            background: #f8d7da;
-            border-color: #dc3545;
-        }
-
-        .refill-medication {
-            font-weight: 700;
-            color: #1e293b;
-            font-size: 15px;
-        }
-
-        .refill-date {
-            color: #64748b;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
-        /* Doctor's Note */
-        .doctors-note {
-            background: #e3f2fd;
-            border: 2px solid #2196f3;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .doctors-note.completed {
-            opacity: 0.6;
-            border-color: #94a3b8;
-        }
-
-        .note-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-
-        .note-title {
-            font-weight: 700;
-            color: #1e293b;
-        }
-
-        .note-doctor {
-            color: #64748b;
-            font-size: 14px;
-        }
-
-        .note-content {
-            color: #1e293b;
-            margin: 10px 0;
-            font-size: 14px;
-        }
-
-        .note-reminder {
-            color: #2196f3;
-            font-size: 13px;
+        /* Form Styles */
+        label {
+            display: block;
             font-weight: 600;
-        }
-
-        /* Log Entry */
-        .log-entry {
-            padding: 12px;
-            border-left: 4px solid #94a3b8;
-            background: #f8fafc;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            font-size: 13px;
-        }
-
-        .log-entry.error {
-            border-left-color: #dc3545;
-            background: #fff5f5;
-        }
-
-        .log-entry.info {
-            border-left-color: #2196f3;
-            background: #f0f9ff;
-        }
-
-        .log-entry.success {
-            border-left-color: #28a745;
-            background: #f0fdf4;
-        }
-
-        .log-time {
-            color: #64748b;
-            font-size: 11px;
-        }
-
-        .log-message {
+            margin-bottom: 8px;
             color: #1e293b;
-            margin-top: 5px;
+            font-size: 14px;
         }
 
-        /* Badges */
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            margin-bottom: 20px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #5b21b6;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .calendar-grid {
+                gap: 5px;
+            }
+            
+            .calendar-day {
+                padding: 4px;
+            }
+            
+            .calendar-day-number {
+                font-size: 14px;
+            }
+        }
+
+        .time-inputs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        .time-input-group {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .time-input-group input {
+            width: 120px;
+            margin-bottom: 0;
+        }
+
+        .time-input-group button {
+            padding: 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Badge */
         .badge {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 12px;
             font-size: 12px;
             font-weight: 600;
         }
 
-        .badge-primary {
-            background: #e0d5f7;
-            color: #5b21b6;
-        }
-
         .badge-success {
             background: #d4edda;
-            color: #28a745;
-        }
-
-        .badge-warning {
-            background: #fff3cd;
-            color: #856404;
+            color: #155724;
         }
 
         .badge-danger {
@@ -626,11 +593,19 @@
             color: #1e293b;
         }
 
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+        }
+
         /* Message */
         .message {
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 20px;
+            font-size: 14px;
         }
 
         .message.success {
@@ -643,19 +618,6 @@
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
-        }
-
-        .message.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #64748b;
         }
 
         /* Footer */
@@ -677,9 +639,7 @@
     <!-- Header -->
     <header class="header">
         <div class="header-content">
-            <div class="logo-section">
-                <div class="logo-text">HealthHub Connect</div>
-            </div>
+            <div class="logo-text">HealthHub Connect</div>
             <div class="user-info">
                 <span class="user-greeting" id="userGreeting"></span>
                 <button id="authButton" class="btn btn-secondary">Sign In</button>
@@ -695,6 +655,7 @@
             <a href="tracker.html">Health Tracker</a>
             <a href="appointments.html">Appointments</a>
             <a href="medications.html" class="active">Medications</a>
+            <a href="profile.html">Profile</a>
             <a href="support.html">Support</a>
             <a href="about.html">About</a>
         </div>
@@ -705,52 +666,73 @@
         <!-- Page Header -->
         <div class="page-header">
             <h1>Medication Tracker</h1>
-            <p>Manage your medications, track doses, and never miss a refill</p>
+            <p>View your medication schedule by day</p>
         </div>
 
-        <!-- Notification Permission Banner -->
-        <div id="notificationBanner" class="notification-banner">
-            <span><strong>Enable Notifications:</strong> Receive medication reminders at scheduled times</span>
-            <button onclick="requestNotificationPermission()" class="btn btn-primary btn-small">Enable Notifications</button>
-            <button onclick="dismissNotificationBanner()" class="btn btn-secondary btn-small">Later</button>
-        </div>
-
-        <!-- Dashboard Grid -->
-        <div class="dashboard-grid">
-            <!-- Today's Schedule -->
-            <div class="card">
-                <h2>Today's Schedule</h2>
-                <div id="todaySchedule">
-                    <div class="loading">Loading schedule...</div>
+        <!-- Calendar Card -->
+        <div class="card">
+            <div class="calendar-header">
+                <h2 id="calendarMonth">November 2025</h2>
+                <div class="calendar-nav">
+                    <button onclick="previousMonth()">Previous</button>
+                    <button onclick="nextMonth()">Next</button>
+                    <button onclick="goToToday()">Today</button>
                 </div>
             </div>
 
-            <!-- Upcoming Refills -->
-            <div class="card">
-                <h2>Upcoming Refills</h2>
-                <div id="upcomingRefills">
-                    <div class="loading">Loading refills...</div>
+            <!-- Calendar Grid -->
+            <div class="calendar-grid">
+                <div class="calendar-day-header">Sun</div>
+                <div class="calendar-day-header">Mon</div>
+                <div class="calendar-day-header">Tue</div>
+                <div class="calendar-day-header">Wed</div>
+                <div class="calendar-day-header">Thu</div>
+                <div class="calendar-day-header">Fri</div>
+                <div class="calendar-day-header">Sat</div>
+            </div>
+            <div id="calendarDays" class="calendar-grid"></div>
+
+            <!-- Selected Day Details -->
+            <div id="dayDetails" class="day-details" style="display: none;">
+                <div class="day-details-header">
+                    <h3 id="selectedDayTitle">Medications for Today</h3>
+                </div>
+                <div id="dayMedications">
+                    <div class="loading">Loading medications...</div>
                 </div>
             </div>
         </div>
 
-        <!-- Add Medication -->
-        <div class="card full-width">
-            <h2>Add New Medication</h2>
+        <!-- Manage Medications -->
+        <div class="card">
+            <h2>Manage Medications</h2>
+            <button onclick="openAddMedicationModal()" class="btn btn-primary" style="margin-bottom: 20px;">Add New Medication</button>
+            <div id="medicationsList">
+                <div class="loading">Loading medications...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Medication Modal -->
+    <div id="addMedicationModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeAddMedicationModal()">&times;</span>
+            <h3>Add New Medication</h3>
+            <div id="addMessage"></div>
             <form id="medicationForm" onsubmit="addMedication(event)">
                 <div class="form-row">
-                    <div class="form-group">
+                    <div>
                         <label>Medication Name *</label>
                         <input type="text" id="medicationName" required placeholder="e.g., Aspirin">
                     </div>
-                    <div class="form-group">
+                    <div>
                         <label>Dosage *</label>
                         <input type="text" id="dosage" required placeholder="e.g., 100mg">
                     </div>
                 </div>
 
                 <div class="form-row">
-                    <div class="form-group">
+                    <div>
                         <label>Frequency *</label>
                         <select id="frequency" required>
                             <option value="">Select frequency...</option>
@@ -764,168 +746,41 @@
                             <option value="as needed">As Needed</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div>
                         <label>Refill Date</label>
                         <input type="date" id="refillDate">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div>
                     <label>Time(s) of Day *</label>
                     <div class="time-inputs" id="timeInputs">
                         <div class="time-input-group">
                             <input type="time" class="time-input" value="08:00" required>
                         </div>
                     </div>
-                    <button type="button" onclick="addTimeInput()" class="btn btn-secondary btn-small" style="margin-top: 10px;">Add Time</button>
+                    <button type="button" onclick="addTimeInput()" class="btn btn-secondary btn-small">Add Time</button>
                 </div>
 
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Prescription Number</label>
-                        <input type="text" id="prescriptionNumber" placeholder="Optional">
-                    </div>
-                    <div class="form-group">
+                    <div>
                         <label>Prescribing Doctor</label>
                         <input type="text" id="prescribingDoctor" placeholder="Optional">
                     </div>
+                    <div>
+                        <label>Pharmacy Name</label>
+                        <input type="text" id="pharmacyName" placeholder="Optional">
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Pharmacy Name</label>
-                    <input type="text" id="pharmacyName" placeholder="Optional">
-                </div>
-
-                <div class="form-group">
+                <div>
                     <label>Notes</label>
                     <textarea id="notes" rows="3" placeholder="Any special instructions..."></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-success">Add Medication</button>
-            </form>
-        </div>
-
-        <!-- My Medications -->
-        <div class="card full-width">
-            <h2>My Medications</h2>
-            <div id="medicationsList">
-                <div class="loading">Loading medications...</div>
-            </div>
-        </div>
-
-        <!-- Doctor's Notes -->
-        <div class="card full-width">
-            <h2>Doctor's Notes</h2>
-            <button onclick="openDoctorNoteModal()" class="btn btn-primary btn-small" style="margin-bottom: 15px;">Add Doctor's Note</button>
-            <div id="doctorsNotes">
-                <div class="loading">Loading notes...</div>
-            </div>
-        </div>
-
-        <!-- Activity Logs -->
-        <div class="card full-width">
-            <h2>Activity & Error Logs</h2>
-            <div id="activityLogs">
-                <div class="loading">Loading logs...</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Medication Modal -->
-    <div id="editMedicationModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeEditMedicationModal()">&times;</span>
-            <h3>Edit Medication</h3>
-            <div id="editMessage"></div>
-            <form id="editMedicationForm" onsubmit="updateMedication(event)">
-                <input type="hidden" id="editMedicationId">
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Medication Name *</label>
-                        <input type="text" id="editMedicationName" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Dosage *</label>
-                        <input type="text" id="editDosage" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Frequency *</label>
-                        <select id="editFrequency" required>
-                            <option value="once daily">Once Daily</option>
-                            <option value="twice daily">Twice Daily</option>
-                            <option value="three times daily">Three Times Daily</option>
-                            <option value="every 4 hours">Every 4 Hours</option>
-                            <option value="every 6 hours">Every 6 Hours</option>
-                            <option value="every 8 hours">Every 8 Hours</option>
-                            <option value="every 12 hours">Every 12 Hours</option>
-                            <option value="as needed">As Needed</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Refill Date</label>
-                        <input type="date" id="editRefillDate">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Prescribing Doctor</label>
-                    <input type="text" id="editPrescribingDoctor">
-                </div>
-
-                <div class="form-group">
-                    <label>Notes</label>
-                    <textarea id="editNotes" rows="3"></textarea>
-                </div>
-
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="submit" class="btn btn-success" style="flex: 1;">Update Medication</button>
-                    <button type="button" onclick="closeEditMedicationModal()" class="btn btn-secondary" style="flex: 1;">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add Doctor's Note Modal -->
-    <div id="doctorNoteModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeDoctorNoteModal()">&times;</span>
-            <h3>Add Doctor's Note</h3>
-            <div id="noteMessage"></div>
-            <form id="doctorNoteForm" onsubmit="addDoctorNote(event)">
-                <div class="form-group">
-                    <label>Note Title *</label>
-                    <input type="text" id="noteTitle" required placeholder="e.g., Follow-up appointment">
-                </div>
-
-                <div class="form-group">
-                    <label>Doctor Name</label>
-                    <input type="text" id="doctorName" placeholder="Optional">
-                </div>
-
-                <div class="form-group">
-                    <label>Related Medication</label>
-                    <select id="relatedMedication">
-                        <option value="">None (general note)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Note Content *</label>
-                    <textarea id="noteContent" rows="4" required placeholder="Doctor's instructions or notes..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Reminder Date</label>
-                    <input type="date" id="reminderDate">
-                </div>
-
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="submit" class="btn btn-success" style="flex: 1;">Add Note</button>
-                    <button type="button" onclick="closeDoctorNoteModal()" class="btn btn-secondary" style="flex: 1;">Cancel</button>
+                    <button type="submit" class="btn btn-success" style="flex: 1;">Add Medication</button>
+                    <button type="button" onclick="closeAddMedicationModal()" class="btn btn-secondary" style="flex: 1;">Cancel</button>
                 </div>
             </form>
         </div>
@@ -945,12 +800,13 @@
         
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         let currentUser = null;
-        let notificationPermission = 'default';
+        let currentDate = new Date();
+        let selectedDate = new Date();
+        let scheduleData = {};
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async function() {
             await checkAuth();
-            checkNotificationPermission();
         });
 
         async function checkAuth() {
@@ -972,8 +828,10 @@
                     window.location.href = 'index.html';
                 };
                 
-                // Load all data
-                await loadAllData();
+                // Load data
+                await loadMedications();
+                await renderCalendar();
+                selectDate(new Date());
             } else {
                 userGreeting.textContent = '';
                 authButton.textContent = 'Sign In';
@@ -981,7 +839,6 @@
                     window.location.href = 'signin.html';
                 };
                 
-                // Show sign in message
                 document.querySelector('.container').innerHTML = `
                     <div class="empty-state" style="padding: 100px 20px;">
                         <h3>Please Sign In</h3>
@@ -992,61 +849,299 @@
             }
         }
 
-        async function loadAllData() {
-            try {
-                await Promise.all([
-                    loadTodaySchedule(),
-                    loadUpcomingRefills(),
-                    loadMedications(),
-                    loadDoctorsNotes(),
-                    loadActivityLogs()
-                ]);
-            } catch (error) {
-                console.error('Error loading data:', error);
-                logEvent('error', 'Failed to load medication data: ' + error.message);
-            }
+        // Calendar Functions
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
         }
 
-        // Notification Functions
-        function checkNotificationPermission() {
-            if ('Notification' in window) {
-                notificationPermission = Notification.permission;
-                if (notificationPermission === 'default') {
-                    document.getElementById('notificationBanner').classList.add('show');
-                }
-            }
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
         }
 
-        async function requestNotificationPermission() {
-            if ('Notification' in window) {
-                const permission = await Notification.requestPermission();
-                notificationPermission = permission;
+        function goToToday() {
+            currentDate = new Date();
+            selectedDate = new Date();
+            renderCalendar();
+            selectDate(selectedDate);
+        }
+
+        async function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            // Update header
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('calendarMonth').textContent = `${monthNames[month]} ${year}`;
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            
+            // Load schedule data for this month
+            await loadMonthSchedule(year, month);
+            
+            // Build calendar
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+            
+            const today = new Date();
+            const todayStr = formatDate(today);
+            
+            // Previous month days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const day = daysInPrevMonth - i;
+                const dayDiv = createDayElement(day, true, year, month - 1);
+                calendarDays.appendChild(dayDiv);
+            }
+            
+            // Current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dateStr = formatDate(date);
+                const isToday = dateStr === todayStr;
+                const isSelected = formatDate(selectedDate) === dateStr;
                 
-                if (permission === 'granted') {
-                    showNotification('Notifications Enabled', 'You will now receive medication reminders');
-                    logEvent('info', 'Notification permission granted');
-                    dismissNotificationBanner();
-                } else {
-                    logEvent('error', 'Notification permission denied');
-                    alert('Please enable notifications in your browser settings to receive medication reminders.');
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day';
+                
+                if (isToday) dayDiv.classList.add('today');
+                if (isSelected) dayDiv.classList.add('selected');
+                
+                // Check if this day has medications
+                const daySchedule = scheduleData[dateStr];
+                if (daySchedule && daySchedule.length > 0) {
+                    dayDiv.classList.add('has-medications');
+                    
+                    // Check if all taken
+                    const allTaken = daySchedule.every(item => item.is_taken || item.skipped);
+                    if (allTaken) {
+                        dayDiv.classList.add('all-taken');
+                    }
                 }
+                
+                dayDiv.innerHTML = `
+                    <span class="calendar-day-number">${day}</span>
+                    ${daySchedule && daySchedule.length > 0 ? '<span class="calendar-day-indicator"></span>' : ''}
+                `;
+                
+                dayDiv.onclick = () => selectDate(new Date(year, month, day));
+                calendarDays.appendChild(dayDiv);
+            }
+            
+            // Next month days
+            const totalCells = calendarDays.children.length;
+            const remainingCells = 42 - totalCells; // 6 rows * 7 days
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayDiv = createDayElement(day, true, year, month + 1);
+                calendarDays.appendChild(dayDiv);
             }
         }
 
-        function dismissNotificationBanner() {
-            document.getElementById('notificationBanner').classList.remove('show');
+        function createDayElement(day, otherMonth, year, month) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'calendar-day other-month';
+            dayDiv.innerHTML = `<span class="calendar-day-number">${day}</span>`;
+            return dayDiv;
         }
 
-        function showNotification(title, body) {
-            if (notificationPermission === 'granted') {
-                new Notification(title, {
-                    body: body,
-                    icon: '/healthhub-logo.svg'
+        async function loadMonthSchedule(year, month) {
+            try {
+                const startDate = new Date(year, month, 1);
+                const endDate = new Date(year, month + 1, 0);
+                
+                const { data, error } = await supabase
+                    .from('medication_schedule')
+                    .select(`
+                        *,
+                        medications (medication_name, dosage)
+                    `)
+                    .eq('user_id', currentUser.id)
+                    .gte('scheduled_date', formatDate(startDate))
+                    .lte('scheduled_date', formatDate(endDate))
+                    .order('scheduled_time', { ascending: true });
+
+                if (error) throw error;
+
+                // Group by date
+                scheduleData = {};
+                if (data) {
+                    data.forEach(item => {
+                        const dateStr = item.scheduled_date;
+                        if (!scheduleData[dateStr]) {
+                            scheduleData[dateStr] = [];
+                        }
+                        scheduleData[dateStr].push(item);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading schedule:', error);
+            }
+        }
+
+        function selectDate(date) {
+            selectedDate = new Date(date);
+            renderCalendar();
+            loadDayMedications(date);
+        }
+
+        function loadDayMedications(date) {
+            const dateStr = formatDate(date);
+            const dayMeds = scheduleData[dateStr] || [];
+            
+            const detailsDiv = document.getElementById('dayDetails');
+            const titleDiv = document.getElementById('selectedDayTitle');
+            const medsDiv = document.getElementById('dayMedications');
+            
+            detailsDiv.style.display = 'block';
+            
+            // Format date for title
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            titleDiv.textContent = `Medications for ${date.toLocaleDateString('en-US', options)}`;
+            
+            if (dayMeds.length === 0) {
+                medsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <p>No medications scheduled for this day</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Group medications by medication_id
+            const groupedMeds = {};
+            dayMeds.forEach(med => {
+                const medId = med.medication_id;
+                if (!groupedMeds[medId]) {
+                    groupedMeds[medId] = {
+                        name: med.medications.medication_name,
+                        dosage: med.medications.dosage,
+                        times: []
+                    };
+                }
+                groupedMeds[medId].times.push({
+                    schedule_id: med.schedule_id,
+                    time: med.scheduled_time.slice(0, 5),
+                    is_taken: med.is_taken,
+                    skipped: med.skipped
                 });
+            });
+            
+            let html = '';
+            Object.values(groupedMeds).forEach(med => {
+                // Sort times
+                med.times.sort((a, b) => a.time.localeCompare(b.time));
+                
+                // Check if all times are taken or skipped
+                const allTaken = med.times.every(t => t.is_taken);
+                const anySkipped = med.times.some(t => t.skipped);
+                const statusClass = allTaken ? 'taken' : anySkipped ? 'skipped' : '';
+                
+                // Build times display with individual checkboxes
+                let timesHtml = '<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">';
+                med.times.forEach(timeSlot => {
+                    const statusIcon = timeSlot.is_taken ? '✓' : timeSlot.skipped ? '✗' : '';
+                    const statusColor = timeSlot.is_taken ? '#28a745' : timeSlot.skipped ? '#dc3545' : '#64748b';
+                    const isDisabled = timeSlot.is_taken || timeSlot.skipped;
+                    
+                    timesHtml += `
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: ${isDisabled ? '#f8fafc' : 'white'}; border-radius: 6px; border: 1px solid #e5e5e5;">
+                            <span style="font-weight: 600; color: ${statusColor}; min-width: 60px;">${timeSlot.time}</span>
+                            <span style="color: ${statusColor}; font-weight: 700; min-width: 20px;">${statusIcon}</span>
+                            ${!isDisabled ? `
+                                <button onclick="markAsTaken('${timeSlot.schedule_id}')" class="btn btn-success btn-small">Taken</button>
+                                <button onclick="markAsSkipped('${timeSlot.schedule_id}')" class="btn btn-secondary btn-small">Skip</button>
+                            ` : `
+                                <span class="badge ${timeSlot.is_taken ? 'badge-success' : 'badge-danger'}">${timeSlot.is_taken ? 'Taken' : 'Skipped'}</span>
+                            `}
+                        </div>
+                    `;
+                });
+                timesHtml += '</div>';
+                
+                html += `
+                    <div class="medication-entry ${statusClass}">
+                        <div class="medication-info" style="width: 100%;">
+                            <div class="medication-name">${med.name}</div>
+                            <div class="medication-dosage">${med.dosage} - ${med.times.length} dose${med.times.length > 1 ? 's' : ''} today</div>
+                            ${timesHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            medsDiv.innerHTML = html;
+        }
+
+        async function markAsTaken(scheduleId) {
+            try {
+                const { error } = await supabase
+                    .from('medication_schedule')
+                    .update({
+                        is_taken: true,
+                        taken_at: new Date().toISOString()
+                    })
+                    .eq('schedule_id', scheduleId);
+
+                if (error) throw error;
+
+                // Reload data
+                await loadMonthSchedule(currentDate.getFullYear(), currentDate.getMonth());
+                renderCalendar();
+                loadDayMedications(selectedDate);
+
+            } catch (error) {
+                console.error('Error marking as taken:', error);
+                alert('Error marking medication as taken');
             }
         }
 
-        // Time Input Management
+        async function markAsSkipped(scheduleId) {
+            try {
+                const { error } = await supabase
+                    .from('medication_schedule')
+                    .update({ skipped: true })
+                    .eq('schedule_id', scheduleId);
+
+                if (error) throw error;
+
+                // Reload data
+                await loadMonthSchedule(currentDate.getFullYear(), currentDate.getMonth());
+                renderCalendar();
+                loadDayMedications(selectedDate);
+
+            } catch (error) {
+                console.error('Error marking as skipped:', error);
+                alert('Error marking medication as skipped');
+            }
+        }
+
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Medication Management
+        function openAddMedicationModal() {
+            document.getElementById('addMedicationModal').classList.add('active');
+        }
+
+        function closeAddMedicationModal() {
+            document.getElementById('addMedicationModal').classList.remove('active');
+            document.getElementById('addMessage').innerHTML = '';
+            document.getElementById('medicationForm').reset();
+            document.getElementById('timeInputs').innerHTML = `
+                <div class="time-input-group">
+                    <input type="time" class="time-input" value="08:00" required>
+                </div>
+            `;
+        }
+
         function addTimeInput() {
             const container = document.getElementById('timeInputs');
             const newInput = document.createElement('div');
@@ -1062,29 +1157,50 @@
             button.parentElement.remove();
         }
 
-        // Add Medication
         async function addMedication(event) {
             event.preventDefault();
+            
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'Adding...';
             
             const medicationName = document.getElementById('medicationName').value;
             const dosage = document.getElementById('dosage').value;
             const frequency = document.getElementById('frequency').value;
             const refillDate = document.getElementById('refillDate').value || null;
-            const prescriptionNumber = document.getElementById('prescriptionNumber').value || null;
             const prescribingDoctor = document.getElementById('prescribingDoctor').value || null;
             const pharmacyName = document.getElementById('pharmacyName').value || null;
             const notes = document.getElementById('notes').value || null;
             
-            // Get all time inputs
             const timeInputs = document.querySelectorAll('.time-input');
             const times = Array.from(timeInputs).map(input => input.value);
             
             if (times.length === 0) {
                 alert('Please add at least one time of day');
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
                 return;
             }
 
             try {
+                // Check for duplicate
+                const { data: existing } = await supabase
+                    .from('medications')
+                    .select('medication_id')
+                    .eq('user_id', currentUser.id)
+                    .eq('medication_name', medicationName)
+                    .eq('dosage', dosage)
+                    .eq('is_active', true)
+                    .maybeSingle();
+
+                if (existing) {
+                    alert('This medication already exists in your active medications.');
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
+                    return;
+                }
+
                 // Insert medication
                 const { data: medication, error } = await supabase
                     .from('medications')
@@ -1095,7 +1211,6 @@
                         frequency: frequency,
                         time_of_day: times,
                         refill_date: refillDate,
-                        prescription_number: prescriptionNumber,
                         prescribing_doctor: prescribingDoctor,
                         pharmacy_name: pharmacyName,
                         notes: notes
@@ -1105,215 +1220,29 @@
 
                 if (error) throw error;
 
-                // Generate schedule for next 30 days
+                // Generate schedule
                 await supabase.rpc('generate_medication_schedule', {
                     med_id: medication.medication_id,
                     u_id: currentUser.id,
                     times: times
                 });
 
-                // Create reminders
-                for (let time of times) {
-                    await supabase
-                        .from('medication_reminders')
-                        .insert([{
-                            medication_id: medication.medication_id,
-                            user_id: currentUser.id,
-                            reminder_type: 'dose',
-                            reminder_time: time
-                        }]);
-                }
-
-                // Create refill reminder if date is set
-                if (refillDate) {
-                    await supabase
-                        .from('medication_reminders')
-                        .insert([{
-                            medication_id: medication.medication_id,
-                            user_id: currentUser.id,
-                            reminder_type: 'refill',
-                            days_before_refill: 3
-                        }]);
-                }
-
-                logEvent('info', `Added medication: ${medicationName}`);
                 alert('Medication added successfully!');
-                document.getElementById('medicationForm').reset();
-                document.getElementById('timeInputs').innerHTML = `
-                    <div class="time-input-group">
-                        <input type="time" class="time-input" value="08:00" required>
-                    </div>
-                `;
-                loadAllData();
+                closeAddMedicationModal();
+                await loadMedications();
+                await loadMonthSchedule(currentDate.getFullYear(), currentDate.getMonth());
+                renderCalendar();
+                loadDayMedications(selectedDate);
 
             } catch (error) {
                 console.error('Error adding medication:', error);
-                logEvent('error', 'Failed to add medication: ' + error.message);
                 alert('Error adding medication: ' + error.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
             }
         }
 
-        // Load Today's Schedule
-        async function loadTodaySchedule() {
-            try {
-                const today = new Date().toISOString().split('T')[0];
-                
-                const { data, error } = await supabase
-                    .from('medication_schedule')
-                    .select(`
-                        *,
-                        medications (medication_name, dosage)
-                    `)
-                    .eq('user_id', currentUser.id)
-                    .eq('scheduled_date', today)
-                    .order('scheduled_time', { ascending: true });
-
-                if (error) throw error;
-
-                const container = document.getElementById('todaySchedule');
-                
-                if (!data || data.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <p>No medications scheduled for today</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                let html = '';
-                data.forEach(schedule => {
-                    const statusClass = schedule.is_taken ? 'taken' : schedule.skipped ? 'skipped' : '';
-                    const time = schedule.scheduled_time.slice(0, 5);
-                    
-                    html += `
-                        <div class="schedule-item ${statusClass}">
-                            <div>
-                                <div class="schedule-time">${time}</div>
-                                <div class="schedule-medication">${schedule.medications.medication_name} - ${schedule.medications.dosage}</div>
-                            </div>
-                            <div class="schedule-actions">
-                                ${!schedule.is_taken && !schedule.skipped ? `
-                                    <button onclick="markAsTaken('${schedule.schedule_id}')" class="btn btn-success btn-small">Mark Taken</button>
-                                    <button onclick="markAsSkipped('${schedule.schedule_id}')" class="btn btn-secondary btn-small">Skip</button>
-                                ` : schedule.is_taken ? `
-                                    <span class="badge badge-success">Taken</span>
-                                ` : `
-                                    <span class="badge badge-danger">Skipped</span>
-                                `}
-                            </div>
-                        </div>
-                    `;
-                });
-
-                container.innerHTML = html;
-
-            } catch (error) {
-                console.error('Error loading schedule:', error);
-                document.getElementById('todaySchedule').innerHTML = `
-                    <div class="message error">Error loading schedule</div>
-                `;
-            }
-        }
-
-        // Mark as Taken
-        async function markAsTaken(scheduleId) {
-            try {
-                const { error } = await supabase
-                    .from('medication_schedule')
-                    .update({
-                        is_taken: true,
-                        taken_at: new Date().toISOString()
-                    })
-                    .eq('schedule_id', scheduleId);
-
-                if (error) throw error;
-
-                logEvent('success', 'Medication marked as taken');
-                showNotification('Medication Taken', 'Great job staying on track!');
-                loadTodaySchedule();
-
-            } catch (error) {
-                console.error('Error marking as taken:', error);
-                logEvent('error', 'Failed to mark medication as taken');
-            }
-        }
-
-        // Mark as Skipped
-        async function markAsSkipped(scheduleId) {
-            try {
-                const { error } = await supabase
-                    .from('medication_schedule')
-                    .update({ skipped: true })
-                    .eq('schedule_id', scheduleId);
-
-                if (error) throw error;
-
-                logEvent('info', 'Medication marked as skipped');
-                loadTodaySchedule();
-
-            } catch (error) {
-                console.error('Error marking as skipped:', error);
-                logEvent('error', 'Failed to mark medication as skipped');
-            }
-        }
-
-        // Load Upcoming Refills
-        async function loadUpcomingRefills() {
-            try {
-                const today = new Date();
-                const in30Days = new Date();
-                in30Days.setDate(today.getDate() + 30);
-
-                const { data, error } = await supabase
-                    .from('medications')
-                    .select('*')
-                    .eq('user_id', currentUser.id)
-                    .eq('is_active', true)
-                    .not('refill_date', 'is', null)
-                    .gte('refill_date', today.toISOString().split('T')[0])
-                    .lte('refill_date', in30Days.toISOString().split('T')[0])
-                    .order('refill_date', { ascending: true });
-
-                if (error) throw error;
-
-                const container = document.getElementById('upcomingRefills');
-                
-                if (!data || data.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <p>No upcoming refills in the next 30 days</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                let html = '';
-                data.forEach(med => {
-                    const refillDate = new Date(med.refill_date);
-                    const daysUntil = Math.ceil((refillDate - today) / (1000 * 60 * 60 * 24));
-                    const isUrgent = daysUntil <= 7;
-                    
-                    html += `
-                        <div class="refill-alert ${isUrgent ? 'urgent' : ''}">
-                            <div class="refill-medication">${med.medication_name}</div>
-                            <div class="refill-date">Refill in ${daysUntil} day${daysUntil !== 1 ? 's' : ''} - ${refillDate.toLocaleDateString()}</div>
-                            ${med.pharmacy_name ? `<div style="color: #64748b; font-size: 13px; margin-top: 5px;">Pharmacy: ${med.pharmacy_name}</div>` : ''}
-                        </div>
-                    `;
-                });
-
-                container.innerHTML = html;
-
-            } catch (error) {
-                console.error('Error loading refills:', error);
-                document.getElementById('upcomingRefills').innerHTML = `
-                    <div class="message error">Error loading refills</div>
-                `;
-            }
-        }
-
-        // Load Medications List
         async function loadMedications() {
             try {
                 const { data, error } = await supabase
@@ -1331,7 +1260,7 @@
                     container.innerHTML = `
                         <div class="empty-state">
                             <h3>No Medications Yet</h3>
-                            <p>Add your first medication using the form above</p>
+                            <p>Add your first medication to get started</p>
                         </div>
                     `;
                     return;
@@ -1346,11 +1275,10 @@
                         <div class="medication-item ${!med.is_active ? 'inactive' : ''}">
                             <div class="medication-header">
                                 <div>
-                                    <div class="medication-name">${med.medication_name}</div>
-                                    <div class="medication-dosage">${med.dosage} - ${med.frequency}</div>
+                                    <div class="medication-header-name">${med.medication_name}</div>
+                                    <div class="medication-header-dosage">${med.dosage} - ${med.frequency}</div>
                                 </div>
-                                <div class="medication-actions">
-                                    <button onclick='editMedication(${JSON.stringify(med).replace(/'/g, "&apos;")})' class="btn btn-primary btn-small">Edit</button>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                     <button onclick="toggleMedicationActive('${med.medication_id}', ${!med.is_active})" class="btn btn-secondary btn-small">
                                         ${med.is_active ? 'Deactivate' : 'Activate'}
                                     </button>
@@ -1388,9 +1316,6 @@
 
                 container.innerHTML = html;
 
-                // Also update related medication dropdown for doctor's notes
-                updateRelatedMedicationDropdown(data.filter(m => m.is_active));
-
             } catch (error) {
                 console.error('Error loading medications:', error);
                 document.getElementById('medicationsList').innerHTML = `
@@ -1399,77 +1324,6 @@
             }
         }
 
-        function updateRelatedMedicationDropdown(medications) {
-            const select = document.getElementById('relatedMedication');
-            select.innerHTML = '<option value="">None (general note)</option>';
-            
-            medications.forEach(med => {
-                const option = document.createElement('option');
-                option.value = med.medication_id;
-                option.textContent = `${med.medication_name} - ${med.dosage}`;
-                select.appendChild(option);
-            });
-        }
-
-        // Edit Medication
-        function editMedication(medication) {
-            document.getElementById('editMedicationId').value = medication.medication_id;
-            document.getElementById('editMedicationName').value = medication.medication_name;
-            document.getElementById('editDosage').value = medication.dosage;
-            document.getElementById('editFrequency').value = medication.frequency;
-            document.getElementById('editRefillDate').value = medication.refill_date || '';
-            document.getElementById('editPrescribingDoctor').value = medication.prescribing_doctor || '';
-            document.getElementById('editNotes').value = medication.notes || '';
-            
-            document.getElementById('editMedicationModal').classList.add('active');
-        }
-
-        function closeEditMedicationModal() {
-            document.getElementById('editMedicationModal').classList.remove('active');
-            document.getElementById('editMessage').innerHTML = '';
-        }
-
-        async function updateMedication(event) {
-            event.preventDefault();
-            
-            const medicationId = document.getElementById('editMedicationId').value;
-            const medicationName = document.getElementById('editMedicationName').value;
-            const dosage = document.getElementById('editDosage').value;
-            const frequency = document.getElementById('editFrequency').value;
-            const refillDate = document.getElementById('editRefillDate').value || null;
-            const prescribingDoctor = document.getElementById('editPrescribingDoctor').value || null;
-            const notes = document.getElementById('editNotes').value || null;
-
-            try {
-                const { error } = await supabase
-                    .from('medications')
-                    .update({
-                        medication_name: medicationName,
-                        dosage: dosage,
-                        frequency: frequency,
-                        refill_date: refillDate,
-                        prescribing_doctor: prescribingDoctor,
-                        notes: notes,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('medication_id', medicationId);
-
-                if (error) throw error;
-
-                logEvent('info', `Updated medication: ${medicationName}`);
-                closeEditMedicationModal();
-                loadMedications();
-                alert('Medication updated successfully!');
-
-            } catch (error) {
-                console.error('Error updating medication:', error);
-                document.getElementById('editMessage').innerHTML = `
-                    <div class="message error">Error: ${error.message}</div>
-                `;
-            }
-        }
-
-        // Toggle Medication Active
         async function toggleMedicationActive(medicationId, newStatus) {
             try {
                 const { error } = await supabase
@@ -1479,19 +1333,19 @@
 
                 if (error) throw error;
 
-                logEvent('info', `Medication ${newStatus ? 'activated' : 'deactivated'}`);
-                loadMedications();
-                loadTodaySchedule();
+                await loadMedications();
+                await loadMonthSchedule(currentDate.getFullYear(), currentDate.getMonth());
+                renderCalendar();
+                loadDayMedications(selectedDate);
 
             } catch (error) {
                 console.error('Error toggling medication:', error);
-                logEvent('error', 'Failed to toggle medication status');
+                alert('Error updating medication status');
             }
         }
 
-        // Delete Medication
         async function deleteMedication(medicationId, medicationName) {
-            if (!confirm(`Are you sure you want to delete ${medicationName}? This will also delete all associated schedules and reminders.`)) {
+            if (!confirm(`Are you sure you want to delete ${medicationName}? This will remove all associated schedules.`)) {
                 return;
             }
 
@@ -1503,224 +1357,15 @@
 
                 if (error) throw error;
 
-                logEvent('info', `Deleted medication: ${medicationName}`);
-                loadAllData();
                 alert('Medication deleted successfully');
+                await loadMedications();
+                await loadMonthSchedule(currentDate.getFullYear(), currentDate.getMonth());
+                renderCalendar();
+                loadDayMedications(selectedDate);
 
             } catch (error) {
                 console.error('Error deleting medication:', error);
-                logEvent('error', 'Failed to delete medication');
                 alert('Error deleting medication: ' + error.message);
-            }
-        }
-
-        // Doctor's Notes Functions
-        function openDoctorNoteModal() {
-            document.getElementById('doctorNoteModal').classList.add('active');
-        }
-
-        function closeDoctorNoteModal() {
-            document.getElementById('doctorNoteModal').classList.remove('active');
-            document.getElementById('noteMessage').innerHTML = '';
-            document.getElementById('doctorNoteForm').reset();
-        }
-
-        async function addDoctorNote(event) {
-            event.preventDefault();
-            
-            const noteTitle = document.getElementById('noteTitle').value;
-            const doctorName = document.getElementById('doctorName').value || null;
-            const relatedMedication = document.getElementById('relatedMedication').value || null;
-            const noteContent = document.getElementById('noteContent').value;
-            const reminderDate = document.getElementById('reminderDate').value || null;
-
-            try {
-                const { error } = await supabase
-                    .from('doctors_notes')
-                    .insert([{
-                        user_id: currentUser.id,
-                        medication_id: relatedMedication,
-                        doctor_name: doctorName,
-                        note_title: noteTitle,
-                        note_content: noteContent,
-                        reminder_date: reminderDate
-                    }]);
-
-                if (error) throw error;
-
-                logEvent('info', `Added doctor's note: ${noteTitle}`);
-                alert('Doctor\'s note added successfully!');
-                closeDoctorNoteModal();
-                loadDoctorsNotes();
-
-            } catch (error) {
-                console.error('Error adding note:', error);
-                document.getElementById('noteMessage').innerHTML = `
-                    <div class="message error">Error: ${error.message}</div>
-                `;
-            }
-        }
-
-        async function loadDoctorsNotes() {
-            try {
-                const { data, error } = await supabase
-                    .from('doctors_notes')
-                    .select(`
-                        *,
-                        medications (medication_name)
-                    `)
-                    .eq('user_id', currentUser.id)
-                    .order('is_completed', { ascending: true })
-                    .order('reminder_date', { ascending: true });
-
-                if (error) throw error;
-
-                const container = document.getElementById('doctorsNotes');
-                
-                if (!data || data.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <p>No doctor's notes yet</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                let html = '';
-                data.forEach(note => {
-                    const reminderDate = note.reminder_date ? new Date(note.reminder_date).toLocaleDateString() : null;
-                    
-                    html += `
-                        <div class="doctors-note ${note.is_completed ? 'completed' : ''}">
-                            <div class="note-header">
-                                <div>
-                                    <div class="note-title">${note.note_title}</div>
-                                    ${note.doctor_name ? `<div class="note-doctor">Dr. ${note.doctor_name}</div>` : ''}
-                                    ${note.medications ? `<div class="note-doctor">Re: ${note.medications.medication_name}</div>` : ''}
-                                </div>
-                                <div style="display: flex; gap: 8px;">
-                                    ${!note.is_completed ? `
-                                        <button onclick="markNoteComplete('${note.note_id}')" class="btn btn-success btn-small">Mark Complete</button>
-                                    ` : ''}
-                                    <button onclick="deleteNote('${note.note_id}')" class="btn btn-danger btn-small">Delete</button>
-                                </div>
-                            </div>
-                            <div class="note-content">${note.note_content}</div>
-                            ${reminderDate ? `<div class="note-reminder">Reminder Date: ${reminderDate}</div>` : ''}
-                        </div>
-                    `;
-                });
-
-                container.innerHTML = html;
-
-            } catch (error) {
-                console.error('Error loading notes:', error);
-                document.getElementById('doctorsNotes').innerHTML = `
-                    <div class="message error">Error loading notes</div>
-                `;
-            }
-        }
-
-        async function markNoteComplete(noteId) {
-            try {
-                const { error } = await supabase
-                    .from('doctors_notes')
-                    .update({ is_completed: true })
-                    .eq('note_id', noteId);
-
-                if (error) throw error;
-
-                logEvent('success', 'Doctor\'s note marked as complete');
-                loadDoctorsNotes();
-
-            } catch (error) {
-                console.error('Error marking note complete:', error);
-                logEvent('error', 'Failed to mark note as complete');
-            }
-        }
-
-        async function deleteNote(noteId) {
-            if (!confirm('Are you sure you want to delete this note?')) {
-                return;
-            }
-
-            try {
-                const { error } = await supabase
-                    .from('doctors_notes')
-                    .delete()
-                    .eq('note_id', noteId);
-
-                if (error) throw error;
-
-                logEvent('info', 'Doctor\'s note deleted');
-                loadDoctorsNotes();
-
-            } catch (error) {
-                console.error('Error deleting note:', error);
-                logEvent('error', 'Failed to delete note');
-            }
-        }
-
-        // Activity Logs
-        async function loadActivityLogs() {
-            try {
-                const { data, error } = await supabase
-                    .from('medication_logs')
-                    .select('*')
-                    .eq('user_id', currentUser.id)
-                    .order('created_at', { ascending: false })
-                    .limit(20);
-
-                if (error) throw error;
-
-                const container = document.getElementById('activityLogs');
-                
-                if (!data || data.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <p>No activity logs yet</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                let html = '';
-                data.forEach(log => {
-                    const timestamp = new Date(log.created_at).toLocaleString();
-                    
-                    html += `
-                        <div class="log-entry ${log.log_type}">
-                            <div class="log-time">${timestamp}</div>
-                            <div class="log-message">${log.log_message}</div>
-                        </div>
-                    `;
-                });
-
-                container.innerHTML = html;
-
-            } catch (error) {
-                console.error('Error loading logs:', error);
-                document.getElementById('activityLogs').innerHTML = `
-                    <div class="message error">Error loading logs</div>
-                `;
-            }
-        }
-
-        async function logEvent(logType, logMessage, medicationId = null) {
-            try {
-                await supabase
-                    .from('medication_logs')
-                    .insert([{
-                        user_id: currentUser.id,
-                        log_type: logType,
-                        log_message: logMessage,
-                        medication_id: medicationId
-                    }]);
-                
-                // Reload logs
-                loadActivityLogs();
-            } catch (error) {
-                console.error('Error logging event:', error);
             }
         }
     </script>
