@@ -966,7 +966,7 @@
 
                 if (error) throw error;
 
-                // Group by date
+                // Group by date and deduplicate
                 scheduleData = {};
                 if (data) {
                     data.forEach(item => {
@@ -974,7 +974,24 @@
                         if (!scheduleData[dateStr]) {
                             scheduleData[dateStr] = [];
                         }
-                        scheduleData[dateStr].push(item);
+                        
+                        // Check if this exact medication+time combo already exists for this date
+                        const exists = scheduleData[dateStr].find(existing => 
+                            existing.medications.medication_name === item.medications.medication_name &&
+                            existing.medications.dosage === item.medications.dosage &&
+                            existing.scheduled_time === item.scheduled_time
+                        );
+                        
+                        if (!exists) {
+                            // New unique entry
+                            scheduleData[dateStr].push(item);
+                        } else if (item.is_taken || item.skipped) {
+                            // Update if this one is taken/skipped and the existing one isn't
+                            if (!exists.is_taken && !exists.skipped) {
+                                const index = scheduleData[dateStr].indexOf(exists);
+                                scheduleData[dateStr][index] = item;
+                            }
+                        }
                     });
                 }
             } catch (error) {
@@ -1011,38 +1028,55 @@
                 return;
             }
             
-            // Group medications by medication_id
+            // Group medications by name+dosage (not ID) and deduplicate times
             const groupedMeds = {};
             dayMeds.forEach(med => {
-                const medId = med.medication_id;
-                if (!groupedMeds[medId]) {
-                    groupedMeds[medId] = {
+                const medKey = `${med.medications.medication_name}|${med.medications.dosage}`;
+                if (!groupedMeds[medKey]) {
+                    groupedMeds[medKey] = {
                         name: med.medications.medication_name,
                         dosage: med.medications.dosage,
-                        times: []
+                        timesMap: {}
                     };
                 }
-                groupedMeds[medId].times.push({
-                    schedule_id: med.schedule_id,
-                    time: med.scheduled_time.slice(0, 5),
-                    is_taken: med.is_taken,
-                    skipped: med.skipped
-                });
+                
+                // Use time as key to avoid duplicates
+                const timeKey = med.scheduled_time.slice(0, 5);
+                if (!groupedMeds[medKey].timesMap[timeKey]) {
+                    // First entry for this time
+                    groupedMeds[medKey].timesMap[timeKey] = {
+                        schedule_id: med.schedule_id,
+                        time: timeKey,
+                        is_taken: med.is_taken,
+                        skipped: med.skipped
+                    };
+                } else {
+                    // Duplicate time - prefer the one with status
+                    const existing = groupedMeds[medKey].timesMap[timeKey];
+                    if ((med.is_taken || med.skipped) && !existing.is_taken && !existing.skipped) {
+                        groupedMeds[medKey].timesMap[timeKey] = {
+                            schedule_id: med.schedule_id,
+                            time: timeKey,
+                            is_taken: med.is_taken,
+                            skipped: med.skipped
+                        };
+                    }
+                }
             });
             
             let html = '';
             Object.values(groupedMeds).forEach(med => {
-                // Sort times
-                med.times.sort((a, b) => a.time.localeCompare(b.time));
+                // Convert timesMap to array and sort
+                const times = Object.values(med.timesMap).sort((a, b) => a.time.localeCompare(b.time));
                 
                 // Check if all times are taken or skipped
-                const allTaken = med.times.every(t => t.is_taken);
-                const anySkipped = med.times.some(t => t.skipped);
+                const allTaken = times.every(t => t.is_taken);
+                const anySkipped = times.some(t => t.skipped);
                 const statusClass = allTaken ? 'taken' : anySkipped ? 'skipped' : '';
                 
                 // Build times display with individual checkboxes
                 let timesHtml = '<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">';
-                med.times.forEach(timeSlot => {
+                times.forEach(timeSlot => {
                     const statusIcon = timeSlot.is_taken ? '✓' : timeSlot.skipped ? '✗' : '';
                     const statusColor = timeSlot.is_taken ? '#28a745' : timeSlot.skipped ? '#dc3545' : '#64748b';
                     const isDisabled = timeSlot.is_taken || timeSlot.skipped;
@@ -1066,7 +1100,7 @@
                     <div class="medication-entry ${statusClass}">
                         <div class="medication-info" style="width: 100%;">
                             <div class="medication-name">${med.name}</div>
-                            <div class="medication-dosage">${med.dosage} - ${med.times.length} dose${med.times.length > 1 ? 's' : ''} today</div>
+                            <div class="medication-dosage">${med.dosage} - ${times.length} dose${times.length > 1 ? 's' : ''} today</div>
                             ${timesHtml}
                         </div>
                     </div>
