@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Registration - HealthHub Connect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8fafc;
+        }
+
+        .header {
+            background: #00d4d4;
+            color: #1e293b;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-section img {
+            height: 50px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #1e293b;
+        }
+
+        .header-link {
+            color: #1e293b;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .registration-container {
+            max-width: 700px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .registration-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            padding: 50px;
+        }
+
+        h2 {
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 25%;
+            right: 25%;
+            height: 2px;
+            background: #e2e8f0;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-weight: 700;
+            border: 2px solid #e2e8f0;
+        }
+
+        .step.active .step-number {
+            background: #5b21b6;
+            color: white;
+            border-color: #5b21b6;
+        }
+
+        .step.completed .step-number {
+            background: #00d4d4;
+            color: white;
+            border-color: #00d4d4;
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .step.active .step-label {
+            color: #5b21b6;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .info-box {
+            background: #f0fdfd;
+            border-left: 4px solid #00d4d4;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .info-box strong {
+            color: #00d4d4;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .security-note {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .security-note strong {
+            color: #f59e0b;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .security-note p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #92400e;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        label .required {
+            color: #dc2626;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #5b21b6;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .registration-card {
+                padding: 30px 20px;
+            }
+        }
+
+        .btn {
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: #5b21b6;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #4c1d95;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+            transition: all 0.3s;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #1e293b;
+            border: 2px solid #e2e8f0;
+            width: 100%;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            transition: all 0.3s;
+        }
+
+        .message {
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border: 1px solid;
+        }
+
+        .message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border-color: #6ee7b7;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fca5a5;
+        }
+
+        .message.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-color: #93c5fd;
+        }
+
+        .helper-text {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: -15px;
+            margin-bottom: 15px;
+        }
+
+        .verification-code-input {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 18px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #5b21b6;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="healthhub-logo.svg" alt="HealthHub Connect">
+                <div class="logo-text">HealthHub Connect</div>
+            </div>
+            <a href="register.html" class="header-link">Back to Registration</a>
+        </div>
+    </header>
+
+    <div class="registration-container">
+        <div class="registration-card">
+            <h2>Doctor Registration Portal</h2>
+            <p class="subtitle">Secure verification for healthcare professionals</p>
+
+            <div class="steps">
+                <div class="step active" id="stepIndicator1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Verification</div>
+                </div>
+                <div class="step" id="stepIndicator2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Information</div>
+                </div>
+                <div class="step" id="stepIndicator3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Submit</div>
+                </div>
+            </div>
+
+            <div id="messageContainer"></div>
+
+            <form id="doctorRegistrationForm">
+                <div class="form-step active" id="step1">
+                    <h2 style="font-size: 22px; margin-bottom: 20px;">Step 1: Verification Code</h2>
+                    
+                    <div class="security-note">
+                        <strong>Secure Registration</strong>
+                        <p>You need a verification code from your hospital's HR or administration to register as a doctor.</p>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>How to get a verification code</strong>
+                        <p>1. Contact your hospital's HR department or medical director</p>
+                        <p>2. Request a doctor registration code</p>
+                        <p>3. They will provide you with a unique code (Format: HOSP-XXXX-XXXX)</p>
+                    </div>
+
+                    <label>Verification Code <span class="required">*</span></label>
+                    <input type="text" 
+                           id="verificationCode" 
+                           class="verification-code-input"
+                           placeholder="HOSP-XXXX-XXXX" 
+                           required>
+                    <div class="helper-text">Enter the code provided by your hospital</div>
+
+                    <button type="button" class="btn btn-primary" onclick="validateCode()">
+                        Verify Code and Continue
+                    </button>
+                </div>
+
+                <div class="form-step" id="step2">
+                    <h2 style="font-size: 22px; margin-bottom: 20px;">Step 2: Professional Information</h2>
+
+                    <div class="message info">
+                        <strong>Code Verified</strong> Hospital: <span id="verifiedHospital"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label>First Name <span class="required">*</span></label>
+                            <input type="text" id="firstName" required>
+                        </div>
+                        <div>
+                            <label>Last Name <span class="required">*</span></label>
+                            <input type="text" id="lastName" required>
+                        </div>
+                    </div>
+
+                    <label>Email Address <span class="required">*</span></label>
+                    <input type="email" id="email" required>
+                    <div class="helper-text">This will be your login email</div>
+
+                    <label>Phone Number <span class="required">*</span></label>
+                    <input type="tel" id="phone" required>
+
+                    <label>Password <span class="required">*</span></label>
+                    <input type="password" id="password" required minlength="8">
+                    <div class="helper-text">Minimum 8 characters</div>
+
+                    <label>Confirm Password <span class="required">*</span></label>
+                    <input type="password" id="confirmPassword" required minlength="8">
+
+                    <div class="form-row">
+                        <div>
+                            <label>Specialization <span class="required">*</span></label>
+                            <select id="specialization" required>
+                                <option value="">Select specialization...</option>
+                                <option value="Family Medicine">Family Medicine</option>
+                                <option value="Internal Medicine">Internal Medicine</option>
+                                <option value="Pediatrics">Pediatrics</option>
+                                <option value="Cardiology">Cardiology</option>
+                                <option value="Dermatology">Dermatology</option>
+                                <option value="Emergency Medicine">Emergency Medicine</option>
+                                <option value="Neurology">Neurology</option>
+                                <option value="Obstetrics & Gynecology">Obstetrics & Gynecology</option>
+                                <option value="Oncology">Oncology</option>
+                                <option value="Orthopedics">Orthopedics</option>
+                                <option value="Psychiatry">Psychiatry</option>
+                                <option value="Radiology">Radiology</option>
+                                <option value="Surgery">Surgery</option>
+                                <option value="Urology">Urology</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Years of Experience <span class="required">*</span></label>
+                            <input type="number" id="experience" min="0" max="60" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label>Medical License Number <span class="required">*</span></label>
+                            <input type="text" id="licenseNumber" required>
+                        </div>
+                        <div>
+                            <label>License State <span class="required">*</span></label>
+                            <select id="licenseState" required>
+                                <option value="">Select state...</option>
+                                <option value="GA">Georgia</option>
+                                <option value="AL">Alabama</option>
+                                <option value="FL">Florida</option>
+                                <option value="SC">South Carolina</option>
+                                <option value="TN">Tennessee</option>
+                                <option value="NC">North Carolina</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label>Education & Credentials <span class="required">*</span></label>
+                    <textarea id="education" rows="3" required></textarea>
+
+                    <label>Professional Bio</label>
+                    <textarea id="bio" rows="3"></textarea>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep()">Back</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">Continue</button>
+                    </div>
+                </div>
+
+                <div class="form-step" id="step3">
+                    <h2 style="font-size: 22px; margin-bottom: 20px;">Step 3: Submit Registration</h2>
+
+                    <div class="info-box">
+                        <strong>Review Your Information</strong>
+                        <div id="reviewContent" style="margin-top: 10px; font-size: 14px;"></div>
+                    </div>
+
+                    <div class="info-box" style="background: #fef3c7; border-color: #f59e0b;">
+                        <strong style="color: #f59e0b;">Next Steps</strong>
+                        <p style="color: #92400e;">1. Your registration will be submitted for review</p>
+                        <p style="color: #92400e;">2. Hospital admin will verify your credentials</p>
+                        <p style="color: #92400e;">3. You will receive an email when approved (1-3 business days)</p>
+                        <p style="color: #92400e;">4. Once approved, you can sign in and begin accepting appointments</p>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep()">Back</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Submit Registration</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="back-link">
+                <a href="register.html">Back to Registration</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+        const supabaseUrl = 'https://hbtgwzneuhdqlmriwvje.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhidGd3em5ldWhkcWxtcml3dmplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNDI5MTQsImV4cCI6MjA3NTkxODkxNH0.1v1OLYSEPRBKaZWQu1sJo8DoRzYePfdc7Zcs8i8TF78';
+        
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        let currentStep = 1;
+        let verifiedCode = null;
+        let verifiedHospitalId = null;
+        let verifiedHospitalName = null;
+
+        async function validateCode() {
+            const code = document.getElementById('verificationCode').value.trim().toUpperCase();
+            
+            if (!code) {
+                showMessage('Please enter a verification code', 'error');
+                return;
+            }
+
+            try {
+                const { data, error} = await supabase
+                    .rpc('validate_verification_code', {
+                        p_code: code,
+                        p_email: '',
+                        p_license_number: ''
+                    });
+
+                if (error) throw error;
+
+                const result = data[0];
+                
+                if (!result.is_valid) {
+                    showMessage(result.error_message, 'error');
+                    return;
+                }
+
+                const { data: hospitalData, error: hospitalError } = await supabase
+                    .from('hospitals')
+                    .select('hospital_name, city, state')
+                    .eq('hospital_id', result.hospital_id)
+                    .single();
+
+                if (hospitalError) throw hospitalError;
+
+                verifiedCode = code;
+                verifiedHospitalId = result.hospital_id;
+                verifiedHospitalName = `${hospitalData.hospital_name} - ${hospitalData.city}, ${hospitalData.state}`;
+
+                document.getElementById('verifiedHospital').textContent = verifiedHospitalName;
+                showMessage('Verification code accepted!', 'success');
+                
+                setTimeout(() => {
+                    nextStep();
+                }, 1000);
+
+            } catch (error) {
+                console.error('Validation error:', error);
+                showMessage('Error validating code. Please try again.', 'error');
+            }
+        }
+
+        function nextStep() {
+            if (currentStep === 2 && !validateStep2()) return;
+            if (currentStep === 2) populateReview();
+
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`stepIndicator${currentStep}`).classList.remove('active');
+            document.getElementById(`stepIndicator${currentStep}`).classList.add('completed');
+
+            currentStep++;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            document.getElementById(`stepIndicator${currentStep}`).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function previousStep() {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`stepIndicator${currentStep}`).classList.remove('active');
+            currentStep--;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            document.getElementById(`stepIndicator${currentStep}`).classList.remove('completed');
+            document.getElementById(`stepIndicator${currentStep}`).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function validateStep2() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        function populateReview() {
+            document.getElementById('reviewContent').innerHTML = `
+                <div style="display: grid; gap: 10px;">
+                    <div><strong>Name:</strong> Dr. ${document.getElementById('firstName').value} ${document.getElementById('lastName').value}</div>
+                    <div><strong>Email:</strong> ${document.getElementById('email').value}</div>
+                    <div><strong>Phone:</strong> ${document.getElementById('phone').value}</div>
+                    <div><strong>Specialization:</strong> ${document.getElementById('specialization').value}</div>
+                    <div><strong>Experience:</strong> ${document.getElementById('experience').value} years</div>
+                    <div><strong>License:</strong> ${document.getElementById('licenseNumber').value} (${document.getElementById('licenseState').value})</div>
+                    <div><strong>Hospital:</strong> ${verifiedHospitalName}</div>
+                </div>
+            `;
+        }
+
+        document.getElementById('doctorRegistrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            try {
+                const { error } = await supabase
+                    .from('doctor_registration_requests')
+                    .insert([{
+                        email: document.getElementById('email').value,
+                        first_name: document.getElementById('firstName').value,
+                        last_name: document.getElementById('lastName').value,
+                        phone: document.getElementById('phone').value,
+                        specialization: document.getElementById('specialization').value,
+                        license_number: document.getElementById('licenseNumber').value,
+                        license_state: document.getElementById('licenseState').value,
+                        years_of_experience: parseInt(document.getElementById('experience').value),
+                        education: document.getElementById('education').value,
+                        bio: document.getElementById('bio').value || null,
+                        verification_code: verifiedCode,
+                        hospital_id: verifiedHospitalId,
+                        status: 'pending'
+                    }]);
+
+                if (error) throw error;
+
+                await supabase.rpc('mark_code_used', { p_code: verifiedCode, p_user_id: null });
+
+                showMessage('Registration submitted successfully! You will receive an email when approved.', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'signin.html';
+                }, 3000);
+
+            } catch (error) {
+                console.error('Registration error:', error);
+                showMessage('Error: ' + error.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Registration';
+            }
+        });
+
+        function showMessage(message, type) {
+            document.getElementById('messageContainer').innerHTML = `<div class="message ${type}">${message}</div>`;
+        }
+
+        document.getElementById('verificationCode').addEventListener('input', function(e) {
+            this.value = this.value.toUpperCase();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - HealthHub Connect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8fafc;
+        }
+
+        /* Header/Navigation */
+        .header {
+            background: #00d4d4;
+            color: #1e293b;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-section img {
+            height: 50px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #1e293b;
+        }
+
+        .admin-badge {
+            background: #5b21b6;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Container */
+        .container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .demo-notice {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .demo-notice strong {
+            color: #f59e0b;
+            font-size: 18px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .demo-notice p {
+            color: #92400e;
+            font-size: 14px;
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        h2 {
+            color: #5b21b6;
+            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #5b21b6;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 25px;
+            }
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #5b21b6;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #4c1d95;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        /* Generated Code Display */
+        .generated-code {
+            background: #f0fdf4;
+            border: 2px solid #10b981;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .generated-code-label {
+            font-size: 14px;
+            color: #15803d;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .code-display {
+            font-size: 28px;
+            font-weight: 700;
+            color: #15803d;
+            letter-spacing: 3px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Code List */
+        .code-list {
+            margin-top: 20px;
+        }
+
+        .code-item {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #5b21b6;
+        }
+
+        .code-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .code-value {
+            font-weight: 700;
+            font-size: 18px;
+            color: #1e293b;
+            font-family: 'Courier New', monospace;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-expired {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .code-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .code-detail strong {
+            display: block;
+            color: #1e293b;
+            margin-bottom: 2px;
+        }
+
+        .message {
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border-width: 1px;
+            border-style: solid;
+        }
+
+        .message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border-color: #6ee7b7;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fca5a5;
+        }
+
+        .helper-text {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: -15px;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: #f0fdfd;
+            border-left: 4px solid #00d4d4;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .info-box strong {
+            color: #00d4d4;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-link a {
+            color: #5b21b6;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="healthhub-logo.svg" alt="HealthHub Connect">
+                <div class="logo-text">HealthHub Connect</div>
+            </div>
+            <div class="admin-badge">Admin Portal</div>
+        </div>
+    </header>
+
+    <div class="container">
+
+
+        <div class="card">
+            <h1>Doctor Verification Codes</h1>
+            <p class="subtitle">Generate secure codes for doctor registration</p>
+
+            <div id="messageContainer"></div>
+
+            <div class="info-box">
+                <strong>How It Works</strong>
+                <p>Generate unique verification codes that doctors use to register. Each code is linked to your hospital and can be configured with specific restrictions and expiration dates.</p>
+            </div>
+
+            <h2>Generate New Code</h2>
+
+            <form id="codeGeneratorForm" onsubmit="generateCode(event)">
+                <label>Hospital</label>
+                <select id="hospitalSelect" required>
+                    <option value="">Select hospital...</option>
+                </select>
+
+                <div class="form-row">
+                    <div>
+                        <label>Code Type</label>
+                        <select id="codeType" required onchange="toggleMaxUses()">
+                            <option value="single-use">Single-Use (One doctor)</option>
+                            <option value="multi-use">Multi-Use (Multiple doctors)</option>
+                        </select>
+                    </div>
+                    <div id="maxUsesDiv" style="display: none;">
+                        <label>Maximum Uses</label>
+                        <input type="number" id="maxUses" min="2" max="100" value="5">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label>Valid For (Days)</label>
+                        <input type="number" id="validDays" min="1" max="365" value="30" required>
+                    </div>
+                    <div>
+                        <label>Created By</label>
+                        <input type="text" id="createdBy" placeholder="Your name or department" required>
+                    </div>
+                </div>
+
+                <label>Intended Doctor Email (Optional)</label>
+                <input type="email" id="intendedEmail" placeholder="Leave empty for any doctor">
+                <div class="helper-text">If set, only this specific email can use the code</div>
+
+                <label>Intended License Number (Optional)</label>
+                <input type="text" id="intendedLicense" placeholder="Leave empty for any license">
+                <div class="helper-text">If set, must match doctor's license number</div>
+
+                <label>Internal Notes</label>
+                <textarea id="notes" rows="2" placeholder="e.g., For new cardiology hire"></textarea>
+
+                <button type="submit" class="btn btn-primary" id="generateBtn">
+                    Generate Verification Code
+                </button>
+            </form>
+
+            <div id="generatedCodeDisplay" style="display: none;">
+                <div class="generated-code">
+                    <div class="generated-code-label">Code Generated Successfully</div>
+                    <div class="code-display" id="codeText"></div>
+                    <button onclick="copyCode()" class="btn btn-success">Copy Code</button>
+                    <div style="margin-top: 15px; font-size: 13px; color: #64748b;">
+                        Share this code with the doctor to register
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Generated Codes</h2>
+            <div id="codesList">
+                <div style="text-align: center; color: #64748b; padding: 20px;">
+                    Loading codes...
+                </div>
+            </div>
+        </div>
+
+        <div class="back-link">
+            <a href="index.html">Back to Home</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+        const supabaseUrl = 'https://hbtgwzneuhdqlmriwvje.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhidGd3em5ldWhkcWxtcml3dmplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNDI5MTQsImV4cCI6MjA3NTkxODkxNH0.1v1OLYSEPRBKaZWQu1sJo8DoRzYePfdc7Zcs8i8TF78';
+        
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadHospitals();
+            await loadCodes();
+        });
+
+        async function loadHospitals() {
+            try {
+                const { data, error } = await supabase
+                    .from('hospitals')
+                    .select('hospital_id, hospital_name, city, state')
+                    .order('hospital_name');
+
+                if (error) throw error;
+
+                const select = document.getElementById('hospitalSelect');
+                data.forEach(hospital => {
+                    const option = document.createElement('option');
+                    option.value = hospital.hospital_id;
+                    option.textContent = `${hospital.hospital_name} - ${hospital.city}, ${hospital.state}`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading hospitals:', error);
+                showMessage('Error loading hospitals. Check console for details.', 'error');
+            }
+        }
+
+        function toggleMaxUses() {
+            const codeType = document.getElementById('codeType').value;
+            const maxUsesDiv = document.getElementById('maxUsesDiv');
+            
+            if (codeType === 'multi-use') {
+                maxUsesDiv.style.display = 'block';
+                document.getElementById('maxUses').required = true;
+            } else {
+                maxUsesDiv.style.display = 'none';
+                document.getElementById('maxUses').required = false;
+            }
+        }
+
+        async function generateCode(event) {
+            event.preventDefault();
+            
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+
+            try {
+                const hospitalId = document.getElementById('hospitalSelect').value;
+                const codeType = document.getElementById('codeType').value;
+                const maxUses = codeType === 'multi-use' ? parseInt(document.getElementById('maxUses').value) : 1;
+                const validDays = parseInt(document.getElementById('validDays').value);
+                const createdBy = document.getElementById('createdBy').value;
+                const intendedEmail = document.getElementById('intendedEmail').value || null;
+                const intendedLicense = document.getElementById('intendedLicense').value || null;
+                const notes = document.getElementById('notes').value || null;
+
+                // Generate code using function
+                const { data: codeData, error: codeError } = await supabase
+                    .rpc('generate_verification_code');
+
+                if (codeError) throw codeError;
+
+                const verificationCode = codeData;
+                const expiresAt = new Date();
+                expiresAt.setDate(expiresAt.getDate() + validDays);
+
+                // Insert into database
+                const { error } = await supabase
+                    .from('doctor_verification_codes')
+                    .insert([{
+                        verification_code: verificationCode,
+                        hospital_id: hospitalId,
+                        code_type: codeType,
+                        max_uses: maxUses,
+                        intended_email: intendedEmail,
+                        intended_license_number: intendedLicense,
+                        expires_at: expiresAt.toISOString(),
+                        created_by: createdBy,
+                        notes: notes
+                    }]);
+
+                if (error) throw error;
+
+                // Show generated code
+                document.getElementById('codeText').textContent = verificationCode;
+                document.getElementById('generatedCodeDisplay').style.display = 'block';
+                
+                showMessage('Verification code generated successfully!', 'success');
+                
+                // Reset form
+                document.getElementById('codeGeneratorForm').reset();
+                toggleMaxUses();
+                
+                // Reload codes list
+                await loadCodes();
+
+            } catch (error) {
+                console.error('Error generating code:', error);
+                showMessage('Error generating code: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Generate Verification Code';
+            }
+        }
+
+        async function loadCodes() {
+            try {
+                const { data, error } = await supabase
+                    .from('doctor_verification_codes')
+                    .select(`
+                        *,
+                        hospitals (hospital_name)
+                    `)
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+
+                if (error) throw error;
+
+                const container = document.getElementById('codesList');
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; color: #64748b; padding: 20px;">
+                            No codes generated yet
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '<div class="code-list">';
+                data.forEach(code => {
+                    const expiryDate = new Date(code.expires_at);
+                    const isExpired = expiryDate < new Date();
+                    const isUsed = code.code_type === 'single-use' && code.current_uses >= 1;
+                    const usesDisplay = code.code_type === 'multi-use' ? `${code.current_uses}/${code.max_uses} uses` : (isUsed ? 'Used' : 'Available');
+                    
+                    let statusBadge = '';
+                    if (isExpired) {
+                        statusBadge = '<span class="badge badge-expired">Expired</span>';
+                    } else if (isUsed || (code.code_type === 'multi-use' && code.current_uses >= code.max_uses)) {
+                        statusBadge = '<span class="badge badge-expired">Fully Used</span>';
+                    } else {
+                        statusBadge = '<span class="badge badge-active">Active</span>';
+                    }
+
+                    html += `
+                        <div class="code-item">
+                            <div class="code-item-header">
+                                <div>
+                                    <div class="code-value">${code.verification_code}</div>
+                                    <div style="color: #5b21b6; font-weight: 600; font-size: 14px; margin-top: 5px;">
+                                        ${code.hospitals.hospital_name}
+                                    </div>
+                                </div>
+                                ${statusBadge}
+                            </div>
+                            <div class="code-details">
+                                <div class="code-detail">
+                                    <strong>Type</strong>
+                                    ${code.code_type}
+                                </div>
+                                <div class="code-detail">
+                                    <strong>Uses</strong>
+                                    ${usesDisplay}
+                                </div>
+                                <div class="code-detail">
+                                    <strong>Expires</strong>
+                                    ${expiryDate.toLocaleDateString()}
+                                </div>
+                                <div class="code-detail">
+                                    <strong>Created By</strong>
+                                    ${code.created_by}
+                                </div>
+                            </div>
+                            ${code.notes ? `<div style="margin-top: 10px; color: #64748b; font-size: 13px;">${code.notes}</div>` : ''}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading codes:', error);
+                document.getElementById('codesList').innerHTML = `
+                    <div style="text-align: center; color: #dc2626; padding: 20px;">
+                        Error loading codes. Check console for details.
+                    </div>
+                `;
+            }
+        }
+
+        function copyCode() {
+            const codeText = document.getElementById('codeText').textContent;
+            navigator.clipboard.writeText(codeText).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="message ${type}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
