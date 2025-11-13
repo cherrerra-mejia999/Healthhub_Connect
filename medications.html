@@ -747,8 +747,21 @@
                         </select>
                     </div>
                     <div>
-                        <label>Refill Date</label>
-                        <input type="date" id="refillDate">
+                        <label>Start Date *</label>
+                        <input type="date" id="startDate" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label>End Date / Refill Date</label>
+                        <input type="date" id="endDate">
+                        <small style="color: #64748b; font-size: 12px;">Leave empty for ongoing medication</small>
+                    </div>
+                    <div>
+                        <label>Duration (days)</label>
+                        <input type="number" id="durationDays" placeholder="e.g., 30" min="1">
+                        <small style="color: #64748b; font-size: 12px;">Or specify number of days</small>
                     </div>
                 </div>
 
@@ -1191,6 +1204,50 @@
             button.parentElement.remove();
         }
 
+        // Auto-calculate end date from start date + duration
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const durationInput = document.getElementById('durationDays');
+
+            // Set default start date to today
+            if (startDateInput) {
+                startDateInput.value = formatDate(new Date());
+            }
+
+            // Calculate end date when duration changes
+            if (durationInput && startDateInput && endDateInput) {
+                durationInput.addEventListener('input', function() {
+                    const duration = parseInt(this.value);
+                    const startDate = startDateInput.value;
+                    
+                    if (duration && startDate) {
+                        const start = new Date(startDate);
+                        start.setDate(start.getDate() + duration);
+                        endDateInput.value = formatDate(start);
+                    }
+                });
+
+                // Recalculate if start date changes
+                startDateInput.addEventListener('change', function() {
+                    const duration = parseInt(durationInput.value);
+                    
+                    if (duration) {
+                        const start = new Date(this.value);
+                        start.setDate(start.getDate() + duration);
+                        endDateInput.value = formatDate(start);
+                    }
+                });
+
+                // Clear duration if end date is manually set
+                endDateInput.addEventListener('input', function() {
+                    if (this.value) {
+                        durationInput.value = '';
+                    }
+                });
+            }
+        });
+
         async function addMedication(event) {
             event.preventDefault();
             
@@ -1202,16 +1259,35 @@
             const medicationName = document.getElementById('medicationName').value;
             const dosage = document.getElementById('dosage').value;
             const frequency = document.getElementById('frequency').value;
-            const refillDate = document.getElementById('refillDate').value || null;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const durationDays = document.getElementById('durationDays').value;
             const prescribingDoctor = document.getElementById('prescribingDoctor').value || null;
             const pharmacyName = document.getElementById('pharmacyName').value || null;
             const notes = document.getElementById('notes').value || null;
+            
+            // Calculate actual end date
+            let actualEndDate = null;
+            if (endDate) {
+                actualEndDate = endDate;
+            } else if (durationDays) {
+                const start = new Date(startDate);
+                start.setDate(start.getDate() + parseInt(durationDays));
+                actualEndDate = formatDate(start);
+            }
             
             const timeInputs = document.querySelectorAll('.time-input');
             const times = Array.from(timeInputs).map(input => input.value);
             
             if (times.length === 0) {
                 alert('Please add at least one time of day');
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+                return;
+            }
+
+            if (!startDate) {
+                alert('Please select a start date');
                 submitButton.disabled = false;
                 submitButton.textContent = originalText;
                 return;
@@ -1244,7 +1320,9 @@
                         dosage: dosage,
                         frequency: frequency,
                         time_of_day: times,
-                        refill_date: refillDate,
+                        start_date: startDate,
+                        end_date: actualEndDate,
+                        refill_date: actualEndDate, // For backward compatibility
                         prescribing_doctor: prescribingDoctor,
                         pharmacy_name: pharmacyName,
                         notes: notes
@@ -1254,11 +1332,19 @@
 
                 if (error) throw error;
 
-                // Generate schedule
+                // Calculate number of days to generate schedule
+                const start = new Date(startDate);
+                const end = actualEndDate ? new Date(actualEndDate) : new Date(start.getTime() + 90 * 24 * 60 * 60 * 1000); // Default 90 days if no end date
+                const daysDiff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                const daysToGenerate = Math.min(daysDiff + 1, 365); // Max 1 year
+
+                // Generate schedule with custom start date and duration
                 await supabase.rpc('generate_medication_schedule', {
                     med_id: medication.medication_id,
                     u_id: currentUser.id,
-                    times: times
+                    times: times,
+                    start_date: startDate,
+                    days_ahead: daysToGenerate
                 });
 
                 alert('Medication added successfully!');
@@ -1303,7 +1389,8 @@
                 let html = '';
                 data.forEach(med => {
                     const times = med.time_of_day ? med.time_of_day.join(', ') : 'Not specified';
-                    const refillDate = med.refill_date ? new Date(med.refill_date).toLocaleDateString() : 'N/A';
+                    const startDate = med.start_date ? new Date(med.start_date).toLocaleDateString() : 'Not set';
+                    const endDate = med.end_date ? new Date(med.end_date).toLocaleDateString() : 'Ongoing';
                     
                     html += `
                         <div class="medication-item ${!med.is_active ? 'inactive' : ''}">
@@ -1321,15 +1408,17 @@
                             </div>
                             <div class="medication-details">
                                 <div class="medication-detail">
+                                    <span class="detail-label">Start Date</span>
+                                    <span class="detail-value">${startDate}</span>
+                                </div>
+                                <div class="medication-detail">
+                                    <span class="detail-label">End Date</span>
+                                    <span class="detail-value">${endDate}</span>
+                                </div>
+                                <div class="medication-detail">
                                     <span class="detail-label">Times</span>
                                     <span class="detail-value">${times}</span>
                                 </div>
-                                ${med.refill_date ? `
-                                <div class="medication-detail">
-                                    <span class="detail-label">Refill Date</span>
-                                    <span class="detail-value">${refillDate}</span>
-                                </div>
-                                ` : ''}
                                 ${med.prescribing_doctor ? `
                                 <div class="medication-detail">
                                     <span class="detail-label">Doctor</span>
