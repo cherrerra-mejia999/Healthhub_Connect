@@ -552,7 +552,203 @@
                 grid-template-columns: 1fr;
             }
         }
-    </style>
+    
+    /* Chat Bubble */
+    .chat-bubble-trigger {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      background: #5b21b6;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(91, 33, 182, 0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+    }
+
+    .chat-bubble-trigger:hover {
+      transform: scale(1.1);
+    }
+
+    .chat-bubble-trigger.show {
+      display: flex;
+    }
+
+    .chat-bubble-trigger svg {
+      width: 30px;
+      height: 30px;
+      fill: white;
+    }
+
+    .chat-bubble-trigger.open {
+      display: none;
+    }
+
+    .chat-window {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 380px;
+      height: 550px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      display: none;
+      flex-direction: column;
+      z-index: 1001;
+      overflow: hidden;
+    }
+
+    .chat-window.open {
+      display: flex;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .chat-header {
+      background: #5b21b6;
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-header h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .chat-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+
+    .chat-close:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .chat-body {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background: #f8fafc;
+    }
+
+    .chat-footer {
+      display: flex;
+      gap: 10px;
+      padding: 15px;
+      border-top: 1px solid #e2e8f0;
+      background: white;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 24px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .chat-input:focus {
+      border-color: #5b21b6;
+    }
+
+    .chat-send-btn {
+      background: #5b21b6;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 24px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: opacity 0.2s;
+    }
+
+    .chat-send-btn:hover {
+      opacity: 0.9;
+    }
+
+    .chat-send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .msg {
+      display: flex;
+      margin: 15px 0;
+      max-width: 85%;
+    }
+
+    .msg.user {
+      margin-left: auto;
+      justify-content: flex-end;
+    }
+
+    .msg.ai {
+      margin-right: auto;
+      justify-content: flex-start;
+    }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .bubble.user {
+      background: #f1f5f9;
+      color: #1e293b;
+      border-bottom-right-radius: 4px;
+    }
+
+    .bubble.ai {
+      background: #5b21b6;
+      color: white;
+      border-bottom-left-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .chat-window {
+        width: calc(100% - 40px);
+        height: calc(100% - 100px);
+      }
+    }
+  </style>
 </head>
 <body>
     <!-- Header -->
@@ -577,6 +773,7 @@
             <a href="tracker.html">Health Tracker</a>
             <a href="appointments.html">Appointments</a>
             <a href="medications.html">Medications</a>
+            <a href="profile.html">Profile</a>
             <a href="support.html">Support</a>
             <a href="helpfullink.html">Helpful Links</a>
         </div>
@@ -586,10 +783,133 @@
         <div id="content"></div>
     </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    
+  <!-- Chat Bubble (only shown when logged in) -->
+  <div id="chatBubbleTrigger" class="chat-bubble-trigger" onclick="openChat()">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+      <path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/>
+    </svg>
+  </div>
+
+  <!-- Chat Window -->
+  <div id="chatWindow" class="chat-window">
+    <div class="chat-header">
+      <h3>AI Health Assistant</h3>
+      <button class="chat-close" onclick="closeChat()">×</button>
+    </div>
+    <div id="chatBody" class="chat-body"></div>
+    <div class="chat-footer">
+      <input id="chatInput" class="chat-input" placeholder="Ask a health question..." onkeypress="if(event.key==='Enter') handleSend()">
+      <button id="chatSendBtn" class="chat-send-btn" onclick="handleSend()">Send</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script>
         const supabaseUrl = 'https://hbtgwzneuhdqlmriwvje.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhidGd3em5ldWhkcWxtcml3dmplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNDI5MTQsImV4cCI6MjA3NTkxODkxNH0.1v1OLYSEPRBKaZWQu1sJo8DoRzYePfdc7Zcs8i8TF78';
+
+        const AI_FUNCTION_URL = 'https://hbtgwzneuhdqlmriwvje.supabase.co/functions/v1/ai-chat-index-ts';
+        
+        let convo = [];
+        let isLoggedIn = false;
+
+        function initializeChat() {
+            convo = [{
+                role: "system",
+                content: "You are a professional medical assistant. Keep answers short, factual, direct, and medically accurate. You only answer medical-related questions. If a question is not medical, respond with: 'Sorry, I can only answer medical-related questions.' If a request is unsafe (self-harm, drugs, medical prescriptions, or illegal topics), respond with: 'I can't help with that. Please contact a licensed medical professional or emergency services if needed.' Never break character. Do not provide emotional therapy."
+            }];
+        }
+
+        function openChat() {
+            if (!isLoggedIn) return;
+            
+            const chatWindow = document.getElementById('chatWindow');
+            const chatBubble = document.getElementById('chatBubbleTrigger');
+            
+            chatWindow.classList.add('open');
+            chatBubble.classList.add('open');
+            
+            const chatBody = document.getElementById('chatBody');
+            if (chatBody.children.length === 0) {
+                addMessage('ai', "Hello! I'm your AI Health Assistant. I can help answer health questions and provide medical information. How may I assist you?");
+            }
+            
+            document.getElementById('chatInput').focus();
+        }
+
+        function closeChat() {
+            const chatWindow = document.getElementById('chatWindow');
+            const chatBubble = document.getElementById('chatBubbleTrigger');
+            
+            chatWindow.classList.remove('open');
+            chatBubble.classList.remove('open');
+        }
+
+        function addMessage(role, text) {
+            const div = document.createElement('div');
+            div.className = `msg ${role}`;
+            div.innerHTML = `<div class="bubble ${role}">${text}</div>`;
+            const chatBody = document.getElementById('chatBody');
+            chatBody.appendChild(div);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        async function handleSend() {
+            if (!isLoggedIn) {
+                alert('Please sign in to use the AI assistant');
+                return;
+            }
+            
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            addMessage('user', text);
+            convo.push({ role: 'user', content: text });
+            input.value = '';
+
+            const sendBtn = document.getElementById('chatSendBtn');
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Thinking...';
+
+            await callAI();
+            
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'Send';
+        }
+
+        async function callAI() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                addMessage('ai', "You are signed out. Please sign in again.");
+                return;
+            }
+
+            const messages = [...convo];
+
+            try {
+                const res = await fetch(AI_FUNCTION_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${session.access_token}`
+                    },
+                    body: JSON.stringify({ messages })
+                });
+
+                const json = await res.json();
+                const reply = json.reply || "No response.";
+                addMessage('ai', reply);
+                convo.push({ role: 'assistant', content: reply });
+
+            } catch (err) {
+                console.error(err);
+                addMessage('ai', "I had an issue processing your request. Try again.");
+            }
+        }
+
         
         let supabase;
         let currentUserId;
@@ -616,6 +936,7 @@
             const { data: { session } } = await supabase.auth.getSession();
             const authButton = document.getElementById('authButton');
             const userGreeting = document.getElementById('userGreeting');
+            const chatBubble = document.getElementById('chatBubbleTrigger');
             const content = document.getElementById('content');
 
             if (session) {
@@ -634,6 +955,8 @@
                 };
                 authButton.textContent = 'Sign Out';
                 authButton.onclick = signOut;
+                isLoggedIn = true;
+                chatBubble.classList.add('show');
                 
                 loadTrackerUI();
             } else {
@@ -1257,7 +1580,9 @@
                     
                     doc.text(details.join(' | '), 55, y);
                     y += 7;
-                });
+        
+            initializeChat();
+        });
                 
                 if (data.length > 20) {
                     y += 5;
