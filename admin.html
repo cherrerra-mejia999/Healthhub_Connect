@@ -473,7 +473,6 @@
                 <p class="subtitle">Review and approve doctor registration requests</p>
                 <div id="pendingRequestsList">
                     <div class="empty-state">
-                        <div class="empty-state-icon">📋</div>
                         <p>Loading pending requests...</p>
                     </div>
                 </div>
@@ -553,7 +552,6 @@
                 <p class="subtitle">All verified healthcare professionals</p>
                 <div id="approvedDoctorsList">
                     <div class="empty-state">
-                        <div class="empty-state-icon">👨‍⚕️</div>
                         <p>Loading approved doctors...</p>
                     </div>
                 </div>
@@ -627,7 +625,6 @@
                 if (!data || data.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
-                            <div class="empty-state-icon">✅</div>
                             <p>No pending requests</p>
                         </div>
                     `;
@@ -703,24 +700,21 @@
         }
 
         async function approveDoctor(requestId, email, firstName, lastName, phone, specialization, licenseNumber, licenseState, experience, education, bio, hospitalId, verificationCode) {
-            if (!confirm(`Approve Dr. ${firstName} ${lastName}? This will create their doctor account.`)) {
+            if (!confirm(`Approve Dr. ${firstName} ${lastName}?\n\nThey will be able to sign in with the password they created during registration.`)) {
                 return;
             }
 
             try {
-                const tempPassword = 'HealthHub' + Math.random().toString(36).slice(-8);
-                
-                // Use database function to approve (bypasses auth.admin requirement)
+                // Use database function to approve
                 const { data, error } = await supabase
                     .rpc('approve_doctor_registration', {
-                        p_request_id: requestId,
-                        p_temp_password: tempPassword
+                        p_request_id: requestId
                     });
 
                 if (error) throw error;
 
                 if (data && data.success) {
-                    showMessage(`Dr. ${firstName} ${lastName} approved! Email: ${email}, Temp Password: ${tempPassword}`, 'success');
+                    showMessage(`Dr. ${firstName} ${lastName} approved successfully! They can now sign in with their email: ${email}`, 'success');
                 } else {
                     throw new Error(data?.error || 'Approval failed');
                 }
@@ -778,7 +772,6 @@
                 if (!data || data.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
-                            <div class="empty-state-icon">👨‍⚕️</div>
                             <p>No approved doctors yet</p>
                         </div>
                     `;

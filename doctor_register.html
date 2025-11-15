@@ -518,7 +518,7 @@
             </form>
 
             <div class="back-link">
-                <a href="register-simple.html">Back to Registration</a>
+                <a href="register.html">Back to Registration</a>
             </div>
         </div>
     </div>
@@ -642,12 +642,34 @@
             submitBtn.textContent = 'Submitting...';
 
             try {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+
+                // Create auth account first
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            first_name: firstName,
+                            last_name: lastName,
+                            user_type: 'doctor'
+                        }
+                    }
+                });
+
+                if (authError) throw authError;
+
+                // Create registration request
                 const { error } = await supabase
                     .from('doctor_registration_requests')
                     .insert([{
-                        email: document.getElementById('email').value,
-                        first_name: document.getElementById('firstName').value,
-                        last_name: document.getElementById('lastName').value,
+                        user_id: authData.user.id,
+                        email: email,
+                        first_name: firstName,
+                        last_name: lastName,
                         phone: document.getElementById('phone').value,
                         specialization: document.getElementById('specialization').value,
                         license_number: document.getElementById('licenseNumber').value,
@@ -662,7 +684,7 @@
 
                 if (error) throw error;
 
-                await supabase.rpc('mark_code_used', { p_code: verifiedCode, p_user_id: null });
+                await supabase.rpc('mark_code_used', { p_code: verifiedCode, p_user_id: authData.user.id });
 
                 showMessage('Registration submitted successfully! You will receive an email when approved.', 'success');
                 
