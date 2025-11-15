@@ -196,14 +196,29 @@
             });
 
             // Listen for auth state changes
-            supabase.auth.onAuthStateChange((event, session) => {
+            supabase.auth.onAuthStateChange(async (event, session) => {
                 debugLog(`Auth state changed: ${event}`);
                 if (event === 'SIGNED_IN' && session) {
                     debugLog('Sign in detected! Session: ' + (session ? 'YES' : 'NO'));
-                    showMessage('Sign in successful! Redirecting...', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 1000);
+                    
+                    // Check if user is a doctor
+                    const { data: doctorData } = await supabase
+                        .from('doctors')
+                        .select('doctor_id')
+                        .eq('user_id', session.user.id)
+                        .single();
+                    
+                    if (doctorData) {
+                        showMessage('Welcome Doctor! Redirecting...', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'doctor_dashboard.html';
+                        }, 1000);
+                    } else {
+                        showMessage('Sign in successful! Redirecting...', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1000);
+                    }
                 }
             });
 
@@ -244,14 +259,29 @@
                     debugLog('Session: ' + (data.session ? 'YES' : 'NO'));
 
                     if (data.user && data.session) {
-                        debugLog('✓ Sign in successful! User authenticated.');
-                        showMessage('Sign in successful! Redirecting...', 'success');
+                        debugLog('Sign in successful! User authenticated.');
                         
-                        // Wait a moment for session to be fully established
-                        setTimeout(() => {
-                            debugLog('Redirecting to index.html...');
-                            window.location.href = 'index.html';
-                        }, 1500);
+                        // Check if user is a doctor
+                        const { data: doctorData } = await supabase
+                            .from('doctors')
+                            .select('doctor_id')
+                            .eq('user_id', data.user.id)
+                            .single();
+                        
+                        if (doctorData) {
+                            debugLog('User is a doctor - redirecting to doctor dashboard');
+                            showMessage('Welcome Doctor! Redirecting...', 'success');
+                            setTimeout(() => {
+                                window.location.href = 'doctor_dashboard.html';
+                            }, 1500);
+                        } else {
+                            debugLog('User is a patient - redirecting to patient dashboard');
+                            showMessage('Sign in successful! Redirecting...', 'success');
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 1500);
+                        }
+                    
                     } else if (data.user && !data.session) {
                         debugLog('⚠ User exists but no session - likely email not confirmed');
                         showMessage('Please verify your email address before signing in.', 'error');
