@@ -37,16 +37,6 @@
             align-items: center;
         }
 
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .logo-section img {
-            height: 50px;
-        }
-
         .logo-text {
             font-size: 24px;
             font-weight: 700;
@@ -148,6 +138,168 @@
             font-weight: 700;
         }
 
+        h3 {
+            color: #334155;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .availability-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .day-schedule {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .day-schedule.active {
+            border-color: #00d4d4;
+            background: #f0fdfd;
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .day-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 16px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #00d4d4;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .time-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .time-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #5b21b6;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #059669;
+        }
+
+        .btn-save {
+            background: #00d4d4;
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+        .btn-save:hover {
+            background: #00b8b8;
+        }
+
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            color: #1e3a8a;
+            margin: 0;
+            font-size: 14px;
+        }
+
         .appointment-card {
             background: #f8fafc;
             border-left: 4px solid #5b21b6;
@@ -203,25 +355,6 @@
             margin-top: 15px;
         }
 
-        .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: #10b981;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #059669;
-        }
-
         .btn-danger {
             background: #ef4444;
             color: white;
@@ -231,145 +364,80 @@
             background: #dc2626;
         }
 
-        .btn-view {
-            background: #5b21b6;
-            color: white;
-        }
-
-        .btn-view:hover {
-            background: #4c1d95;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #1e293b;
-            font-size: 14px;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #5b21b6;
-        }
-
-        .document-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: #f8fafc;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .document-info {
-            flex: 1;
-        }
-
-        .document-name {
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 5px;
-        }
-
-        .document-meta {
-            font-size: 13px;
-            color: #64748b;
-        }
-
-        .medication-card {
-            background: #f0fdfd;
-            border-left: 4px solid #00d4d4;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .medication-name {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 10px;
-        }
-
-        .medication-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            font-size: 14px;
-            color: #64748b;
-        }
-
-        .detail-item strong {
-            display: block;
-            color: #1e293b;
-            margin-bottom: 3px;
-        }
-
         .message {
-            padding: 14px;
+            padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
-            font-size: 14px;
-            border: 1px solid;
+            font-weight: 600;
         }
 
         .message.success {
             background: #d1fae5;
             color: #065f46;
-            border-color: #6ee7b7;
+            border: 1px solid #10b981;
         }
 
         .message.error {
             background: #fee2e2;
             color: #991b1b;
-            border-color: #fca5a5;
+            border: 1px solid #ef4444;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
+        .hospital-selection {
+            background: #f0fdf4;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #86efac;
+        }
+
+        .hospital-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .hospital-option input[type="checkbox"] {
+            width: auto;
+        }
+
+        .hospital-option label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .current-availability {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .availability-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .availability-day {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .availability-time {
             color: #64748b;
         }
 
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.3;
-        }
-
-        .patient-select-card {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -377,12 +445,11 @@
     <header class="header">
         <div class="header-content">
             <div class="logo-section">
-                <img src="healthhub-logo.svg" alt="HealthHub Connect">
                 <div class="logo-text">HealthHub Connect</div>
             </div>
             <div class="user-info">
-                <div class="doctor-badge">Doctor Portal</div>
-                <span id="doctorName" style="font-weight: 600;">Dr. Loading...</span>
+                <span class="doctor-badge">Doctor Portal</span>
+                <span id="doctorName">Dr. [Name]</span>
                 <button class="btn-secondary" onclick="signOut()">Sign Out</button>
             </div>
         </div>
@@ -390,10 +457,10 @@
 
     <nav class="nav-section">
         <div class="nav-pills">
-            <a onclick="showSection('appointments')" id="nav-appointments" class="active">My Appointments</a>
-            <a onclick="showSection('documents')" id="nav-documents">Patient Documents</a>
-            <a onclick="showSection('medications')" id="nav-medications">Prescribe Medication</a>
-            <a onclick="showSection('visit-summary')" id="nav-visit-summary">Visit Summary</a>
+            <a href="#" onclick="showSection('appointments')" class="active">Appointments</a>
+            <a href="#" onclick="showSection('availability')">My Availability</a>
+            <a href="#" onclick="showSection('medications')">Prescribe Medication</a>
+            <a href="#" onclick="showSection('visits')">Visit Summaries</a>
         </div>
     </nav>
 
@@ -401,252 +468,257 @@
         <div id="messageContainer"></div>
 
         <!-- Appointments Section -->
-        <div id="appointments-section" class="section active">
+        <section id="appointments" class="section active">
             <div class="card">
                 <h2>My Appointments</h2>
                 <div id="appointmentsList">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📅</div>
-                        <p>Loading appointments...</p>
-                    </div>
+                    <p style="text-align: center; color: #64748b; padding: 40px;">Loading appointments...</p>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Documents Section -->
-        <div id="documents-section" class="section">
+        <!-- Availability Section -->
+        <section id="availability" class="section">
             <div class="card">
-                <h2>Upload Patient Document</h2>
+                <h2>Manage My Availability</h2>
                 
-                <div class="patient-select-card">
-                    <strong style="color: #f59e0b; display: block; margin-bottom: 10px;">Select Patient</strong>
-                    <p style="color: #92400e; font-size: 14px; margin-bottom: 15px;">Choose the patient you want to upload a document for</p>
-                    <select id="documentPatientSelect" onchange="loadPatientDocuments()">
-                        <option value="">Select a patient...</option>
+                <div class="info-box">
+                    <p><strong>Set your weekly schedule:</strong> Toggle days you're available and set your working hours. Patients will only be able to book appointments during these times.</p>
+                </div>
+
+                <!-- Hospital Selection -->
+                <div class="hospital-selection">
+                    <h3>Select Hospitals/Locations</h3>
+                    <p style="margin-bottom: 15px; color: #64748b; font-size: 14px;">Choose which locations you work at:</p>
+                    <div id="hospitalsList">
+                        <p>Loading hospitals...</p>
+                    </div>
+                </div>
+
+                <!-- Slot Duration -->
+                <div class="form-group">
+                    <label>Appointment Slot Duration</label>
+                    <select id="slotDuration">
+                        <option value="15">15 minutes</option>
+                        <option value="30" selected>30 minutes</option>
+                        <option value="45">45 minutes</option>
+                        <option value="60">60 minutes</option>
                     </select>
                 </div>
 
-                <div id="uploadDocumentForm" style="display: none;">
-                    <div class="form-group">
-                        <label>Document Type</label>
-                        <select id="documentType" required>
-                            <option value="">Select type...</option>
-                            <option value="Lab Result">Lab Result</option>
-                            <option value="Imaging">Imaging/X-Ray</option>
-                            <option value="Prescription">Prescription</option>
-                            <option value="Medical Report">Medical Report</option>
-                            <option value="Referral">Referral Letter</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Document Title</label>
-                        <input type="text" id="documentTitle" placeholder="e.g., Blood Test Results - Nov 2025" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Notes (Optional)</label>
-                        <textarea id="documentNotes" rows="3" placeholder="Additional notes about this document..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Upload File</label>
-                        <input type="file" id="documentFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
-                    </div>
-
-                    <button class="btn btn-primary" onclick="uploadDocument()" id="uploadBtn">Upload Document</button>
+                <!-- Weekly Schedule -->
+                <h3>Weekly Schedule</h3>
+                <div class="availability-grid" id="weeklySchedule">
+                    <!-- Days will be populated by JavaScript -->
                 </div>
 
-                <div id="patientDocumentsList" style="margin-top: 30px;"></div>
+                <div style="margin-top: 30px; text-align: center;">
+                    <button class="btn btn-save" onclick="saveAvailability()">Save My Availability</button>
+                </div>
+
+                <!-- Current Availability Display -->
+                <div class="current-availability" id="currentAvailability" style="display: none;">
+                    <h3>Your Current Availability</h3>
+                    <div id="availabilityList"></div>
+                </div>
             </div>
-        </div>
+        </section>
 
         <!-- Medications Section -->
-        <div id="medications-section" class="section">
+        <section id="medications" class="section">
             <div class="card">
                 <h2>Prescribe Medication</h2>
                 
-                <div class="patient-select-card">
-                    <strong style="color: #f59e0b; display: block; margin-bottom: 10px;">Select Patient</strong>
-                    <p style="color: #92400e; font-size: 14px; margin-bottom: 15px;">Choose the patient to prescribe medication for</p>
+                <div class="form-group">
+                    <label>Select Patient</label>
                     <select id="medicationPatientSelect" onchange="loadPatientMedications()">
-                        <option value="">Select a patient...</option>
+                        <option value="">Choose a patient...</option>
                     </select>
                 </div>
 
                 <div id="prescribeMedicationForm" style="display: none;">
                     <div class="form-group">
-                        <label>Medication Name</label>
-                        <input type="text" id="medicationName" placeholder="e.g., Amoxicillin" required>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Dosage</label>
-                            <input type="text" id="medicationDosage" placeholder="e.g., 500mg" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Frequency</label>
-                            <select id="medicationFrequency" required>
-                                <option value="">Select frequency...</option>
-                                <option value="Once daily">Once daily</option>
-                                <option value="Twice daily">Twice daily</option>
-                                <option value="Three times daily">Three times daily</option>
-                                <option value="Four times daily">Four times daily</option>
-                                <option value="Every 4 hours">Every 4 hours</option>
-                                <option value="Every 6 hours">Every 6 hours</option>
-                                <option value="Every 8 hours">Every 8 hours</option>
-                                <option value="As needed">As needed</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Start Date</label>
-                            <input type="date" id="medicationStartDate" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Duration (Days)</label>
-                            <input type="number" id="medicationDuration" placeholder="e.g., 7" min="1" required>
-                        </div>
+                        <label>Medication Name *</label>
+                        <input type="text" id="medicationName" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Instructions</label>
-                        <textarea id="medicationInstructions" rows="3" placeholder="e.g., Take with food. Avoid alcohol." required></textarea>
+                        <label>Dosage *</label>
+                        <input type="text" id="medicationDosage" placeholder="e.g., 500mg" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Reason for Prescription</label>
-                        <textarea id="medicationReason" rows="2" placeholder="e.g., Bacterial infection" required></textarea>
+                        <label>Frequency *</label>
+                        <select id="medicationFrequency" required>
+                            <option value="">Select frequency...</option>
+                            <option value="Once daily">Once daily</option>
+                            <option value="Twice daily">Twice daily</option>
+                            <option value="Three times daily">Three times daily</option>
+                            <option value="Four times daily">Four times daily</option>
+                            <option value="Every other day">Every other day</option>
+                            <option value="As needed">As needed</option>
+                        </select>
                     </div>
 
-                    <button class="btn btn-primary" onclick="prescribeMedication()" id="prescribeBtn">Prescribe Medication</button>
+                    <div class="form-group">
+                        <label>Start Date *</label>
+                        <input type="date" id="medicationStartDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Duration (days) *</label>
+                        <input type="number" id="medicationDuration" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Instructions *</label>
+                        <textarea id="medicationInstructions" rows="3" placeholder="e.g., Take with food" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Reason for Prescription *</label>
+                        <textarea id="medicationReason" rows="2" required></textarea>
+                    </div>
+
+                    <button class="btn btn-primary" id="prescribeBtn" onclick="prescribeMedication()">Prescribe Medication</button>
                 </div>
 
                 <div id="patientMedicationsList" style="margin-top: 30px;"></div>
             </div>
-        </div>
+        </section>
 
-        <!-- Visit Summary Section -->
-        <div id="visit-summary-section" class="section">
+        <!-- Visit Summaries Section -->
+        <section id="visits" class="section">
             <div class="card">
                 <h2>Create Visit Summary</h2>
                 
-                <div class="patient-select-card">
-                    <strong style="color: #f59e0b; display: block; margin-bottom: 10px;">Select Patient</strong>
-                    <p style="color: #92400e; font-size: 14px; margin-bottom: 15px;">Choose the patient for this visit summary</p>
+                <div class="form-group">
+                    <label>Select Patient</label>
                     <select id="visitPatientSelect">
-                        <option value="">Select a patient...</option>
+                        <option value="">Choose a patient...</option>
                     </select>
                 </div>
 
                 <div id="visitSummaryForm" style="display: none;">
                     <div class="form-group">
-                        <label>Visit Date</label>
+                        <label>Visit Date *</label>
                         <input type="date" id="visitDate" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Chief Complaint</label>
-                        <input type="text" id="chiefComplaint" placeholder="e.g., Fever and cough" required>
+                        <label>Chief Complaint *</label>
+                        <textarea id="chiefComplaint" rows="2" required></textarea>
                     </div>
 
                     <div class="form-group">
                         <label>Vital Signs</label>
-                        <textarea id="vitalSigns" rows="2" placeholder="BP: 120/80, Temp: 98.6°F, HR: 72 bpm, RR: 16"></textarea>
+                        <textarea id="vitalSigns" rows="2" placeholder="BP, HR, Temp, etc."></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label>Examination Findings</label>
-                        <textarea id="examination" rows="4" placeholder="Physical examination findings..." required></textarea>
+                        <label>Examination Findings *</label>
+                        <textarea id="examination" rows="3" required></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label>Diagnosis</label>
-                        <textarea id="diagnosis" rows="2" placeholder="Primary and differential diagnoses" required></textarea>
+                        <label>Diagnosis *</label>
+                        <textarea id="diagnosis" rows="2" required></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label>Treatment Plan</label>
-                        <textarea id="treatmentPlan" rows="4" placeholder="Medications prescribed, procedures performed, follow-up instructions..." required></textarea>
+                        <label>Treatment Plan *</label>
+                        <textarea id="treatmentPlan" rows="3" required></textarea>
                     </div>
 
                     <div class="form-group">
                         <label>Follow-up Instructions</label>
-                        <textarea id="followUp" rows="3" placeholder="When to return, warning signs, etc."></textarea>
+                        <textarea id="followUp" rows="2"></textarea>
                     </div>
 
-                    <button class="btn btn-primary" onclick="createVisitSummary()" id="visitBtn">Create Visit Summary</button>
+                    <button class="btn btn-primary" id="visitBtn" onclick="createVisitSummary()">Create Visit Summary</button>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script>
         const supabaseUrl = 'https://hbtgwzneuhdqlmriwvje.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhidGd3em5ldWhkcWxtcml3dmplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNDI5MTQsImV4cCI6MjA3NTkxODkxNH0.1v1OLYSEPRBKaZWQu1sJo8DoRzYePfdc7Zcs8i8TF78';
-        
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        
-        let currentDoctor = null;
+
         let currentDoctorId = null;
+        let currentUserId = null;
+        let selectedHospitals = [];
 
-        document.addEventListener('DOMContentLoaded', async function() {
-            await checkAuth();
-            await loadMyAppointments();
-            await loadPatientSelects();
-        });
+        const days = [
+            { name: 'Monday', value: 1 },
+            { name: 'Tuesday', value: 2 },
+            { name: 'Wednesday', value: 3 },
+            { name: 'Thursday', value: 4 },
+            { name: 'Friday', value: 5 },
+            { name: 'Saturday', value: 6 },
+            { name: 'Sunday', value: 0 }
+        ];
 
-        async function checkAuth() {
-            const { data: { session }, error } = await supabase.auth.getSession();
+        async function init() {
+            const { data: { user } } = await supabase.auth.getUser();
             
-            if (!session) {
+            if (!user) {
                 window.location.href = 'signin.html';
                 return;
             }
 
-            try {
-                const { data, error } = await supabase
-                    .from('doctors')
-                    .select('doctor_id, first_name, last_name, specialization')
-                    .eq('user_id', session.user.id)
-                    .single();
+            currentUserId = user.id;
 
-                if (error || !data) {
-                    showMessage('You are not registered as a doctor', 'error');
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 2000);
-                    return;
-                }
+            // Get doctor info
+            const { data: doctorData, error } = await supabase
+                .from('doctors')
+                .select('doctor_id, first_name, last_name, specialization')
+                .eq('user_id', user.id)
+                .single();
 
-                currentDoctor = data;
-                currentDoctorId = data.doctor_id;
-                document.getElementById('doctorName').textContent = `Dr. ${data.first_name} ${data.last_name}`;
-            } catch (error) {
-                console.error('Error loading doctor profile:', error);
+            if (error || !doctorData) {
+                console.error('Error fetching doctor data:', error);
+                showMessage('Error loading doctor profile', 'error');
+                return;
             }
+
+            currentDoctorId = doctorData.doctor_id;
+            document.getElementById('doctorName').textContent = `Dr. ${doctorData.first_name} ${doctorData.last_name}`;
+
+            // Load all data
+            await Promise.all([
+                loadAppointments(),
+                loadHospitals(),
+                loadPatients(),
+                buildWeeklySchedule(),
+                loadCurrentAvailability()
+            ]);
         }
 
         function showSection(sectionName) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-pills a').forEach(a => a.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-pills a').forEach(link => {
+                link.classList.remove('active');
+            });
             
-            document.getElementById(`${sectionName}-section`).classList.add('active');
-            document.getElementById(`nav-${sectionName}`).classList.add('active');
+            document.getElementById(sectionName).classList.add('active');
+            event.target.classList.add('active');
         }
 
-        async function loadMyAppointments() {
+        async function loadAppointments() {
             try {
                 const { data, error } = await supabase
                     .from('appointments')
                     .select(`
                         *,
-                        profiles:patient_id (first_name, last_name, email, phone)
+                        user_id (
+                            id,
+                            email
+                        )
                     `)
                     .eq('doctor_id', currentDoctorId)
                     .order('appointment_date', { ascending: true });
@@ -656,43 +728,37 @@
                 const container = document.getElementById('appointmentsList');
                 
                 if (!data || data.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-state-icon">📅</div>
-                            <p>No appointments scheduled</p>
-                        </div>
-                    `;
+                    container.innerHTML = '<p style="text-align: center; color: #64748b; padding: 40px;">No appointments scheduled</p>';
                     return;
                 }
 
                 let html = '';
-                data.forEach(apt => {
-                    const date = new Date(apt.appointment_date);
-                    const statusClass = apt.status === 'confirmed' ? 'status-confirmed' : 
-                                      apt.status === 'cancelled' ? 'status-cancelled' : 'status-pending';
-                    
+                data.forEach(appointment => {
+                    const date = new Date(appointment.appointment_date);
+                    const formattedDate = date.toLocaleDateString('en-US', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                    const time = appointment.appointment_time || 'Time not set';
+
                     html += `
                         <div class="appointment-card">
                             <div class="appointment-header">
                                 <div>
-                                    <div class="patient-name">${apt.profiles.first_name} ${apt.profiles.last_name}</div>
-                                    <div class="appointment-time">
-                                        ${date.toLocaleDateString()} at ${apt.appointment_time}
-                                    </div>
-                                    <div style="margin-top: 10px; color: #64748b; font-size: 14px;">
-                                        <strong>Reason:</strong> ${apt.reason || 'General checkup'}
+                                    <div class="patient-name">${appointment.user_id?.email || 'Patient'}</div>
+                                    <div class="appointment-time">${formattedDate} at ${time}</div>
+                                    <div style="margin-top: 8px; color: #64748b; font-size: 14px;">
+                                        <strong>Reason:</strong> ${appointment.visit_reason || 'Not specified'}
                                     </div>
                                 </div>
-                                <span class="status-badge ${statusClass}">${apt.status.toUpperCase()}</span>
+                                <span class="status-badge status-${appointment.status}">${appointment.status}</span>
                             </div>
-                            ${apt.status === 'pending' ? `
+                            ${appointment.status === 'pending' ? `
                                 <div class="appointment-actions">
-                                    <button class="btn btn-primary" onclick="updateAppointment('${apt.appointment_id}', 'confirmed')">
-                                        Accept
-                                    </button>
-                                    <button class="btn btn-danger" onclick="updateAppointment('${apt.appointment_id}', 'cancelled')">
-                                        Decline
-                                    </button>
+                                    <button class="btn btn-primary" onclick="confirmAppointment('${appointment.appointment_id}')">Confirm</button>
+                                    <button class="btn btn-danger" onclick="declineAppointment('${appointment.appointment_id}')">Decline</button>
                                 </div>
                             ` : ''}
                         </div>
@@ -702,155 +768,320 @@
                 container.innerHTML = html;
             } catch (error) {
                 console.error('Error loading appointments:', error);
-                showMessage('Error loading appointments', 'error');
+                showMessage('Error loading appointments: ' + error.message, 'error');
             }
         }
 
-        async function updateAppointment(appointmentId, status) {
+        async function confirmAppointment(appointmentId) {
             try {
                 const { error } = await supabase
                     .from('appointments')
-                    .update({ status: status })
+                    .update({ 
+                        status: 'confirmed',
+                        confirmed_at: new Date().toISOString()
+                    })
                     .eq('appointment_id', appointmentId);
 
                 if (error) throw error;
 
-                showMessage(`Appointment ${status === 'confirmed' ? 'accepted' : 'declined'} successfully`, 'success');
-                await loadMyAppointments();
+                showMessage('Appointment confirmed successfully', 'success');
+                await loadAppointments();
             } catch (error) {
-                console.error('Error updating appointment:', error);
-                showMessage('Error updating appointment', 'error');
+                console.error('Error confirming appointment:', error);
+                showMessage('Error confirming appointment: ' + error.message, 'error');
             }
         }
 
-        async function loadPatientSelects() {
+        async function declineAppointment(appointmentId) {
+            const reason = prompt('Please provide a reason for declining:');
+            if (!reason) return;
+
             try {
-                const { data, error } = await supabase
+                const { error } = await supabase
                     .from('appointments')
-                    .select(`
-                        patient_id,
-                        profiles:patient_id (first_name, last_name)
-                    `)
-                    .eq('doctor_id', currentDoctorId)
-                    .eq('status', 'confirmed');
+                    .update({ 
+                        status: 'declined',
+                        cancellation_reason: reason
+                    })
+                    .eq('appointment_id', appointmentId);
 
                 if (error) throw error;
 
-                const uniquePatients = [...new Map(data.map(item => 
-                    [item.patient_id, item])).values()];
-
-                let options = '<option value="">Select a patient...</option>';
-                uniquePatients.forEach(apt => {
-                    options += `<option value="${apt.patient_id}">${apt.profiles.first_name} ${apt.profiles.last_name}</option>`;
-                });
-
-                document.getElementById('documentPatientSelect').innerHTML = options;
-                document.getElementById('medicationPatientSelect').innerHTML = options;
-                document.getElementById('visitPatientSelect').innerHTML = options;
+                showMessage('Appointment declined', 'success');
+                await loadAppointments();
             } catch (error) {
-                console.error('Error loading patients:', error);
+                console.error('Error declining appointment:', error);
+                showMessage('Error declining appointment: ' + error.message, 'error');
             }
         }
 
-        async function loadPatientDocuments() {
-            const patientId = document.getElementById('documentPatientSelect').value;
-            const form = document.getElementById('uploadDocumentForm');
-            const listContainer = document.getElementById('patientDocumentsList');
-
-            if (!patientId) {
-                form.style.display = 'none';
-                listContainer.innerHTML = '';
-                return;
-            }
-
-            form.style.display = 'block';
-
+        async function loadHospitals() {
             try {
                 const { data, error } = await supabase
-                    .from('patient_documents')
+                    .from('hospitals')
                     .select('*')
-                    .eq('patient_id', patientId)
-                    .order('uploaded_at', { ascending: false });
+                    .order('hospital_name');
 
                 if (error) throw error;
 
-                if (!data || data.length === 0) {
-                    listContainer.innerHTML = '<p style="text-align: center; color: #64748b; padding: 20px;">No documents uploaded yet</p>';
-                    return;
-                }
+                // Get doctor's current hospitals
+                const { data: doctorHospitals } = await supabase
+                    .from('doctor_hospitals')
+                    .select('hospital_id')
+                    .eq('doctor_id', currentDoctorId);
 
-                let html = '<h3 style="margin-bottom: 15px; color: #1e293b;">Patient Documents</h3>';
-                data.forEach(doc => {
-                    const date = new Date(doc.uploaded_at).toLocaleDateString();
+                const selectedIds = doctorHospitals?.map(dh => dh.hospital_id) || [];
+
+                const container = document.getElementById('hospitalsList');
+                let html = '';
+
+                data.forEach(hospital => {
+                    const isChecked = selectedIds.includes(hospital.hospital_id);
+                    if (isChecked) selectedHospitals.push(hospital.hospital_id);
+
                     html += `
-                        <div class="document-item">
-                            <div class="document-info">
-                                <div class="document-name">${doc.document_title}</div>
-                                <div class="document-meta">${doc.document_type} • Uploaded ${date}</div>
-                            </div>
-                            <button class="btn btn-view" onclick="window.open('${doc.document_url}', '_blank')">View</button>
+                        <div class="hospital-option">
+                            <input type="checkbox" 
+                                   id="hospital_${hospital.hospital_id}" 
+                                   value="${hospital.hospital_id}"
+                                   ${isChecked ? 'checked' : ''}
+                                   onchange="toggleHospital('${hospital.hospital_id}', this.checked)">
+                            <label for="hospital_${hospital.hospital_id}">
+                                <strong>${hospital.hospital_name}</strong> - ${hospital.city}, ${hospital.state}
+                            </label>
                         </div>
                     `;
                 });
 
-                listContainer.innerHTML = html;
+                container.innerHTML = html;
             } catch (error) {
-                console.error('Error loading documents:', error);
+                console.error('Error loading hospitals:', error);
             }
         }
 
-        async function uploadDocument() {
-            const patientId = document.getElementById('documentPatientSelect').value;
-            const documentType = document.getElementById('documentType').value;
-            const title = document.getElementById('documentTitle').value;
-            const notes = document.getElementById('documentNotes').value;
-            const file = document.getElementById('documentFile').files[0];
+        function toggleHospital(hospitalId, isChecked) {
+            if (isChecked) {
+                if (!selectedHospitals.includes(hospitalId)) {
+                    selectedHospitals.push(hospitalId);
+                }
+            } else {
+                selectedHospitals = selectedHospitals.filter(id => id !== hospitalId);
+            }
+        }
 
-            if (!patientId || !documentType || !title || !file) {
-                showMessage('Please fill in all required fields', 'error');
+        function buildWeeklySchedule() {
+            const container = document.getElementById('weeklySchedule');
+            let html = '';
+
+            days.forEach(day => {
+                html += `
+                    <div class="day-schedule" id="day_${day.value}">
+                        <div class="day-header">
+                            <span class="day-name">${day.name}</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle_${day.value}" onchange="toggleDay(${day.value})">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="time-inputs" id="times_${day.value}" style="display: none;">
+                            <div class="time-group">
+                                <label>Start Time</label>
+                                <input type="time" id="start_${day.value}" value="09:00">
+                            </div>
+                            <div class="time-group">
+                                <label>End Time</label>
+                                <input type="time" id="end_${day.value}" value="17:00">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function toggleDay(dayValue) {
+            const checkbox = document.getElementById(`toggle_${dayValue}`);
+            const timesDiv = document.getElementById(`times_${dayValue}`);
+            const dayDiv = document.getElementById(`day_${dayValue}`);
+
+            if (checkbox.checked) {
+                timesDiv.style.display = 'grid';
+                dayDiv.classList.add('active');
+            } else {
+                timesDiv.style.display = 'none';
+                dayDiv.classList.remove('active');
+            }
+        }
+
+        async function loadCurrentAvailability() {
+            try {
+                const { data, error } = await supabase
+                    .from('doctor_availability')
+                    .select('*')
+                    .eq('doctor_id', currentDoctorId)
+                    .eq('is_active', true);
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    // Populate the form with existing data
+                    data.forEach(avail => {
+                        const toggle = document.getElementById(`toggle_${avail.day_of_week}`);
+                        if (toggle) {
+                            toggle.checked = true;
+                            toggleDay(avail.day_of_week);
+                            
+                            document.getElementById(`start_${avail.day_of_week}`).value = avail.start_time;
+                            document.getElementById(`end_${avail.day_of_week}`).value = avail.end_time;
+                        }
+                    });
+
+                    // Set slot duration if exists
+                    if (data[0].slot_duration_minutes) {
+                        document.getElementById('slotDuration').value = data[0].slot_duration_minutes;
+                    }
+
+                    // Display current availability
+                    displayCurrentAvailability(data);
+                }
+            } catch (error) {
+                console.error('Error loading availability:', error);
+            }
+        }
+
+        function displayCurrentAvailability(data) {
+            const container = document.getElementById('currentAvailability');
+            const list = document.getElementById('availabilityList');
+            
+            if (!data || data.length === 0) {
+                container.style.display = 'none';
                 return;
             }
 
-            const uploadBtn = document.getElementById('uploadBtn');
-            uploadBtn.disabled = true;
-            uploadBtn.textContent = 'Uploading...';
+            let html = '';
+            data.forEach(avail => {
+                const dayName = days.find(d => d.value === avail.day_of_week)?.name || 'Unknown';
+                html += `
+                    <div class="availability-item">
+                        <span class="availability-day">${dayName}</span>
+                        <span class="availability-time">${avail.start_time} - ${avail.end_time}</span>
+                    </div>
+                `;
+            });
+
+            list.innerHTML = html;
+            container.style.display = 'block';
+        }
+
+        async function saveAvailability() {
+            if (selectedHospitals.length === 0) {
+                showMessage('Please select at least one hospital location', 'error');
+                return;
+            }
+
+            const slotDuration = parseInt(document.getElementById('slotDuration').value);
+            const availabilityData = [];
+
+            // Collect all enabled days
+            days.forEach(day => {
+                const toggle = document.getElementById(`toggle_${day.value}`);
+                if (toggle.checked) {
+                    const startTime = document.getElementById(`start_${day.value}`).value;
+                    const endTime = document.getElementById(`end_${day.value}`).value;
+
+                    selectedHospitals.forEach(hospitalId => {
+                        availabilityData.push({
+                            doctor_id: currentDoctorId,
+                            hospital_id: hospitalId,
+                            day_of_week: day.value,
+                            start_time: startTime,
+                            end_time: endTime,
+                            slot_duration_minutes: slotDuration,
+                            is_active: true
+                        });
+                    });
+                }
+            });
+
+            if (availabilityData.length === 0) {
+                showMessage('Please select at least one day with times', 'error');
+                return;
+            }
 
             try {
-                const fileName = `${Date.now()}_${file.name}`;
-                const { data: uploadData, error: uploadError } = await supabase.storage
-                    .from('patient-documents')
-                    .upload(fileName, file);
+                // Delete existing availability for this doctor
+                await supabase
+                    .from('doctor_availability')
+                    .delete()
+                    .eq('doctor_id', currentDoctorId);
 
-                if (uploadError) throw uploadError;
+                // Delete existing hospital associations
+                await supabase
+                    .from('doctor_hospitals')
+                    .delete()
+                    .eq('doctor_id', currentDoctorId);
 
-                const { data: { publicUrl } } = supabase.storage
-                    .from('patient-documents')
-                    .getPublicUrl(fileName);
+                // Insert new availability
+                const { error: availError } = await supabase
+                    .from('doctor_availability')
+                    .insert(availabilityData);
 
-                const { error: insertError } = await supabase
-                    .from('patient_documents')
-                    .insert([{
-                        patient_id: patientId,
-                        uploaded_by_doctor_id: currentDoctorId,
-                        document_type: documentType,
-                        document_title: title,
-                        document_url: publicUrl,
-                        notes: notes
-                    }]);
+                if (availError) throw availError;
 
-                if (insertError) throw insertError;
+                // Insert hospital associations
+                const hospitalData = selectedHospitals.map(hospitalId => ({
+                    doctor_id: currentDoctorId,
+                    hospital_id: hospitalId,
+                    is_primary_location: false
+                }));
 
-                showMessage('Document uploaded successfully', 'success');
-                document.getElementById('documentTitle').value = '';
-                document.getElementById('documentNotes').value = '';
-                document.getElementById('documentFile').value = '';
-                await loadPatientDocuments();
+                const { error: hospitalError } = await supabase
+                    .from('doctor_hospitals')
+                    .insert(hospitalData);
+
+                if (hospitalError) throw hospitalError;
+
+                showMessage('Availability saved successfully! Patients can now book appointments during these times.', 'success');
+                await loadCurrentAvailability();
             } catch (error) {
-                console.error('Error uploading document:', error);
-                showMessage('Error uploading document: ' + error.message, 'error');
-            } finally {
-                uploadBtn.disabled = false;
-                uploadBtn.textContent = 'Upload Document';
+                console.error('Error saving availability:', error);
+                showMessage('Error saving availability: ' + error.message, 'error');
+            }
+        }
+
+        async function loadPatients() {
+            try {
+                // Get all users who have appointments with this doctor
+                const { data: appointmentData } = await supabase
+                    .from('appointments')
+                    .select('user_id')
+                    .eq('doctor_id', currentDoctorId);
+
+                if (!appointmentData) return;
+
+                const userIds = [...new Set(appointmentData.map(a => a.user_id))];
+
+                if (userIds.length === 0) return;
+
+                const { data: users } = await supabase
+                    .from('auth.users')
+                    .select('id, email')
+                    .in('id', userIds);
+
+                // Populate patient selects
+                const selects = ['medicationPatientSelect', 'visitPatientSelect'];
+                selects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    users?.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.textContent = user.email;
+                        select.appendChild(option);
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading patients:', error);
             }
         }
 
@@ -881,28 +1112,14 @@
                     return;
                 }
 
-                let html = '<h3 style="margin-bottom: 15px; color: #1e293b;">Current Medications</h3>';
+                let html = '<h3 style="margin-top: 30px; margin-bottom: 15px;">Current Medications</h3>';
                 data.forEach(med => {
                     html += `
-                        <div class="medication-card">
-                            <div class="medication-name">${med.medication_name}</div>
-                            <div class="medication-details">
-                                <div class="detail-item">
-                                    <strong>Dosage</strong>
-                                    ${med.dosage}
-                                </div>
-                                <div class="detail-item">
-                                    <strong>Frequency</strong>
-                                    ${med.frequency}
-                                </div>
-                                <div class="detail-item">
-                                    <strong>Start Date</strong>
-                                    ${med.start_date ? new Date(med.start_date).toLocaleDateString() : 'N/A'}
-                                </div>
-                                <div class="detail-item">
-                                    <strong>Instructions</strong>
-                                    ${med.instructions || 'None'}
-                                </div>
+                        <div style="background: #f0fdfd; border-left: 4px solid #00d4d4; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                            <div style="font-weight: 600; color: #1e293b; margin-bottom: 8px;">${med.medication_name}</div>
+                            <div style="font-size: 14px; color: #64748b;">
+                                <strong>Dosage:</strong> ${med.dosage} | 
+                                <strong>Frequency:</strong> ${med.frequency}
                             </div>
                         </div>
                     `;
@@ -946,9 +1163,8 @@
                         frequency: frequency,
                         start_date: startDate,
                         end_date: endDate.toISOString().split('T')[0],
-                        instructions: instructions,
-                        prescribed_by_doctor_id: currentDoctorId,
-                        reason: reason,
+                        notes: instructions,
+                        prescribing_doctor: `Dr. ${document.getElementById('doctorName').textContent}`,
                         is_active: true
                     }]);
 
@@ -956,6 +1172,7 @@
 
                 showMessage('Medication prescribed successfully', 'success');
                 
+                // Clear form
                 document.getElementById('medicationName').value = '';
                 document.getElementById('medicationDosage').value = '';
                 document.getElementById('medicationFrequency').value = '';
@@ -999,24 +1216,21 @@
             visitBtn.textContent = 'Creating Summary...';
 
             try {
+                const notes = `Chief Complaint: ${chiefComplaint}\n\nVital Signs: ${vitalSigns}\n\nExamination: ${examination}\n\nDiagnosis: ${diagnosis}\n\nTreatment Plan: ${treatmentPlan}\n\nFollow-up: ${followUp}`;
+
                 const { error } = await supabase
                     .from('visit_summaries')
                     .insert([{
-                        patient_id: patientId,
+                        user_id: patientId,
                         doctor_id: currentDoctorId,
-                        visit_date: visitDate,
-                        chief_complaint: chiefComplaint,
-                        vital_signs: vitalSigns,
-                        examination_findings: examination,
-                        diagnosis: diagnosis,
-                        treatment_plan: treatmentPlan,
-                        follow_up_instructions: followUp
+                        notes: notes
                     }]);
 
                 if (error) throw error;
 
                 showMessage('Visit summary created successfully', 'success');
                 
+                // Clear form
                 document.getElementById('visitDate').value = '';
                 document.getElementById('chiefComplaint').value = '';
                 document.getElementById('vitalSigns').value = '';
@@ -1047,6 +1261,9 @@
                 container.innerHTML = '';
             }, 5000);
         }
+
+        // Initialize on page load
+        init();
     </script>
 </body>
 </html>
