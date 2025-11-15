@@ -627,6 +627,7 @@
                 if (!data || data.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
+                            <div class="empty-state-icon">✅</div>
                             <p>No pending requests</p>
                         </div>
                     `;
@@ -707,76 +708,22 @@
             }
 
             try {
-                // First, create auth account with password
                 const tempPassword = 'HealthHub' + Math.random().toString(36).slice(-8);
                 
-                const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-                    email: email,
-                    password: tempPassword,
-                    email_confirm: true,
-                    user_metadata: {
-                        first_name: firstName,
-                        last_name: lastName,
-                        user_type: 'doctor'
-                    }
-                });
+                // Use database function to approve (bypasses auth.admin requirement)
+                const { data, error } = await supabase
+                    .rpc('approve_doctor_registration', {
+                        p_request_id: requestId,
+                        p_temp_password: tempPassword
+                    });
 
-                if (authError) throw authError;
+                if (error) throw error;
 
-                // Create doctor record
-                const { error: doctorError } = await supabase
-                    .from('doctors')
-                    .insert([{
-                        user_id: authData.user.id,
-                        first_name: firstName,
-                        last_name: lastName,
-                        email: email,
-                        phone: phone,
-                        specialization: specialization,
-                        license_number: licenseNumber,
-                        license_state: licenseState,
-                        years_of_experience: experience,
-                        education: education,
-                        bio: bio || null,
-                        is_verified: true,
-                        is_active: true,
-                        accepts_new_patients: true
-                    }]);
-
-                if (doctorError) throw doctorError;
-
-                // Get doctor_id
-                const { data: doctorData } = await supabase
-                    .from('doctors')
-                    .select('doctor_id')
-                    .eq('user_id', authData.user.id)
-                    .single();
-
-                // Link to hospital
-                await supabase
-                    .from('doctor_hospitals')
-                    .insert([{
-                        doctor_id: doctorData.doctor_id,
-                        hospital_id: hospitalId,
-                        is_primary_location: true
-                    }]);
-
-                // Mark code as used
-                await supabase.rpc('mark_code_used', {
-                    p_code: verificationCode,
-                    p_user_id: authData.user.id
-                });
-
-                // Update request status
-                await supabase
-                    .from('doctor_registration_requests')
-                    .update({ 
-                        status: 'approved',
-                        approved_at: new Date().toISOString()
-                    })
-                    .eq('request_id', requestId);
-
-                showMessage(`Dr. ${firstName} ${lastName} approved successfully! Temporary password: ${tempPassword}`, 'success');
+                if (data && data.success) {
+                    showMessage(`Dr. ${firstName} ${lastName} approved! Email: ${email}, Temp Password: ${tempPassword}`, 'success');
+                } else {
+                    throw new Error(data?.error || 'Approval failed');
+                }
                 
                 await loadStats();
                 await loadPendingRequests();
@@ -791,21 +738,23 @@
             const reason = prompt('Enter rejection reason (optional):');
             
             try {
-                await supabase
+                const { error } = await supabase
                     .from('doctor_registration_requests')
                     .update({ 
                         status: 'rejected',
-                        rejection_reason: reason,
+                        rejection_reason: reason || null,
                         rejected_at: new Date().toISOString()
                     })
                     .eq('request_id', requestId);
+
+                if (error) throw error;
 
                 showMessage('Registration request rejected', 'success');
                 await loadStats();
                 await loadPendingRequests();
             } catch (error) {
                 console.error('Error rejecting request:', error);
-                showMessage('Error rejecting request', 'error');
+                showMessage('Error rejecting request: ' + error.message, 'error');
             }
         }
 
@@ -829,6 +778,7 @@
                 if (!data || data.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
+                            <div class="empty-state-icon">👨‍⚕️</div>
                             <p>No approved doctors yet</p>
                         </div>
                     `;
