@@ -1037,7 +1037,7 @@
                             </div>
                             <div class="graphs-grid">
                                 <div class="graph-card">
-                                    <h4>Steps (Last 7 Days)</h4>
+                                    <h4>Steps </h4>
                                     <div class="chart-container">
                                         <canvas id="stepsChart"></canvas>
                                     </div>
@@ -1086,7 +1086,7 @@
                             <div class="export-buttons">
                                 <button class="export-btn" onclick="exportPDF('weekly')">
                                     Weekly Report
-                                    <span>Last 7 days</span>
+                                    <span>Current month</span>
                                 </button>
                                 <button class="export-btn" onclick="exportPDF('monthly')">
                                     Monthly Report
@@ -1216,12 +1216,18 @@
 
         async function loadGraphData() {
             try {
+                // Get data for current month
+                const now = new Date();
+                const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+                const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+                
                 const { data, error } = await supabase
                     .from('daily_tracker')
                     .select('*')
                     .eq('user_id', currentUserId)
-                    .order('date', { ascending: true })
-                    .limit(7);
+                    .gte('date', firstDayOfMonth)
+                    .lte('date', lastDayOfMonth)
+                    .order('date', { ascending: true });
 
                 if (error) throw error;
                 if (!data || data.length === 0) return;

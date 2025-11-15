@@ -39,6 +39,17 @@
             flex-wrap: wrap;
         }
 
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-section img {
+            height: 50px;
+        }
+
         .logo-text {
             font-size: 24px;
             font-weight: 700;
@@ -829,13 +840,171 @@
         height: calc(100% - 100px);
       }
     }
+  
+    /* Reminder Bot */
+    .reminder-bot {
+      position: fixed;
+      top: 100px;
+      left: 30px;
+      width: 320px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(91, 33, 182, 0.2);
+      border: 2px solid #5b21b6;
+      padding: 20px;
+      z-index: 999;
+      animation: slideInLeft 0.5s ease;
+    }
+
+    @keyframes slideInLeft {
+      from {
+        transform: translateX(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .reminder-bot-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f1f5f9;
+    }
+
+    .reminder-bot-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(91, 33, 182, 0.4);
+      }
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(91, 33, 182, 0);
+      }
+    }
+
+    .reminder-bot-title {
+      flex: 1;
+    }
+
+    .reminder-bot-title h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: #5b21b6;
+    }
+
+    .reminder-bot-title p {
+      margin: 2px 0 0 0;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .reminder-bot-close {
+      background: none;
+      border: none;
+      color: #64748b;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .reminder-bot-close:hover {
+      background: #f1f5f9;
+      color: #5b21b6;
+    }
+
+    .reminder-bot-content {
+      color: #1e293b;
+      line-height: 1.6;
+    }
+
+    .reminder-item {
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border-left: 4px solid #5b21b6;
+    }
+
+    .reminder-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .reminder-item-title {
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
+    .reminder-item-detail {
+      font-size: 14px;
+      color: #64748b;
+      margin: 3px 0;
+    }
+
+    .reminder-item-time {
+      font-size: 13px;
+      color: #5b21b6;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+
+    .no-reminders {
+      text-align: center;
+      padding: 20px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .no-reminders-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+      opacity: 0.3;
+    }
+
+    @media (max-width: 768px) {
+      .reminder-bot {
+        left: 10px;
+        right: 10px;
+        width: auto;
+        top: 80px;
+      }
+    }
   </style>
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <div class="header-content">
-            <div class="logo-text">HealthHub Connect</div>
+            <div class="logo-section">
+                <img src="healthhub-logo.svg" alt="HealthHub Connect Logo">
+                <div class="logo-text">HealthHub Connect</div>
+            </div>
             <div class="user-info">
                 <span class="user-greeting" id="userGreeting"></span>
                 <button id="authButton" class="btn btn-secondary">Sign In</button>
@@ -1003,6 +1172,25 @@
     </footer>
 
     
+  
+  <!-- Reminder Bot -->
+  <div id="reminderBot" class="reminder-bot" style="display: none;">
+    <div class="reminder-bot-header">
+      <div class="reminder-bot-icon">💊</div>
+      <div class="reminder-bot-title">
+        <h3>Medication Reminders</h3>
+        <p>Today's schedule</p>
+      </div>
+      <button class="reminder-bot-close" onclick="closeReminderBot()">×</button>
+    </div>
+    <div id="reminderContent" class="reminder-bot-content">
+      <div class="no-reminders">
+        <div class="no-reminders-icon">💊</div>
+        <p>Loading your medications...</p>
+      </div>
+    </div>
+  </div>
+
   <!-- Chat Bubble (only shown when logged in) -->
   <div id="chatBubbleTrigger" class="chat-bubble-trigger" onclick="openChat()">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1106,6 +1294,15 @@
                 return;
             }
 
+
+        // Reminder Bot Functions
+
+
+
+
+
+
+
             const messages = [...convo];
 
             try {
@@ -1141,6 +1338,95 @@
             await checkAuth();
         });
 
+
+        function closeReminderBot() {
+            document.getElementById('reminderBot').style.display = 'none';
+        }
+
+        function showReminderBot() {
+            // Always show the reminder bot
+            console.log('Showing reminder bot');
+            const bot = document.getElementById('reminderBot');
+            if (bot) {
+                bot.style.display = 'block';
+                console.log('Reminder bot displayed');
+            } else {
+                console.error('Reminder bot element not found!');
+            }
+        }
+
+        async function loadMedicationReminders() {
+            console.log('Loading medication reminders...');
+            if (!currentUser) {
+                console.log('No current user, returning');
+                return;
+            }
+            console.log('Current user:', currentUser.id);
+            
+            try {
+                const { data: medications, error } = await supabase
+                    .from('medications')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const reminderContent = document.getElementById('reminderContent');
+                
+                if (!medications || medications.length === 0) {
+                    console.log('No medications found');
+                    reminderContent.innerHTML = `
+                        <div class="no-reminders">
+                            <div class="no-reminders-icon">💊</div>
+                            <p>No medications scheduled</p>
+                        </div>`;
+                    showReminderBot();
+                    return;
+                }
+
+                // Filter active medications (those without end_date or end_date in future)
+                const today = new Date().toISOString().split('T')[0];
+                const activeMeds = medications.filter(med => 
+                    !med.end_date || med.end_date >= today
+                );
+
+                if (activeMeds.length === 0) {
+                    console.log('No active medications');
+                    reminderContent.innerHTML = `
+                        <div class="no-reminders">
+                            <div class="no-reminders-icon">✅</div>
+                            <p>No active medications to take today</p>
+                        </div>`;
+                    showReminderBot();
+                    return;
+                }
+
+                // Show today's medications
+                let html = '';
+                activeMeds.slice(0, 3).forEach(med => {
+                    html += `
+                        <div class="reminder-item">
+                            <div class="reminder-item-title">${med.medication_name}</div>
+                            <div class="reminder-item-detail">💊 ${med.dosage || 'As prescribed'}</div>
+                            <div class="reminder-item-detail">🔄 ${med.frequency || 'Daily'}</div>
+                            ${med.refill_date ? `<div class="reminder-item-time">📅 Refill: ${new Date(med.refill_date).toLocaleDateString()}</div>` : ''}
+                        </div>`;
+                });
+
+                if (activeMeds.length > 3) {
+                    html += `<div class="reminder-item-detail" style="text-align: center; margin-top: 10px; color: #5b21b6;">+${activeMeds.length - 3} more medications</div>`;
+                }
+
+                console.log('Showing', activeMeds.length, 'medications');
+                reminderContent.innerHTML = html;
+                showReminderBot();
+
+            } catch (error) {
+                console.error('Error loading medication reminders:', error);
+            }
+        }
+
         async function checkAuth() {
             const { data: { session } } = await supabase.auth.getSession();
             const userGreeting = document.getElementById('userGreeting');
@@ -1165,6 +1451,7 @@
                 
                 // Load data
                 await loadMedications();
+                await loadMedicationReminders();
                 await renderCalendar();
                 selectDate(new Date());
             } else {
@@ -1672,6 +1959,7 @@
                 alert('Medication added successfully!');
                 closeAddMedicationModal();
                 await loadMedications();
+                await loadMedicationReminders();
                 await loadMonthSchedule(currentDate.getFullYear(), currentDate.getMonth());
                 renderCalendar();
                 loadDayMedications(selectedDate);
@@ -1781,6 +2069,7 @@
                 if (error) throw error;
 
                 await loadMedications();
+                await loadMedicationReminders();
                 await loadMonthSchedule(currentDate.getFullYear(), currentDate.getMonth());
                 renderCalendar();
                 loadDayMedications(selectedDate);
@@ -1806,6 +2095,7 @@
 
                 alert('Medication deleted successfully');
                 await loadMedications();
+                await loadMedicationReminders();
                 await loadMonthSchedule(currentDate.getFullYear(), currentDate.getMonth());
                 renderCalendar();
                 loadDayMedications(selectedDate);
