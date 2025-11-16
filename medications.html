@@ -1922,6 +1922,14 @@
                     return;
                 }
 
+                console.log('Adding medication with dates:', {
+                    startDate: startDate,
+                    actualEndDate: actualEndDate,
+                    rawStartDate: document.getElementById('startDate').value,
+                    rawEndDate: document.getElementById('endDate').value,
+                    durationDays: durationDays
+                });
+
                 // Insert medication
                 const { data: medication, error } = await supabase
                     .from('medications')
@@ -1942,6 +1950,8 @@
                     .single();
 
                 if (error) throw error;
+
+                console.log('Medication inserted:', medication);
 
                 // Calculate number of days to generate schedule
                 const start = new Date(startDate);
