@@ -88,6 +88,50 @@ CREATE POLICY "Users can update own data" ON users FOR UPDATE USING (auth.uid() 
 CREATE POLICY "Profiles are user specific" ON profiles FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "Tracker data is user specific" ON daily_tracker FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "Call center data is user specific" ON call_center FOR ALL USING (auth.uid() = user_id);
-CREATE POLICY "Documents are user specific" ON documents FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "Medications are user specific" ON medications FOR ALL USING (auth.uid() = user_id);
+
+-- Documents Policies: Role-based access to allow doctors to manage patient documents
+CREATE POLICY "Documents select policy" ON documents
+FOR SELECT
+USING (
+    auth.uid() = user_id OR  -- Users can view their own documents
+    EXISTS (
+        SELECT 1 FROM users
+        WHERE users.user_id = auth.uid()
+        AND users.role IN ('doctor', 'admin')  -- Doctors and admins can view all documents
+    )
+);
+
+CREATE POLICY "Documents insert policy" ON documents
+FOR INSERT
+WITH CHECK (
+    auth.uid() = user_id OR  -- Users can insert their own documents
+    EXISTS (
+        SELECT 1 FROM users
+        WHERE users.user_id = auth.uid()
+        AND users.role IN ('doctor', 'admin')  -- Doctors and admins can insert for any patient
+    )
+);
+
+CREATE POLICY "Documents update policy" ON documents
+FOR UPDATE
+USING (
+    auth.uid() = user_id OR  -- Users can update their own documents
+    EXISTS (
+        SELECT 1 FROM users
+        WHERE users.user_id = auth.uid()
+        AND users.role IN ('doctor', 'admin')  -- Doctors and admins can update any documents
+    )
+);
+
+CREATE POLICY "Documents delete policy" ON documents
+FOR DELETE
+USING (
+    auth.uid() = user_id OR  -- Users can delete their own documents
+    EXISTS (
+        SELECT 1 FROM users
+        WHERE users.user_id = auth.uid()
+        AND users.role IN ('doctor', 'admin')  -- Doctors and admins can delete any documents
+    )
+);
 
