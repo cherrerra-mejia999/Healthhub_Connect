@@ -16,9 +16,13 @@ FOR SELECT
 USING (
     auth.uid() = user_id OR  -- Users can view their own documents
     EXISTS (
-        SELECT 1 FROM users
-        WHERE users.user_id = auth.uid()
-        AND users.role IN ('doctor', 'admin')  -- Doctors and admins can view all documents
+        SELECT 1 FROM public.doctors
+        WHERE public.doctors.user_id = auth.uid()  -- Doctors can view all documents
+    ) OR
+    EXISTS (
+        SELECT 1 FROM public.users
+        WHERE public.users.user_id = auth.uid()
+        AND public.users.role = 'admin'  -- Admins can view all documents
     )
 );
 
@@ -28,9 +32,13 @@ FOR INSERT
 WITH CHECK (
     auth.uid() = user_id OR  -- Users can insert their own documents
     EXISTS (
-        SELECT 1 FROM users
-        WHERE users.user_id = auth.uid()
-        AND users.role IN ('doctor', 'admin')  -- Doctors and admins can insert for any patient
+        SELECT 1 FROM public.doctors
+        WHERE public.doctors.user_id = auth.uid()  -- Doctors can insert for any patient
+    ) OR
+    EXISTS (
+        SELECT 1 FROM public.users
+        WHERE public.users.user_id = auth.uid()
+        AND public.users.role = 'admin'  -- Admins can insert for any patient
     )
 );
 
@@ -40,9 +48,13 @@ FOR UPDATE
 USING (
     auth.uid() = user_id OR  -- Users can update their own documents
     EXISTS (
-        SELECT 1 FROM users
-        WHERE users.user_id = auth.uid()
-        AND users.role IN ('doctor', 'admin')  -- Doctors and admins can update any documents
+        SELECT 1 FROM public.doctors
+        WHERE public.doctors.user_id = auth.uid()  -- Doctors can update any documents
+    ) OR
+    EXISTS (
+        SELECT 1 FROM public.users
+        WHERE public.users.user_id = auth.uid()
+        AND public.users.role = 'admin'  -- Admins can update any documents
     )
 );
 
@@ -52,9 +64,13 @@ FOR DELETE
 USING (
     auth.uid() = user_id OR  -- Users can delete their own documents
     EXISTS (
-        SELECT 1 FROM users
-        WHERE users.user_id = auth.uid()
-        AND users.role IN ('doctor', 'admin')  -- Doctors and admins can delete any documents
+        SELECT 1 FROM public.doctors
+        WHERE public.doctors.user_id = auth.uid()  -- Doctors can delete any documents
+    ) OR
+    EXISTS (
+        SELECT 1 FROM public.users
+        WHERE public.users.user_id = auth.uid()
+        AND public.users.role = 'admin'  -- Admins can delete any documents
     )
 );
 
@@ -84,9 +100,13 @@ FOR SELECT
 USING (
     auth.uid() = user_id OR  -- Users can view their own medications
     EXISTS (
+        SELECT 1 FROM public.doctors
+        WHERE public.doctors.user_id = auth.uid()  -- Doctors can view all medications
+    ) OR
+    EXISTS (
         SELECT 1 FROM public.users
         WHERE public.users.user_id = auth.uid()
-        AND public.users.role IN ('doctor', 'admin')  -- Doctors and admins can view all medications
+        AND public.users.role = 'admin'  -- Admins can view all medications
     )
 );
 
@@ -96,9 +116,13 @@ FOR INSERT
 WITH CHECK (
     auth.uid() = user_id OR  -- Users can insert their own medications
     EXISTS (
+        SELECT 1 FROM public.doctors
+        WHERE public.doctors.user_id = auth.uid()  -- Doctors can prescribe for any patient
+    ) OR
+    EXISTS (
         SELECT 1 FROM public.users
         WHERE public.users.user_id = auth.uid()
-        AND public.users.role IN ('doctor', 'admin')  -- Doctors and admins can prescribe for any patient
+        AND public.users.role = 'admin'  -- Admins can prescribe for any patient
     )
 );
 
@@ -108,9 +132,13 @@ FOR UPDATE
 USING (
     auth.uid() = user_id OR  -- Users can update their own medications
     EXISTS (
+        SELECT 1 FROM public.doctors
+        WHERE public.doctors.user_id = auth.uid()  -- Doctors can update any medications
+    ) OR
+    EXISTS (
         SELECT 1 FROM public.users
         WHERE public.users.user_id = auth.uid()
-        AND public.users.role IN ('doctor', 'admin')  -- Doctors and admins can update any medications
+        AND public.users.role = 'admin'  -- Admins can update any medications
     )
 );
 
@@ -120,9 +148,13 @@ FOR DELETE
 USING (
     auth.uid() = user_id OR  -- Users can delete their own medications
     EXISTS (
+        SELECT 1 FROM public.doctors
+        WHERE public.doctors.user_id = auth.uid()  -- Doctors can delete any medications
+    ) OR
+    EXISTS (
         SELECT 1 FROM public.users
         WHERE public.users.user_id = auth.uid()
-        AND public.users.role IN ('doctor', 'admin')  -- Doctors and admins can delete any medications
+        AND public.users.role = 'admin'  -- Admins can delete any medications
     )
 );
 

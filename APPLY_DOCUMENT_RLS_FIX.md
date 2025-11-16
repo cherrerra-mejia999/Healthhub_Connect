@@ -64,22 +64,35 @@ After applying the fix, test both features:
 - `APPLY_DOCUMENT_RLS_FIX.md` - This instruction file
 
 ## Technical Details
-The new policies check the user's role in the `public.users` table to determine access rights:
+The new policies check if the authenticated user is a doctor by querying the `public.doctors` table:
 
 ```sql
 -- For both documents and medications tables:
+-- Check if user is a doctor
 EXISTS (
+    SELECT 1 FROM public.doctors
+    WHERE public.doctors.user_id = auth.uid()
+)
+-- OR check if user is an admin
+OR EXISTS (
     SELECT 1 FROM public.users
     WHERE public.users.user_id = auth.uid()
-    AND public.users.role IN ('doctor', 'admin')
+    AND public.users.role = 'admin'
 )
 ```
 
-This allows doctors and admins to perform operations on documents and medications regardless of the `user_id` field, while patients can only manage their own data.
+This allows:
+- **Doctors**: Any user with an entry in the `public.doctors` table can manage patient data
+- **Admins**: Any user with role='admin' in `public.users` can manage patient data
+- **Patients**: Can only manage their own data (when `auth.uid() = user_id`)
 
 ### Important Notes
 - The migration script handles both `documents` and `medications` tables
 - Each table gets 4 separate policies: SELECT, INSERT, UPDATE, DELETE
 - The policies use `auth.uid()` to get the current authenticated user's ID
-- Role checking is done against `public.users.role` column
+- **Doctor identification**: Checks if `auth.uid()` exists in `public.doctors` table
+- **Admin identification**: Checks if user has role='admin' in `public.users` table
 - Existing restrictive policies are automatically dropped before creating new ones
+
+### Why This Works
+When a doctor logs in through Supabase Auth, their `auth.uid()` corresponds to their `user_id` in the `public.doctors` table. The RLS policies check this relationship directly, allowing any authenticated doctor to manage patient documents and medications.
