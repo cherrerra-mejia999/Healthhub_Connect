@@ -685,13 +685,16 @@
 
                 data.forEach(doc => {
                     const uploadDate = new Date(doc.uploaded_at).toLocaleDateString();
+                    const viewLink = doc.file_url 
+                        ? `<a href="${doc.file_url}" target="_blank" style="color: #5b21b6; text-decoration: underline;">View</a>`
+                        : `<span style="color: #94a3b8;">No file available</span>`;
 
                     html += `
                         <tr>
                             <td>${doc.document_name}</td>
                             <td>${doc.document_type || 'N/A'}</td>
                             <td>${uploadDate}</td>
-                            <td><a href="${doc.file_url}" target="_blank" style="color: #5b21b6; text-decoration: underline;">View</a></td>
+                            <td>${viewLink}</td>
                         </tr>
                     `;
                 });
