@@ -702,6 +702,7 @@
             <a href="appointments.html">Appointments</a>
             <a href="medications.html">Medications</a>
             <a href="profile.html">Profile</a>
+            <a href="family_dashboard.html" class="active">Family Dashboard</a>
             <a href="support.html">Support</a>
             <a href="helpfullink.html">Helpful Links</a>
         </div>
@@ -1979,32 +1980,36 @@
         async function shareAccess(event) {
             event.preventDefault();
             
-            const email = document.getElementById('shareEmail').value.trim();
+            const email = document.getElementById('shareEmail').value.trim().toLowerCase();
             const permission = document.getElementById('sharePermission').value;
 
             try {
-                const { data: userData, error: userError } = await supabase
-                    .from('users')
-                    .select('user_id')
-                    .eq('email', email)
-                    .single();
+                // Query auth.users via RPC or admin API - but we don't have access
+                // Instead, try to lookup by email in a way that works
+                const { data: { users }, error: userError } = await supabase.auth.admin.listUsers();
+                
+                // Since we can't access admin, let's try a different approach
+                // Check if user exists by trying to find them in any table they might have data in
+                const { data: userData, error } = await supabase.rpc('get_user_by_email', { user_email: email });
 
-                if (userError || !userData) {
+                if (error || !userData || userData.length === 0) {
                     showShareMessage('User not found with that email address', 'error');
                     return;
                 }
 
-                if (userData.user_id === currentUser.id) {
+                const sharedWithUserId = userData[0].user_id;
+
+                if (sharedWithUserId === currentUser.id) {
                     showShareMessage('You cannot share access with yourself', 'error');
                     return;
                 }
 
                 const { error: shareError } = await supabase
-                    .from('shared_access')
+                    .from('shared_health_records')
                     .insert([{
                         owner_id: currentUser.id,
-                        shared_with_id: userData.user_id,
-                        permission: permission
+                        shared_with_user_id: sharedWithUserId,
+                        permission_level: permission
                     }]);
 
                 if (shareError) throw shareError;
