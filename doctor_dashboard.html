@@ -1110,6 +1110,30 @@
             }
         }
 
+        // Helper function to generate default times based on frequency
+        function getDefaultTimesForFrequency(frequency) {
+            switch (frequency.toLowerCase()) {
+                case 'once daily':
+                    return ['08:00'];
+                case 'twice daily':
+                    return ['08:00', '20:00'];
+                case 'three times daily':
+                    return ['08:00', '14:00', '20:00'];
+                case 'every 4 hours':
+                    return ['08:00', '12:00', '16:00', '20:00', '00:00', '04:00'];
+                case 'every 6 hours':
+                    return ['08:00', '14:00', '20:00', '02:00'];
+                case 'every 8 hours':
+                    return ['08:00', '16:00', '00:00'];
+                case 'every 12 hours':
+                    return ['08:00', '20:00'];
+                case 'as needed':
+                    return ['08:00'];
+                default:
+                    return ['08:00'];
+            }
+        }
+
         // Add Medication for Patient
         async function addPatientMedication(event) {
             event.preventDefault();
@@ -1125,8 +1149,12 @@
             const medEndDate = document.getElementById('medEndDate').value || null;
             const medNotes = document.getElementById('medNotes').value || null;
 
+            // Generate default times based on frequency
+            const defaultTimes = getDefaultTimesForFrequency(medFrequency);
+
             try {
-                const { error } = await supabase
+                // Insert medication and get the medication_id
+                const { data: medication, error } = await supabase
                     .from('medications')
                     .insert([{
                         user_id: currentPatientId,
@@ -1136,11 +1164,29 @@
                         start_date: medStartDate,
                         end_date: medEndDate,
                         refill_date: medEndDate,
+                        time_of_day: defaultTimes,
                         prescribing_doctor: `Dr. ${await getDoctorName()}`,
                         notes: medNotes
-                    }]);
+                    }])
+                    .select()
+                    .single();
 
                 if (error) throw error;
+
+                // Calculate number of days to generate schedule
+                const start = new Date(medStartDate);
+                const end = medEndDate ? new Date(medEndDate) : new Date(start.getTime() + 90 * 24 * 60 * 60 * 1000); // Default 90 days
+                const daysDiff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                const daysToGenerate = Math.min(daysDiff + 1, 365); // Max 1 year
+
+                // Generate medication schedule
+                await supabase.rpc('generate_medication_schedule', {
+                    med_id: medication.medication_id,
+                    u_id: currentPatientId,
+                    times: defaultTimes,
+                    start_date: medStartDate,
+                    days_ahead: daysToGenerate
+                });
 
                 showModalMessage('Medication added successfully for patient!', 'success');
                 document.getElementById('addMedicationForm').reset();

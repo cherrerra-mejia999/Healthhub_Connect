@@ -69,7 +69,26 @@ CREATE TABLE medications (
     start_date DATE,
     end_date DATE,
     refill_date DATE,
+    time_of_day TEXT[],
+    prescribing_doctor VARCHAR(100),
+    pharmacy_name VARCHAR(100),
+    notes TEXT,
+    is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
+);
+
+-- Medication Schedule Table
+CREATE TABLE medication_schedule (
+    schedule_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    medication_id UUID REFERENCES medications(medication_id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    scheduled_date DATE NOT NULL,
+    scheduled_time TIME NOT NULL,
+    is_taken BOOLEAN DEFAULT false,
+    skipped BOOLEAN DEFAULT false,
+    taken_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
+    UNIQUE(medication_id, scheduled_date, scheduled_time)
 );
 
 -- Enable Row Level Security
@@ -79,6 +98,7 @@ ALTER TABLE daily_tracker ENABLE ROW LEVEL SECURITY;
 ALTER TABLE call_center ENABLE ROW LEVEL SECURITY;
 ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE medications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE medication_schedule ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
 -- Users can only see their own data
@@ -90,4 +110,56 @@ CREATE POLICY "Tracker data is user specific" ON daily_tracker FOR ALL USING (au
 CREATE POLICY "Call center data is user specific" ON call_center FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "Documents are user specific" ON documents FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "Medications are user specific" ON medications FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Medication schedule is user specific" ON medication_schedule FOR ALL USING (auth.uid() = user_id);
+
+-- Function to generate medication schedule
+CREATE OR REPLACE FUNCTION generate_medication_schedule(
+    med_id UUID,
+    u_id UUID,
+    times TEXT[],
+    start_date DATE,
+    days_ahead INTEGER
+)
+RETURNS VOID AS $$
+DECLARE
+    current_date DATE;
+    time_val TEXT;
+    end_date DATE;
+BEGIN
+    -- Calculate end date
+    end_date := start_date + days_ahead;
+
+    -- Delete existing schedule entries for this medication to avoid duplicates
+    DELETE FROM medication_schedule
+    WHERE medication_id = med_id;
+
+    -- Loop through each day
+    current_date := start_date;
+    WHILE current_date <= end_date LOOP
+        -- For each time in the times array
+        FOREACH time_val IN ARRAY times LOOP
+            -- Insert schedule entry
+            INSERT INTO medication_schedule (
+                medication_id,
+                user_id,
+                scheduled_date,
+                scheduled_time,
+                is_taken,
+                skipped
+            ) VALUES (
+                med_id,
+                u_id,
+                current_date,
+                time_val::TIME,
+                false,
+                false
+            )
+            ON CONFLICT (medication_id, scheduled_date, scheduled_time) DO NOTHING;
+        END LOOP;
+
+        -- Move to next day
+        current_date := current_date + 1;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
