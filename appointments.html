@@ -1434,20 +1434,43 @@
             }
         }
 
+        // Helper: generate time slots (used as fallback when RPC unavailable)
+        function generateTimeSlots(startTime, endTime, durationMinutes) {
+            const slots = [];
+            if (!startTime || !endTime || !durationMinutes) return slots;
+
+            const [startHour, startMin] = startTime.split(':').map(Number);
+            const [endHour, endMin] = endTime.split(':').map(Number);
+
+            let currentMinutes = startHour * 60 + startMin;
+            const endMinutes = endHour * 60 + endMin;
+
+            while (currentMinutes + durationMinutes <= endMinutes) {
+                const hours = Math.floor(currentMinutes / 60);
+                const minutes = currentMinutes % 60;
+                const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+                slots.push(timeString);
+                currentMinutes += durationMinutes;
+            }
+
+            return slots;
+        }
+
         async function loadAvailableSlots() {
             const date = document.getElementById('appointmentDate').value;
-            
+
             if (!date || !selectedDoctor || !selectedHospital) {
                 return;
             }
 
             const slotsSection = document.getElementById('timeSlotsSection');
             const slotsList = document.getElementById('timeSlotsList');
-            
+
             slotsSection.style.display = 'block';
             slotsList.innerHTML = '<div class="loading">Loading available slots...</div>';
 
             try {
+                // First try existing RPC (fast, DB-side logic)
                 const { data, error } = await supabase
                     .rpc('get_available_slots', {
                         p_doctor_id: selectedDoctor.doctor_id,
@@ -1455,9 +1478,64 @@
                         p_date: date
                     });
 
-                if (error) throw error;
+                if (!error && data && data.length > 0) {
+                    let html = '';
+                    data.forEach(slot => {
+                        const available = slot.is_available;
+                        html += `
+                            <div class="time-slot ${!available ? 'unavailable' : ''}" 
+                                 onclick="${available ? `selectTimeSlot('${slot.slot_time}')` : 'return false;'}">
+                                ${formatTime(slot.slot_time)}
+                            </div>
+                        `;
+                    });
+                    slotsList.innerHTML = html;
+                    return;
+                }
 
-                if (!data || data.length === 0) {
+                // Fallback: use doctor_availability table and generate time slots on client
+                const selectedDate = date;
+                const dayOfWeek = new Date(selectedDate).getDay();
+
+                const { data: availability, error: availError } = await supabase
+                    .from('doctor_availability')
+                    .select('*')
+                    .eq('doctor_id', selectedDoctor.doctor_id)
+                    .eq('hospital_id', selectedHospital.hospital_id)
+                    .eq('day_of_week', dayOfWeek)
+                    .eq('is_active', true)
+                    .single();
+
+                if (availError || !availability) {
+                    slotsList.innerHTML = `
+                        <div class="empty-state">
+                            <p>No available slots for this date. Please select another date.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const slots = generateTimeSlots(
+                    availability.start_time,
+                    availability.end_time,
+                    availability.slot_duration_minutes
+                );
+
+                // Get already booked appointments for this doctor on this date
+                const { data: bookedAppointments, error: bookError } = await supabase
+                    .from('appointments')
+                    .select('appointment_time')
+                    .eq('doctor_id', selectedDoctor.doctor_id)
+                    .eq('hospital_id', selectedHospital.hospital_id)
+                    .eq('appointment_date', selectedDate)
+                    .in('status', ['pending', 'confirmed']);
+
+                if (bookError) throw bookError;
+
+                const bookedTimes = bookedAppointments?.map(apt => apt.appointment_time) || [];
+                const availableSlots = slots.filter(slot => !bookedTimes.includes(slot));
+
+                if (!availableSlots || availableSlots.length === 0) {
                     slotsList.innerHTML = `
                         <div class="empty-state">
                             <p>No available slots for this date. Please select another date.</p>
@@ -1467,12 +1545,10 @@
                 }
 
                 let html = '';
-                data.forEach(slot => {
-                    const available = slot.is_available;
+                availableSlots.forEach(slot => {
                     html += `
-                        <div class="time-slot ${!available ? 'unavailable' : ''}" 
-                             onclick="${available ? `selectTimeSlot('${slot.slot_time}')` : 'return false;'}">
-                            ${formatTime(slot.slot_time)}
+                        <div class="time-slot" onclick="selectTimeSlot('${slot}')">
+                            ${formatTime(slot)}
                         </div>
                     `;
                 });
@@ -1712,6 +1788,258 @@
                 container.innerHTML = '';
             }, 5000);
         }
+    </script>
+    <script>
+        async function loadAvailableDoctors() {
+            try {
+                // Get all doctors who have active availability
+                const { data: availableDoctors, error } = await supabase
+                    .from('doctor_availability')
+                    .select(`
+                        doctor_id,
+                        doctors (
+                            doctor_id,
+                            first_name,
+                            last_name,
+                            specialization
+                        )
+                    `)
+                    .eq('is_active', true);
+
+                if (error) throw error;
+
+                // Remove duplicates (same doctor might have multiple availability records)
+                const uniqueDoctors = {};
+                availableDoctors?.forEach(item => {
+                    if (item.doctors) {
+                        uniqueDoctors[item.doctors.doctor_id] = item.doctors;
+                    }
+                });
+
+                // Populate doctor dropdown
+                const doctorSelect = document.getElementById('doctorSelect');
+                if (!doctorSelect) return; // element not present in current layout
+                Object.values(uniqueDoctors).forEach(doctor => {
+                    const option = document.createElement('option');
+                    option.value = doctor.doctor_id;
+                    option.textContent = `Dr. ${doctor.first_name} ${doctor.last_name} - ${doctor.specialization}`;
+                    doctorSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading doctors:', error);
+            }
+        }
+
+        async function loadDoctorHospitals(doctorId) {
+            try {
+                const { data, error } = await supabase
+                    .from('doctor_hospitals')
+                    .select(`
+                        hospital_id,
+                        hospitals (
+                            hospital_id,
+                            hospital_name,
+                            address,
+                            city,
+                            state
+                        )
+                    `)
+                    .eq('doctor_id', doctorId);
+
+                if (error) throw error;
+
+                const hospitalSelect = document.getElementById('hospitalSelect');
+                if (!hospitalSelect) return;
+                hospitalSelect.innerHTML = '<option value="">Select a hospital...</option>';
+                
+                data?.forEach(item => {
+                    if (item.hospitals) {
+                        const option = document.createElement('option');
+                        option.value = item.hospitals.hospital_id;
+                        option.textContent = `${item.hospitals.hospital_name} - ${item.hospitals.city}, ${item.hospitals.state}`;
+                        hospitalSelect.appendChild(option);
+                    }
+                });
+
+                hospitalSelect.disabled = false;
+            } catch (error) {
+                console.error('Error loading hospitals:', error);
+            }
+        }
+
+        async function loadAvailableTimeSlots(doctorId, hospitalId, selectedDate) {
+            try {
+                // Get day of week for the selected date (0 = Sunday, 6 = Saturday)
+                const date = new Date(selectedDate);
+                const dayOfWeek = date.getDay();
+
+                // Get doctor's availability for this day and hospital
+                const { data: availability, error: availError } = await supabase
+                    .from('doctor_availability')
+                    .select('*')
+                    .eq('doctor_id', doctorId)
+                    .eq('hospital_id', hospitalId)
+                    .eq('day_of_week', dayOfWeek)
+                    .eq('is_active', true)
+                    .single();
+
+                if (availError || !availability) {
+                    const container = document.getElementById('timeSlotContainer');
+                    if (container) container.innerHTML = 
+                        '<p>Doctor is not available on this day at this location.</p>';
+                    return;
+                }
+
+                // Generate all possible time slots
+                const slots = generateTimeSlots(
+                    availability.start_time,
+                    availability.end_time,
+                    availability.slot_duration_minutes
+                );
+
+                // Get already booked appointments for this doctor on this date
+                const { data: bookedAppointments, error: bookError } = await supabase
+                    .from('appointments')
+                    .select('appointment_time')
+                    .eq('doctor_id', doctorId)
+                    .eq('hospital_id', hospitalId)
+                    .eq('appointment_date', selectedDate)
+                    .in('status', ['pending', 'confirmed']);
+
+                if (bookError) throw bookError;
+
+                // Filter out booked slots
+                const bookedTimes = bookedAppointments?.map(apt => apt.appointment_time) || [];
+                const availableSlots = slots.filter(slot => !bookedTimes.includes(slot));
+
+                // Display available slots
+                displayTimeSlots(availableSlots);
+
+            } catch (error) {
+                console.error('Error loading time slots:', error);
+            }
+        }
+
+        function generateTimeSlots(startTime, endTime, durationMinutes) {
+            const slots = [];
+            
+            // Convert time strings to minutes since midnight
+            const [startHour, startMin] = startTime.split(':').map(Number);
+            const [endHour, endMin] = endTime.split(':').map(Number);
+            
+            let currentMinutes = startHour * 60 + startMin;
+            const endMinutes = endHour * 60 + endMin;
+            
+            while (currentMinutes + durationMinutes <= endMinutes) {
+                const hours = Math.floor(currentMinutes / 60);
+                const minutes = currentMinutes % 60;
+                const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+                slots.push(timeString);
+                currentMinutes += durationMinutes;
+            }
+            
+            return slots;
+        }
+
+        function displayTimeSlots(slots) {
+            const container = document.getElementById('timeSlotContainer');
+            if (!container) return;
+            
+            if (slots.length === 0) {
+                container.innerHTML = '<p>No available time slots for this date.</p>';
+                return;
+            }
+            
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;">';
+            
+            slots.forEach(slot => {
+                // Format time for display (convert 24hr to 12hr)
+                const [hours, minutes] = slot.split(':');
+                const hour = parseInt(hours);
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const displayHour = hour % 12 || 12;
+                const displayTime = `${displayHour}:${minutes} ${ampm}`;
+                
+                html += `
+                    <button class="time-slot-btn" onclick="selectTimeSlot('${slot}')">
+                        ${displayTime}
+                    </button>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        let selectedTimeSlotExample = null;
+
+        function selectTimeSlot(time) {
+            // safe-guard: avoid conflicting with existing selectTimeSlot in page
+            selectedTimeSlotExample = time;
+            
+            // Highlight selected button
+            document.querySelectorAll('.time-slot-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            // event may not be available; find the button and add selected class
+            const btn = Array.from(document.querySelectorAll('.time-slot-btn')).find(b => b.getAttribute('onclick')?.includes(time));
+            if (btn) btn.classList.add('selected');
+        }
+
+        async function bookAppointmentExample() {
+            const doctorId = document.getElementById('doctorSelect')?.value;
+            const hospitalId = document.getElementById('hospitalSelect')?.value;
+            const appointmentDate = document.getElementById('dateSelect')?.value;
+            const appointmentType = document.getElementById('appointmentType')?.value;
+            const visitReason = document.getElementById('visitReason')?.value;
+            const symptoms = document.getElementById('symptoms')?.value;
+            const patientNotes = document.getElementById('patientNotes')?.value;
+
+            if (!doctorId || !hospitalId || !appointmentDate || !selectedTimeSlotExample || !appointmentType || !visitReason) {
+                alert('Please fill in all required fields and select a time slot');
+                return;
+            }
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    alert('Please sign in to book an appointment');
+                    return;
+                }
+
+                const { data, error } = await supabase
+                    .from('appointments')
+                    .insert([{ 
+                        user_id: user.id,
+                        doctor_id: doctorId,
+                        hospital_id: hospitalId,
+                        appointment_date: appointmentDate,
+                        appointment_time: selectedTimeSlotExample,
+                        appointment_type: appointmentType,
+                        visit_reason: visitReason,
+                        symptoms: symptoms,
+                        patient_notes: patientNotes,
+                        status: 'pending',
+                        is_first_visit: false // You can add a checkbox for this
+                    }]);
+
+                if (error) throw error;
+
+                alert('Appointment booked successfully! The doctor will confirm your appointment soon.');
+                
+                // Redirect or reset form
+                window.location.href = 'appointments.html';
+
+            } catch (error) {
+                console.error('Error booking appointment:', error);
+                alert('Error booking appointment: ' + (error.message || error));
+            }
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            const doctorSelect = document.getElementById('doctorSelect');
+            if (doctorSelect) loadAvailableDoctors();
+        });
     </script>
 </body>
 </html>
