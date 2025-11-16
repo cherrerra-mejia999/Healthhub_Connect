@@ -20,7 +20,7 @@ DROP POLICY IF EXISTS "Documents delete policy" ON documents;
 
 -- SELECT Policy: Users can view their own documents, doctors/admins can view all documents
 CREATE POLICY "Documents select policy" ON documents
-FOR SELECT
+FOR SELECT TO authenticated
 USING (
     auth.uid() = user_id OR  -- Users can view their own documents
     EXISTS (
@@ -36,7 +36,7 @@ USING (
 
 -- INSERT Policy: Users can insert their own documents, doctors/admins can insert for anyone
 CREATE POLICY "Documents insert policy" ON documents
-FOR INSERT
+FOR INSERT TO authenticated
 WITH CHECK (
     auth.uid() = user_id OR  -- Users can insert their own documents
     EXISTS (
@@ -52,7 +52,7 @@ WITH CHECK (
 
 -- UPDATE Policy: Users can update their own documents, doctors/admins can update any documents
 CREATE POLICY "Documents update policy" ON documents
-FOR UPDATE
+FOR UPDATE TO authenticated
 USING (
     auth.uid() = user_id OR  -- Users can update their own documents
     EXISTS (
@@ -68,7 +68,7 @@ USING (
 
 -- DELETE Policy: Users can delete their own documents, doctors/admins can delete any documents
 CREATE POLICY "Documents delete policy" ON documents
-FOR DELETE
+FOR DELETE TO authenticated
 USING (
     auth.uid() = user_id OR  -- Users can delete their own documents
     EXISTS (
@@ -112,7 +112,7 @@ DROP POLICY IF EXISTS "Medications delete policy" ON medications;
 
 -- SELECT Policy: Users can view their own medications, doctors/admins can view all medications
 CREATE POLICY "Medications select policy" ON medications
-FOR SELECT
+FOR SELECT TO authenticated
 USING (
     auth.uid() = user_id OR  -- Users can view their own medications
     EXISTS (
@@ -128,7 +128,7 @@ USING (
 
 -- INSERT Policy: Users can insert their own medications, doctors/admins can insert for anyone
 CREATE POLICY "Medications insert policy" ON medications
-FOR INSERT
+FOR INSERT TO authenticated
 WITH CHECK (
     auth.uid() = user_id OR  -- Users can insert their own medications
     EXISTS (
@@ -144,7 +144,7 @@ WITH CHECK (
 
 -- UPDATE Policy: Users can update their own medications, doctors/admins can update any medications
 CREATE POLICY "Medications update policy" ON medications
-FOR UPDATE
+FOR UPDATE TO authenticated
 USING (
     auth.uid() = user_id OR  -- Users can update their own medications
     EXISTS (
@@ -160,7 +160,7 @@ USING (
 
 -- DELETE Policy: Users can delete their own medications, doctors/admins can delete any medications
 CREATE POLICY "Medications delete policy" ON medications
-FOR DELETE
+FOR DELETE TO authenticated
 USING (
     auth.uid() = user_id OR  -- Users can delete their own medications
     EXISTS (
