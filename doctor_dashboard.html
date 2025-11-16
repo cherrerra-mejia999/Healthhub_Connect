@@ -242,96 +242,133 @@
 
         .day-schedule {
             background: #f8fafc;
-            border-radius: 8px;
             padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .date-header {
-            color: #5b21b6;
-            font-weight: 700;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
             margin-bottom: 15px;
-            font-size: 18px;
         }
 
-        .appointment-card {
-            background: white;
-            border-left: 4px solid #5b21b6;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .day-schedule.active {
+            border-color: #00d4d4;
+            background: #f0fdfd;
         }
 
-        .appointment-header {
+        .day-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
-        .patient-name {
-            font-weight: 700;
-            font-size: 16px;
-            color: #1e293b;
-        }
-
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
+        .day-name {
             font-weight: 600;
+            color: #1e293b;
+            font-size: 16px;
         }
 
-        .status-confirmed {
-            background: #dbeafe;
-            color: #1e40af;
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
         }
 
-        .status-completed {
-            background: #dcfce7;
-            color: #166534;
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
         }
 
-        .appointment-time {
-            color: #64748b;
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #00d4d4;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .time-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
             font-size: 14px;
-            margin-bottom: 5px;
         }
 
-        .appointment-reason {
-            color: #334155;
-            margin-bottom: 10px;
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
         }
 
-        .btn-primary, .btn-success, .btn-danger {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #5b21b6;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 13px;
+            border: none;
+            font-size: 14px;
             transition: all 0.3s;
-            margin-right: 8px;
         }
 
         .btn-primary {
-            background: #5b21b6;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #4c1d95;
-            transform: translateY(-2px);
-        }
-
-        .btn-success {
             background: #10b981;
             color: white;
         }
 
-        .btn-success:hover {
+        .btn-primary:hover {
             background: #059669;
+        }
+
+        .btn-save {
+            background: #00d4d4;
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+        .btn-save:hover {
+            background: #00b8b8;
         }
 
         .btn-danger {
@@ -343,161 +380,165 @@
             background: #dc2626;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
+        .appointment-card {
+            background: #f8fafc;
+            border-left: 4px solid #5b21b6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .appointment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .patient-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .appointment-time {
+            font-size: 14px;
             color: #64748b;
+            margin-top: 5px;
         }
 
-        .empty-state svg {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 600;
-            color: #334155;
-            font-size: 14px;
         }
 
-        input[type="text"],
-        input[type="email"],
-        input[type="number"],
-        input[type="date"],
-        input[type="time"],
-        input[type="file"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: all 0.3s;
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
         }
 
-        input:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #5b21b6;
-            box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.1);
+        .status-confirmed {
+            background: #d1fae5;
+            color: #065f46;
         }
 
-        textarea {
-            resize: vertical;
-            min-height: 100px;
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
         }
 
-        .required {
-            color: #ef4444;
+        .appointment-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
         }
 
         .message {
-            padding: 12px 16px;
-            border-radius: 6px;
+            padding: 15px;
+            border-radius: 8px;
             margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .message.error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fca5a5;
+            font-weight: 600;
         }
 
         .message.success {
             background: #d1fae5;
             color: #065f46;
-            border: 1px solid #6ee7b7;
+            border: 1px solid #10b981;
         }
 
-        .file-info {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 5px;
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
         }
 
-        @media (max-width: 768px) {
-            .appointment-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
+        .hospital-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .hospital-option input[type="checkbox"] {
+            width: auto;
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
+    <header class="header">
         <div class="header-content">
             <div class="logo-text">HealthHub Connect</div>
             <div class="user-info">
                 <span class="doctor-badge">Doctor Portal</span>
-                <span id="doctorNameDisplay">Loading...</span>
+                <span id="doctorName">Dr. [Name]</span>
                 <button class="btn-secondary" onclick="signOut()">Sign Out</button>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Navigation Pills -->
-    <div class="nav-section">
+    <nav class="nav-section">
         <div class="nav-pills">
-            <a class="active" onclick="showSection('appointments')">My Appointments</a>
-            <a onclick="showSection('patients')">Patient List</a>
-            <a onclick="showSection('schedule')">My Schedule</a>
+            <a href="#" onclick="showSection('appointments')" class="active">Appointments</a>
+            <a href="#" onclick="showSection('availability')">My Availability</a>
         </div>
-    </div>
+    </nav>
 
-    <!-- Main Content -->
     <div class="container">
+        <div id="messageContainer"></div>
+
         <!-- Appointments Section -->
-        <div id="appointments-section" class="section active">
+        <section id="appointments-section" class="section active">
             <div class="card">
                 <h2>My Appointments</h2>
-                <div id="appointmentsList">
-                    <div class="empty-state">
-                        <p>Loading appointments...</p>
-                    </div>
+                <div id="appointmentsList">Loading...</div>
+            </div>
+        </section>
+
+        <!-- Availability Section -->
+        <section id="availability-section" class="section">
+            <div class="card">
+                <h2>Manage My Availability</h2>
+                
+                <!-- Hospital Selection -->
+                <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 2px solid #86efac;">
+                    <h3>Select Hospitals/Locations</h3>
+                    <div id="hospitalsList">Loading...</div>
+                </div>
+
+                <!-- Slot Duration -->
+                <div class="form-group">
+                    <label>Appointment Slot Duration</label>
+                    <select id="slotDuration">
+                        <option value="15">15 minutes</option>
+                        <option value="30" selected>30 minutes</option>
+                        <option value="45">45 minutes</option>
+                        <option value="60">60 minutes</option>
+                    </select>
+                </div>
+
+                <!-- Weekly Schedule -->
+                <h3>Weekly Schedule</h3>
+                <div id="weeklySchedule"></div>
+
+                <div style="margin-top: 30px; text-align: center;">
+                    <button class="btn btn-save" onclick="saveAvailability()">Save My Availability</button>
                 </div>
             </div>
-        </div>
-
-        <!-- Patients Section -->
-        <div id="patients-section" class="section">
-            <div class="card">
-                <h2>My Patients</h2>
-                <div id="patientsList">
-                    <div class="empty-state">
-                        <p>Loading patients...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Schedule Section -->
-        <div id="schedule-section" class="section">
-            <div class="card">
-                <h2>My Schedule</h2>
-                <p>Schedule management coming soon...</p>
-            </div>
-        </div>
+        </section>
     </div>
 
     <!-- Patient Records Modal -->
     <div id="patientRecordsModal" class="modal">
         <div class="modal-content">
             <button class="close-modal" onclick="closePatientRecordsModal()">&times;</button>
-            <h2>Patient Records - <span id="modalPatientName">Patient</span></h2>
+            <h2 id="modalPatientName" style="margin-bottom: 20px;">Patient Records</h2>
 
-            <!-- Tab Navigation -->
             <div class="modal-tabs">
                 <button class="modal-tab active" onclick="switchTab('medication')">Add Medication</button>
-                <button class="modal-tab" onclick="switchTab('visit')">Visit Summary</button>
+                <button class="modal-tab" onclick="switchTab('summary')">Visit Summary</button>
                 <button class="modal-tab" onclick="switchTab('document')">Upload Document</button>
             </div>
 
@@ -507,56 +548,55 @@
             <div id="medication-tab" class="tab-content active">
                 <form id="addMedicationForm" onsubmit="addPatientMedication(event)">
                     <div class="form-group">
-                        <label>Medication Name <span class="required">*</span></label>
-                        <input type="text" id="medName" required>
+                        <label>Medication Name *</label>
+                        <input type="text" id="medName" required placeholder="e.g., Amoxicillin">
                     </div>
 
                     <div class="form-group">
-                        <label>Dosage <span class="required">*</span></label>
-                        <input type="text" id="medDosage" placeholder="e.g., 500mg" required>
+                        <label>Dosage *</label>
+                        <input type="text" id="medDosage" required placeholder="e.g., 500mg">
                     </div>
 
                     <div class="form-group">
-                        <label>Frequency <span class="required">*</span></label>
+                        <label>Frequency *</label>
                         <select id="medFrequency" required>
-                            <option value="">Select frequency</option>
-                            <option value="Once daily">Once daily</option>
-                            <option value="Twice daily">Twice daily</option>
-                            <option value="Three times daily">Three times daily</option>
-                            <option value="Four times daily">Four times daily</option>
-                            <option value="Every 4 hours">Every 4 hours</option>
-                            <option value="Every 6 hours">Every 6 hours</option>
-                            <option value="Every 8 hours">Every 8 hours</option>
-                            <option value="As needed">As needed</option>
-                            <option value="Weekly">Weekly</option>
+                            <option value="">Select frequency...</option>
+                            <option value="once daily">Once Daily</option>
+                            <option value="twice daily">Twice Daily</option>
+                            <option value="three times daily">Three Times Daily</option>
+                            <option value="every 4 hours">Every 4 Hours</option>
+                            <option value="every 6 hours">Every 6 Hours</option>
+                            <option value="every 8 hours">Every 8 Hours</option>
+                            <option value="every 12 hours">Every 12 Hours</option>
+                            <option value="as needed">As Needed</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>Start Date <span class="required">*</span></label>
+                        <label>Start Date *</label>
                         <input type="date" id="medStartDate" required>
                     </div>
 
                     <div class="form-group">
-                        <label>End Date</label>
+                        <label>End Date / Duration</label>
                         <input type="date" id="medEndDate">
                     </div>
 
                     <div class="form-group">
-                        <label>Notes</label>
-                        <textarea id="medNotes" placeholder="Any additional instructions..."></textarea>
+                        <label>Instructions / Notes</label>
+                        <textarea id="medNotes" rows="3" placeholder="Take with food, avoid alcohol, etc."></textarea>
                     </div>
 
-                    <button type="submit" class="btn-primary">Add Medication</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Add Medication</button>
                 </form>
             </div>
 
             <!-- Visit Summary Tab -->
-            <div id="visit-tab" class="tab-content">
+            <div id="summary-tab" class="tab-content">
                 <form id="visitSummaryForm" onsubmit="saveVisitSummary(event)">
                     <div class="form-group">
-                        <label>Visit Summary <span class="required">*</span></label>
-                        <textarea id="visitSummary" required placeholder="Enter visit notes, diagnosis, treatment plan..."></textarea>
+                        <label>Visit Summary / Doctor's Notes *</label>
+                        <textarea id="visitSummary" rows="10" required placeholder="Enter visit summary, diagnosis, treatment plan, etc."></textarea>
                     </div>
 
                     <div class="form-group">
@@ -572,7 +612,7 @@
                         <input type="date" id="followupDate">
                     </div>
 
-                    <button type="submit" class="btn-primary">Save Visit Summary</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Save Visit Summary</button>
                 </form>
             </div>
 
@@ -580,21 +620,21 @@
             <div id="document-tab" class="tab-content">
                 <form id="uploadDocumentForm" onsubmit="uploadPatientDocument(event)">
                     <div class="form-group">
-                        <label>Document Type <span class="required">*</span></label>
+                        <label>Document Type *</label>
                         <select id="docType" required>
-                            <option value="">Select document type</option>
-                            <option value="Lab Report">Lab Report</option>
-                            <option value="Prescription">Prescription</option>
-                            <option value="Imaging">Imaging</option>
-                            <option value="Consultation Note">Consultation Note</option>
-                            <option value="Other">Other</option>
+                            <option value="">Select type...</option>
+                            <option value="prescription">Prescription</option>
+                            <option value="lab_report">Lab Report</option>
+                            <option value="imaging">Imaging/X-Ray</option>
+                            <option value="referral">Referral</option>
+                            <option value="other">Other</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>Document File <span class="required">*</span></label>
-                        <input type="file" id="docFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
-                        <div class="file-info">Accepted formats: PDF, JPG, PNG, DOC, DOCX (Max 10MB)</div>
+                        <label>Document File *</label>
+                        <input type="file" id="docFile" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        <small style="color: #64748b; font-size: 12px;">Accepted formats: PDF, JPG, PNG, DOC, DOCX (Max 10MB)</small>
                     </div>
 
                     <div class="form-group">
@@ -604,10 +644,10 @@
 
                     <div class="form-group">
                         <label>Notes</label>
-                        <textarea id="docNotes" placeholder="Any additional notes about this document..."></textarea>
+                        <textarea id="docNotes" rows="3" placeholder="Any additional notes about this document..."></textarea>
                     </div>
 
-                    <button type="submit" class="btn-primary">Upload Document</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Upload Document</button>
                 </form>
             </div>
         </div>
@@ -617,217 +657,251 @@
     <script>
         const supabaseUrl = 'https://hbtgwzneuhdqlmriwvje.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhidGd3em5ldWhkcWxtcml3dmplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNDI5MTQsImV4cCI6MjA3NTkxODkxNH0.1v1OLYSEPRBKaZWQu1sJo8DoRzYePfdc7Zcs8i8TF78';
-        
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         let currentDoctorId = null;
+        let selectedHospitals = [];
         let currentPatientId = null;
         let currentAppointmentId = null;
 
+        const days = [
+            { name: 'Monday', value: 1 },
+            { name: 'Tuesday', value: 2 },
+            { name: 'Wednesday', value: 3 },
+            { name: 'Thursday', value: 4 },
+            { name: 'Friday', value: 5 },
+            { name: 'Saturday', value: 6 },
+            { name: 'Sunday', value: 0 }
+        ];
+
         async function init() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { user } } = await supabase.auth.getUser();
             
-            if (!session) {
+            if (!user) {
                 window.location.href = 'signin.html';
                 return;
             }
 
-            // Get doctor information
             const { data: doctorData, error } = await supabase
                 .from('doctors')
-                .select('*')
-                .eq('user_id', session.user.id)
+                .select('doctor_id, first_name, last_name')
+                .eq('user_id', user.id)
                 .single();
 
             if (error || !doctorData) {
-                alert('Doctor account not found. Please register as a doctor.');
-                await supabase.auth.signOut();
-                window.location.href = 'signin.html';
+                showMessage('Error loading doctor profile', 'error');
                 return;
             }
 
             currentDoctorId = doctorData.doctor_id;
-            document.getElementById('doctorNameDisplay').textContent = `Dr. ${doctorData.first_name} ${doctorData.last_name}`;
+            document.getElementById('doctorName').textContent = `Dr. ${doctorData.first_name} ${doctorData.last_name}`;
 
-            // Load appointments
-            loadAppointments();
+            await Promise.all([
+                loadAppointments(),
+                loadHospitals(),
+                buildWeeklySchedule(),
+                loadCurrentAvailability()
+            ]);
+        }
 
-            // Set default date for medication form
-            document.getElementById('medStartDate').valueAsDate = new Date();
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-pills a').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            document.getElementById(`${sectionName}-section`).classList.add('active');
+            event.target.classList.add('active');
         }
 
         async function loadAppointments() {
             try {
                 const { data, error } = await supabase
                     .from('appointments')
-                    .select(`
-                        *,
-                        users (first_name, last_name, email)
-                    `)
+                    .select('*')
                     .eq('doctor_id', currentDoctorId)
-                    .order('appointment_date', { ascending: true })
-                    .order('appointment_time', { ascending: true });
+                    .order('appointment_date', { ascending: true });
 
                 if (error) throw error;
 
-                displayAppointments(data || []);
-            } catch (error) {
-                console.error('Error loading appointments:', error);
-                document.getElementById('appointmentsList').innerHTML = '<p class="error">Error loading appointments</p>';
-            }
-        }
-
-        function displayAppointments(appointments) {
-            const container = document.getElementById('appointmentsList');
-
-            if (appointments.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <p>No appointments scheduled</p>
-                    </div>
-                `;
-                return;
-            }
-
-            // Group appointments by date
-            const grouped = {};
-            appointments.forEach(apt => {
-                const date = apt.appointment_date;
-                if (!grouped[date]) {
-                    grouped[date] = [];
+                const container = document.getElementById('appointmentsList');
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #64748b; padding: 40px;">No appointments scheduled</p>';
+                    return;
                 }
-                grouped[date].push(apt);
-            });
 
-            let html = '';
-            for (const [date, apts] of Object.entries(grouped)) {
-                const dateObj = new Date(date + 'T00:00:00');
-                const formattedDate = dateObj.toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
+                const userIds = [...new Set(data.map(a => a.user_id))];
+                const { data: profiles } = await supabase
+                    .from('profiles')
+                    .select('user_id, first_name, last_name')
+                    .in('user_id', userIds);
+
+                const patientNames = {};
+                profiles?.forEach(p => {
+                    patientNames[p.user_id] = `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Patient';
                 });
 
-                html += `
-                    <div class="day-schedule">
-                        <div class="date-header">${formattedDate}</div>
-                `;
-
-                apts.forEach(apt => {
-                    const patientName = apt.users ? `${apt.users.first_name} ${apt.users.last_name}` : 'Patient';
-                    const statusClass = apt.status === 'completed' ? 'status-completed' : 'status-confirmed';
-                    const statusText = apt.status.charAt(0).toUpperCase() + apt.status.slice(1);
+                let html = '';
+                data.forEach(appointment => {
+                    const date = new Date(appointment.appointment_date);
+                    const formattedDate = date.toLocaleDateString('en-US', { 
+                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+                    });
+                    const time = appointment.appointment_time || 'Time not set';
+                    const patientName = patientNames[appointment.user_id] || 'Patient';
 
                     html += `
                         <div class="appointment-card">
                             <div class="appointment-header">
-                                <div class="patient-name">${patientName}</div>
-                                <span class="status-badge ${statusClass}">${statusText}</span>
+                                <div>
+                                    <div class="patient-name">${patientName}</div>
+                                    <div class="appointment-time">${formattedDate} at ${time}</div>
+                                    <div style="margin-top: 8px; color: #64748b; font-size: 14px;">
+                                        <strong>Reason:</strong> ${appointment.visit_reason || 'Not specified'}
+                                    </div>
+                                </div>
+                                <span class="status-badge status-${appointment.status}">${appointment.status}</span>
                             </div>
-                            <div class="appointment-time">${apt.appointment_time}</div>
-                            <div class="appointment-reason"><strong>Reason:</strong> ${apt.reason || 'Not specified'}</div>
-                            ${apt.doctor_notes ? `<div class="appointment-reason"><strong>Notes:</strong> ${apt.doctor_notes}</div>` : ''}
-                            <div style="margin-top: 10px;">
-                                <button class="btn-primary" onclick="openPatientRecords(${apt.user_id}, ${apt.appointment_id}, '${patientName}')">
-                                    Manage Patient Records
-                                </button>
+                            <div class="appointment-actions">
+                                ${appointment.status === 'pending' ? `
+                                    <button class="btn btn-primary" onclick="confirmAppointment('${appointment.appointment_id}')">Confirm</button>
+                                    <button class="btn btn-danger" onclick="declineAppointment('${appointment.appointment_id}')">Decline</button>
+                                ` : ''}
+                                ${appointment.status === 'confirmed' || appointment.status === 'pending' ? `
+                                    <button class="btn btn-info" onclick="openPatientRecordsModal('${appointment.appointment_id}', '${appointment.user_id}', '${patientName}')">Manage Patient Records</button>
+                                ` : ''}
                             </div>
                         </div>
                     `;
                 });
 
-                html += '</div>';
-            }
-
-            container.innerHTML = html;
-        }
-
-        function showSection(sectionName) {
-            // Hide all sections
-            document.querySelectorAll('.section').forEach(section => {
-                section.classList.remove('active');
-            });
-
-            // Remove active from all nav links
-            document.querySelectorAll('.nav-pills a').forEach(link => {
-                link.classList.remove('active');
-            });
-
-            // Show selected section
-            document.getElementById(`${sectionName}-section`).classList.add('active');
-            
-            // Mark nav link as active
-            event.target.classList.add('active');
-
-            // Load appropriate content
-            if (sectionName === 'patients') {
-                loadPatients();
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+                showMessage('Error loading appointments: ' + error.message, 'error');
             }
         }
 
-        async function loadPatients() {
+        async function confirmAppointment(appointmentId) {
             try {
-                // Get unique patients from appointments
-                const { data, error } = await supabase
+                const { error } = await supabase
                     .from('appointments')
-                    .select(`
-                        user_id,
-                        users (first_name, last_name, email, date_of_birth, phone_number)
-                    `)
-                    .eq('doctor_id', currentDoctorId);
+                    .update({ 
+                        status: 'confirmed',
+                        confirmed_at: new Date().toISOString()
+                    })
+                    .eq('appointment_id', appointmentId);
 
                 if (error) throw error;
 
-                // Get unique patients
-                const uniquePatients = [];
-                const seenIds = new Set();
-                
-                data.forEach(apt => {
-                    if (!seenIds.has(apt.user_id) && apt.users) {
-                        seenIds.add(apt.user_id);
-                        uniquePatients.push({
-                            user_id: apt.user_id,
-                            ...apt.users
-                        });
-                    }
-                });
-
-                displayPatients(uniquePatients);
+                showMessage('Appointment confirmed successfully', 'success');
+                await loadAppointments();
             } catch (error) {
-                console.error('Error loading patients:', error);
+                showMessage('Error confirming appointment: ' + error.message, 'error');
             }
         }
 
-        function displayPatients(patients) {
-            const container = document.getElementById('patientsList');
+        async function declineAppointment(appointmentId) {
+            const reason = prompt('Please provide a reason for declining:');
+            if (!reason) return;
 
-            if (patients.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <p>No patients yet</p>
-                    </div>
-                `;
-                return;
+            try {
+                const { error } = await supabase
+                    .from('appointments')
+                    .update({ 
+                        status: 'declined',
+                        cancellation_reason: reason
+                    })
+                    .eq('appointment_id', appointmentId);
+
+                if (error) throw error;
+
+                showMessage('Appointment declined', 'success');
+                await loadAppointments();
+            } catch (error) {
+                showMessage('Error declining appointment: ' + error.message, 'error');
             }
+        }
 
-            let html = '';
-            patients.forEach(patient => {
-                const age = patient.date_of_birth ? calculateAge(patient.date_of_birth) : 'N/A';
-                const patientName = `${patient.first_name} ${patient.last_name}`;
+        async function loadHospitals() {
+            try {
+                const { data, error } = await supabase
+                    .from('hospitals')
+                    .select('*')
+                    .order('hospital_name');
 
-                html += `
-                    <div class="appointment-card">
-                        <div class="appointment-header">
-                            <div class="patient-name">${patientName}</div>
+                if (error) throw error;
+
+                const { data: doctorHospitals } = await supabase
+                    .from('doctor_hospitals')
+                    .select('hospital_id')
+                    .eq('doctor_id', currentDoctorId);
+
+                const selectedIds = doctorHospitals?.map(dh => dh.hospital_id) || [];
+
+                const container = document.getElementById('hospitalsList');
+                let html = '';
+
+                data.forEach(hospital => {
+                    const isChecked = selectedIds.includes(hospital.hospital_id);
+                    if (isChecked) selectedHospitals.push(hospital.hospital_id);
+
+                    html += `
+                        <div class="hospital-option">
+                            <input type="checkbox" 
+                                   id="hospital_${hospital.hospital_id}" 
+                                   value="${hospital.hospital_id}"
+                                   ${isChecked ? 'checked' : ''}
+                                   onchange="toggleHospital('${hospital.hospital_id}', this.checked)">
+                            <label for="hospital_${hospital.hospital_id}">
+                                <strong>${hospital.hospital_name}</strong> - ${hospital.city}, ${hospital.state}
+                            </label>
                         </div>
-                        <div class="appointment-reason"><strong>Age:</strong> ${age}</div>
-                        <div class="appointment-reason"><strong>Email:</strong> ${patient.email}</div>
-                        ${patient.phone_number ? `<div class="appointment-reason"><strong>Phone:</strong> ${patient.phone_number}</div>` : ''}
-                        <div style="margin-top: 10px;">
-                            <button class="btn-primary" onclick="openPatientRecords(${patient.user_id}, null, '${patientName}')">
-                                View Records
-                            </button>
+                    `;
+                });
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading hospitals:', error);
+            }
+        }
+
+        function toggleHospital(hospitalId, isChecked) {
+            if (isChecked) {
+                if (!selectedHospitals.includes(hospitalId)) {
+                    selectedHospitals.push(hospitalId);
+                }
+            } else {
+                selectedHospitals = selectedHospitals.filter(id => id !== hospitalId);
+            }
+        }
+
+        function buildWeeklySchedule() {
+            const container = document.getElementById('weeklySchedule');
+            let html = '';
+
+            days.forEach(day => {
+                html += `
+                    <div class="day-schedule" id="day_${day.value}">
+                        <div class="day-header">
+                            <span class="day-name">${day.name}</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggle_${day.value}" onchange="toggleDay(${day.value})">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="time-inputs" id="times_${day.value}" style="display: none;">
+                            <div>
+                                <label>Start Time</label>
+                                <input type="time" id="start_${day.value}" value="09:00">
+                            </div>
+                            <div>
+                                <label>End Time</label>
+                                <input type="time" id="end_${day.value}" value="17:00">
+                            </div>
                         </div>
                     </div>
                 `;
@@ -836,30 +910,156 @@
             container.innerHTML = html;
         }
 
-        function calculateAge(birthDate) {
-            const today = new Date();
-            const birth = new Date(birthDate);
-            let age = today.getFullYear() - birth.getFullYear();
-            const monthDiff = today.getMonth() - birth.getMonth();
-            
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-                age--;
+        function toggleDay(dayValue) {
+            const checkbox = document.getElementById(`toggle_${dayValue}`);
+            const timesDiv = document.getElementById(`times_${dayValue}`);
+            const dayDiv = document.getElementById(`day_${dayValue}`);
+
+            if (checkbox.checked) {
+                timesDiv.style.display = 'grid';
+                dayDiv.classList.add('active');
+            } else {
+                timesDiv.style.display = 'none';
+                dayDiv.classList.remove('active');
             }
-            
-            return age;
         }
 
-        function openPatientRecordsModal(userId, appointmentId, patientName) {
-            currentPatientId = userId;
+        async function loadCurrentAvailability() {
+            try {
+                const { data, error } = await supabase
+                    .from('doctor_availability')
+                    .select('*')
+                    .eq('doctor_id', currentDoctorId)
+                    .eq('is_active', true);
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    data.forEach(avail => {
+                        const toggle = document.getElementById(`toggle_${avail.day_of_week}`);
+                        if (toggle) {
+                            toggle.checked = true;
+                            toggleDay(avail.day_of_week);
+                            
+                            document.getElementById(`start_${avail.day_of_week}`).value = avail.start_time;
+                            document.getElementById(`end_${avail.day_of_week}`).value = avail.end_time;
+                        }
+                    });
+
+                    if (data[0].slot_duration_minutes) {
+                        document.getElementById('slotDuration').value = data[0].slot_duration_minutes;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading availability:', error);
+            }
+        }
+
+        async function saveAvailability() {
+            if (selectedHospitals.length === 0) {
+                showMessage('Please select at least one hospital location', 'error');
+                return;
+            }
+
+            const slotDuration = parseInt(document.getElementById('slotDuration').value);
+            const availabilityData = [];
+
+            days.forEach(day => {
+                const toggle = document.getElementById(`toggle_${day.value}`);
+                if (toggle.checked) {
+                    const startTime = document.getElementById(`start_${day.value}`).value;
+                    const endTime = document.getElementById(`end_${day.value}`).value;
+
+                    selectedHospitals.forEach(hospitalId => {
+                        availabilityData.push({
+                            doctor_id: currentDoctorId,
+                            hospital_id: hospitalId,
+                            day_of_week: day.value,
+                            start_time: startTime,
+                            end_time: endTime,
+                            slot_duration_minutes: slotDuration,
+                            is_active: true
+                        });
+                    });
+                }
+            });
+
+            if (availabilityData.length === 0) {
+                showMessage('Please select at least one day with times', 'error');
+                return;
+            }
+
+            try {
+                await supabase
+                    .from('doctor_availability')
+                    .delete()
+                    .eq('doctor_id', currentDoctorId);
+
+                await supabase
+                    .from('doctor_hospitals')
+                    .delete()
+                    .eq('doctor_id', currentDoctorId);
+
+                const { error: availError } = await supabase
+                    .from('doctor_availability')
+                    .insert(availabilityData);
+
+                if (availError) throw availError;
+
+                const hospitalData = selectedHospitals.map(hospitalId => ({
+                    doctor_id: currentDoctorId,
+                    hospital_id: hospitalId,
+                    is_primary_location: false
+                }));
+
+                const { error: hospitalError } = await supabase
+                    .from('doctor_hospitals')
+                    .insert(hospitalData);
+
+                if (hospitalError) throw hospitalError;
+
+                showMessage('Availability saved successfully! Patients can now book appointments during these times.', 'success');
+                await loadCurrentAvailability();
+            } catch (error) {
+                console.error('Error saving availability:', error);
+                showMessage('Error saving availability: ' + error.message, 'error');
+            }
+        }
+
+        async function signOut() {
+            await supabase.auth.signOut();
+            window.location.href = 'signin.html';
+        }
+
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="message ${type}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        function showModalMessage(message, type) {
+            const container = document.getElementById('modalMessage');
+            container.innerHTML = `<div class="message ${type}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        // Patient Records Modal Functions
+        function openPatientRecordsModal(appointmentId, patientId, patientName) {
             currentAppointmentId = appointmentId;
-            
-            document.getElementById('modalPatientName').textContent = patientName;
+            currentPatientId = patientId;
+
+            document.getElementById('modalPatientName').textContent = `Patient Records - ${patientName}`;
             document.getElementById('patientRecordsModal').classList.add('active');
 
-            // Load existing visit summary if appointment provided
-            if (appointmentId) {
-                loadExistingVisitSummary(appointmentId);
-            }
+            // Set default start date to today
+            document.getElementById('medStartDate').valueAsDate = new Date();
+
+            // Load existing visit summary if available
+            loadExistingVisitSummary(appointmentId);
         }
 
         function closePatientRecordsModal() {
@@ -1013,7 +1213,7 @@
             }
         }
 
-        // Upload Document for Patient - FIXED VERSION
+        // Upload Document for Patient
         async function uploadPatientDocument(event) {
             event.preventDefault();
 
@@ -1057,10 +1257,8 @@
                     .from('patient-documents')
                     .getPublicUrl(fileName);
 
-                // FIXED: Use service role or authenticated insert with proper permissions
-                // Insert document record using the patient's user context
-                // We'll use RPC function to bypass RLS
-                const { error: insertError } = await supabase.rpc('insert_document_as_doctor', {
+                // Try using RPC function first
+                const { error: rpcError } = await supabase.rpc('insert_document_as_doctor', {
                     p_user_id: currentPatientId,
                     p_document_type: docType,
                     p_file_path: publicUrl,
@@ -1070,23 +1268,7 @@
                     p_uploaded_by_doctor_id: currentDoctorId
                 });
 
-                if (insertError) {
-                    // If RPC doesn't exist, try direct insert (will fail with RLS error if not configured)
-                    console.log('RPC function not found, trying direct insert...');
-                    const { error: directInsertError } = await supabase
-                        .from('documents')
-                        .insert([{
-                            user_id: currentPatientId,
-                            document_type: docType,
-                            file_path: publicUrl,
-                            file_name: docName,
-                            file_size: docFile.size,
-                            notes: docNotes,
-                            uploaded_by: 'doctor'
-                        }]);
-                    
-                    if (directInsertError) throw directInsertError;
-                }
+                if (rpcError) throw rpcError;
 
                 showModalMessage('Document uploaded successfully!', 'success');
                 document.getElementById('uploadDocumentForm').reset();
@@ -1094,11 +1276,10 @@
             } catch (error) {
                 console.error('Error uploading document:', error);
 
-                // Check if storage bucket exists
                 if (error.message?.includes('not found') || error.message?.includes('bucket')) {
                     showModalMessage('Storage bucket not configured. Please create a "patient-documents" bucket in Supabase Storage with public access.', 'error');
                 } else if (error.message?.includes('row-level security') || error.message?.includes('RLS')) {
-                    showModalMessage('Permission error: Database RLS policy needs to be updated to allow doctors to insert documents. Please contact your administrator.', 'error');
+                    showModalMessage('Permission error: Make sure you ran the SQL fix in Supabase.', 'error');
                 } else {
                     showModalMessage('Error uploading document: ' + error.message, 'error');
                 }
@@ -1106,11 +1287,6 @@
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Upload Document';
             }
-        }
-
-        // Alias for backward compatibility
-        function openPatientRecords(userId, appointmentId, patientName) {
-            openPatientRecordsModal(userId, appointmentId, patientName);
         }
 
         // Show/hide follow-up date based on selection
@@ -1128,22 +1304,6 @@
                 });
             }
         });
-
-        function showModalMessage(message, type) {
-            const messageDiv = document.getElementById('modalMessage');
-            messageDiv.innerHTML = `<div class="message ${type}">${message}</div>`;
-            
-            if (type === 'success') {
-                setTimeout(() => {
-                    messageDiv.innerHTML = '';
-                }, 5000);
-            }
-        }
-
-        async function signOut() {
-            await supabase.auth.signOut();
-            window.location.href = 'signin.html';
-        }
 
         init();
     </script>
