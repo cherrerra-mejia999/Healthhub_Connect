@@ -1484,8 +1484,8 @@
                     data.forEach(slot => {
                         const available = slot.is_available;
                         html += `
-                            <div class="time-slot ${!available ? 'unavailable' : ''}" 
-                                 onclick="${available ? `selectTimeSlot('${slot.slot_time}')` : 'return false;'}">
+                            <div class="time-slot ${!available ? 'unavailable' : ''}"
+                                onclick="${available ? `selectTimeSlot('${slot.slot_time}', event)` : 'return false;'}">
                                 ${formatTime(slot.slot_time)}
                             </div>
                         `;
@@ -1548,7 +1548,7 @@
                 let html = '';
                 availableSlots.forEach(slot => {
                     html += `
-                        <div class="time-slot" onclick="selectTimeSlot('${slot}')">
+                        <div class="time-slot" onclick="selectTimeSlot('${slot}', event)">
                             ${formatTime(slot)}
                         </div>
                     `;
@@ -1564,13 +1564,15 @@
             }
         }
 
-        function selectTimeSlot(time) {
+        function selectTimeSlot(time, event) {
             selectedTimeSlot = time;
-            
-            document.querySelectorAll('.time-slot').forEach(slot => {
+
+            document.querySelectorAll('.time-slot, .time-slot-btn').forEach(slot => {
                 slot.classList.remove('selected');
             });
-            event.currentTarget.classList.add('selected');
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('selected');
+            }
         }
 
         function formatTime(timeString) {
@@ -1998,7 +2000,7 @@
                 const displayTime = `${displayHour}:${minutes} ${ampm}`;
                 
                 html += `
-                    <button class="time-slot-btn" onclick="selectTimeSlot('${slot}')">
+                    <button class="time-slot-btn" onclick="selectTimeSlotExample('${slot}', event)">
                         ${displayTime}
                     </button>
                 `;
@@ -2010,17 +2012,22 @@
 
         let selectedTimeSlotExample = null;
 
-        function selectTimeSlot(time) {
-            // safe-guard: avoid conflicting with existing selectTimeSlot in page
+        function selectTimeSlotExample(time, event) {
+            // This is for the example booking section
             selectedTimeSlotExample = time;
-            
+
             // Highlight selected button
             document.querySelectorAll('.time-slot-btn').forEach(btn => {
                 btn.classList.remove('selected');
             });
-            // event may not be available; find the button and add selected class
-            const btn = Array.from(document.querySelectorAll('.time-slot-btn')).find(b => b.getAttribute('onclick')?.includes(time));
-            if (btn) btn.classList.add('selected');
+
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('selected');
+            } else {
+                // Fallback: find the button and add selected class
+                const btn = Array.from(document.querySelectorAll('.time-slot-btn')).find(b => b.getAttribute('onclick')?.includes(time));
+                if (btn) btn.classList.add('selected');
+            }
         }
 
         async function bookAppointmentExample() {
