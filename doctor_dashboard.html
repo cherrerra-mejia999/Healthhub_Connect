@@ -502,12 +502,6 @@
             <div class="card">
                 <h2>Manage My Availability</h2>
                 
-                <!-- Hospital Selection -->
-                <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 2px solid #86efac;">
-                    <h3>Select Hospitals/Locations</h3>
-                    <div id="hospitalsList">Loading...</div>
-                </div>
-
                 <!-- Slot Duration -->
                 <div class="form-group">
                     <label>Appointment Slot Duration</label>
@@ -570,14 +564,6 @@
                             <option value="every 12 hours">Every 12 Hours</option>
                             <option value="as needed">As Needed</option>
                         </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Time(s) of Day *</label>
-                        <div id="medTimesList">
-                            <input type="time" class="med-time-input" value="08:00" style="margin-bottom: 8px; width: 100%;">
-                        </div>
-                        <button type="button" onclick="addMedTime()" class="btn btn-secondary" style="width: 100%; margin-top: 8px;">Add Another Time</button>
                     </div>
 
                     <div class="form-group">
@@ -964,11 +950,19 @@
         }
 
         async function saveAvailability() {
-            if (selectedHospitals.length === 0) {
-                showMessage('Please select at least one hospital location', 'error');
+            // Get doctor's assigned hospital
+            const { data: doctorData, error: doctorError } = await supabase
+                .from('doctors')
+                .select('hospital_id')
+                .eq('doctor_id', currentDoctorId)
+                .single();
+
+            if (doctorError || !doctorData?.hospital_id) {
+                showMessage('Error: Could not find your assigned hospital', 'error');
                 return;
             }
 
+            const hospitalId = doctorData.hospital_id;
             const slotDuration = parseInt(document.getElementById('slotDuration').value);
             const availabilityData = [];
 
@@ -978,16 +972,14 @@
                     const startTime = document.getElementById(`start_${day.value}`).value;
                     const endTime = document.getElementById(`end_${day.value}`).value;
 
-                    selectedHospitals.forEach(hospitalId => {
-                        availabilityData.push({
-                            doctor_id: currentDoctorId,
-                            hospital_id: hospitalId,
-                            day_of_week: day.value,
-                            start_time: startTime,
-                            end_time: endTime,
-                            slot_duration_minutes: slotDuration,
-                            is_active: true
-                        });
+                    availabilityData.push({
+                        doctor_id: currentDoctorId,
+                        hospital_id: hospitalId,
+                        day_of_week: day.value,
+                        start_time: startTime,
+                        end_time: endTime,
+                        slot_duration_minutes: slotDuration,
+                        is_active: true
                     });
                 }
             });
@@ -998,33 +990,18 @@
             }
 
             try {
+                // Delete old availability
                 await supabase
                     .from('doctor_availability')
                     .delete()
                     .eq('doctor_id', currentDoctorId);
 
-                await supabase
-                    .from('doctor_hospitals')
-                    .delete()
-                    .eq('doctor_id', currentDoctorId);
-
+                // Insert new availability
                 const { error: availError } = await supabase
                     .from('doctor_availability')
                     .insert(availabilityData);
 
                 if (availError) throw availError;
-
-                const hospitalData = selectedHospitals.map(hospitalId => ({
-                    doctor_id: currentDoctorId,
-                    hospital_id: hospitalId,
-                    is_primary_location: false
-                }));
-
-                const { error: hospitalError } = await supabase
-                    .from('doctor_hospitals')
-                    .insert(hospitalData);
-
-                if (hospitalError) throw hospitalError;
 
                 showMessage('Availability saved successfully! Patients can now book appointments during these times.', 'success');
                 await loadCurrentAvailability();
@@ -1118,18 +1095,6 @@
             }
         }
 
-        // Add another time slot for medication
-        function addMedTime() {
-            const container = document.getElementById('medTimesList');
-            const input = document.createElement('input');
-            input.type = 'time';
-            input.className = 'med-time-input';
-            input.style.marginBottom = '8px';
-            input.style.width = '100%';
-            input.value = '08:00';
-            container.appendChild(input);
-        }
-
         // Add Medication for Patient
         async function addPatientMedication(event) {
             event.preventDefault();
@@ -1144,65 +1109,27 @@
             const medStartDate = document.getElementById('medStartDate').value;
             const medEndDate = document.getElementById('medEndDate').value || null;
             const medNotes = document.getElementById('medNotes').value || null;
-            
-            // Get all time inputs
-            const timeInputs = document.querySelectorAll('.med-time-input');
-            const times = Array.from(timeInputs).map(input => input.value);
-
-            if (times.length === 0) {
-                showModalMessage('Please add at least one time', 'error');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Add Medication';
-                return;
-            }
 
             try {
-                // Insert medication
-                const { data: medication, error } = await supabase
+                const { error } = await supabase
                     .from('medications')
                     .insert([{
                         user_id: currentPatientId,
                         medication_name: medName,
                         dosage: medDosage,
                         frequency: medFrequency,
-                        time_of_day: times,
                         start_date: medStartDate,
                         end_date: medEndDate,
                         refill_date: medEndDate,
                         prescribing_doctor: `Dr. ${await getDoctorName()}`,
                         notes: medNotes
-                    }])
-                    .select()
-                    .single();
+                    }]);
 
                 if (error) throw error;
 
-                // Calculate days for schedule generation
-                const start = new Date(medStartDate);
-                const end = medEndDate ? new Date(medEndDate) : new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000); // Default 30 days
-                const daysDiff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-                const daysToGenerate = Math.min(daysDiff + 1, 365);
-
-                // Generate schedule
-                const { error: rpcError } = await supabase.rpc('generate_medication_schedule', {
-                    med_id: medication.medication_id,
-                    u_id: currentPatientId,
-                    times: times,
-                    start_date: medStartDate,
-                    days_ahead: daysToGenerate
-                });
-
-                if (rpcError) {
-                    console.error('Schedule generation error:', rpcError);
-                    showModalMessage('Medication added but schedule generation failed: ' + rpcError.message, 'error');
-                } else {
-                    showModalMessage('Medication added successfully for patient!', 'success');
-                }
-
+                showModalMessage('Medication added successfully for patient!', 'success');
                 document.getElementById('addMedicationForm').reset();
                 document.getElementById('medStartDate').valueAsDate = new Date();
-                // Reset time inputs to just one
-                document.getElementById('medTimesList').innerHTML = '<input type="time" class="med-time-input" value="08:00" style="margin-bottom: 8px; width: 100%;">';
 
             } catch (error) {
                 console.error('Error adding medication:', error);
@@ -1245,7 +1172,6 @@
             }
 
             try {
-                // Update appointment with notes and mark as completed
                 const { error } = await supabase
                     .from('appointments')
                     .update({
@@ -1256,49 +1182,7 @@
 
                 if (error) throw error;
 
-                // Check if patient has insurance on file
-                // Check if patient has active insurance
-                const { data: insuranceData } = await supabase
-                    .from('insurance')
-                    .select('provider_name, policy_number, coverage_percentage')
-                    .eq('user_id', currentPatientId)
-                    .eq('status', 'active')
-                    .maybeSingle();
-
-                // Calculate amount based on insurance
-                let consultationFee = 150.00;
-                let description = 'Consultation Fee';
-                
-                if (insuranceData) {
-                    // Patient has insurance - charge copay only
-                    const coveragePercent = insuranceData.coverage_percentage || 80;
-                    const insuranceCoverage = 150.00 * (coveragePercent / 100);
-                    consultationFee = 150.00 - insuranceCoverage; // Patient pays the rest
-                    description = `Consultation Copay (Insurance: ${insuranceData.provider_name}, ${coveragePercent}% covered)`;
-                } else {
-                    // No insurance - full amount
-                    consultationFee = 150.00;
-                    description = 'Consultation Fee (No Insurance)';
-                }
-
-                // Create a bill for the completed appointment
-                const { error: billError } = await supabase
-                    .from('bills')
-                    .insert([{
-                        user_id: currentPatientId,
-                        appointment_id: currentAppointmentId,
-                        amount: consultationFee,
-                        description: description,
-                        status: 'pending',
-                        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 30 days from now
-                    }]);
-
-                if (billError) {
-                    console.error('Error creating bill:', billError);
-                    showModalMessage('Visit summary saved but failed to create bill: ' + billError.message, 'error');
-                } else {
-                    showModalMessage('Visit summary saved and bill created successfully!', 'success');
-                }
+                showModalMessage('Visit summary saved successfully!', 'success');
 
                 // Reload appointments to show updated notes
                 setTimeout(() => {
@@ -1343,10 +1227,6 @@
             }
 
             try {
-                console.log('Starting upload...');
-                console.log('Current Patient ID:', currentPatientId);
-                console.log('Current Doctor ID:', currentDoctorId);
-                
                 // Upload file to Supabase Storage
                 const fileExt = docFile.name.split('.').pop();
                 const fileName = `${currentPatientId}/${Date.now()}_${docName.replace(/\s+/g, '_')}.${fileExt}`;
@@ -1355,57 +1235,38 @@
                     .from('patient-documents')
                     .upload(fileName, docFile);
 
-                if (uploadError) {
-                    console.error('Storage upload error:', uploadError);
-                    throw uploadError;
-                }
+                if (uploadError) throw uploadError;
 
-                console.log('File uploaded to storage successfully');
+                // Get public URL
+                const { data: { publicUrl } } = supabase.storage
+                    .from('patient-documents')
+                    .getPublicUrl(fileName);
 
-                // Just use the fileName as the path
-                const filePath = fileName;
-                console.log('File path:', filePath);
+                // Insert document record
+                const { error: insertError } = await supabase
+                    .from('documents')
+                    .insert([{
+                        user_id: currentPatientId,
+                        document_type: docType,
+                        file_path: publicUrl,
+                        file_name: docName,
+                        file_size: docFile.size,
+                        notes: docNotes
+                    }]);
 
-                // Try using RPC function first
-                console.log('Calling RPC function with:', {
-                    p_user_id: currentPatientId,
-                    p_document_type: docType,
-                    p_file_path: filePath,
-                    p_file_name: docName,
-                    p_file_size: docFile.size,
-                    p_uploaded_by_doctor_id: currentDoctorId
-                });
+                if (insertError) throw insertError;
 
-                const { data: rpcData, error: rpcError } = await supabase.rpc('insert_document_as_doctor', {
-                    p_user_id: currentPatientId,
-                    p_document_type: docType,
-                    p_file_path: filePath,
-                    p_file_name: docName,
-                    p_file_size: docFile.size,
-                    p_uploaded_by_doctor_id: currentDoctorId
-                });
-
-                if (rpcError) {
-                    console.error('RPC error:', rpcError);
-                    console.error('RPC error details:', JSON.stringify(rpcError, null, 2));
-                    throw rpcError;
-                }
-
-                console.log('Document inserted successfully');
                 showModalMessage('Document uploaded successfully!', 'success');
                 document.getElementById('uploadDocumentForm').reset();
 
             } catch (error) {
-                console.error('Full error object:', error);
-                console.error('Error message:', error.message);
-                console.error('Error details:', JSON.stringify(error, null, 2));
+                console.error('Error uploading document:', error);
 
+                // Check if storage bucket exists
                 if (error.message?.includes('not found') || error.message?.includes('bucket')) {
                     showModalMessage('Storage bucket not configured. Please create a "patient-documents" bucket in Supabase Storage with public access.', 'error');
-                } else if (error.message?.includes('row-level security') || error.message?.includes('RLS')) {
-                    showModalMessage('Permission error: Make sure you ran the SQL fix in Supabase.', 'error');
                 } else {
-                    showModalMessage('Error: ' + error.message, 'error');
+                    showModalMessage('Error uploading document: ' + error.message, 'error');
                 }
             } finally {
                 submitBtn.disabled = false;
