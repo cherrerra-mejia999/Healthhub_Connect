@@ -2309,7 +2309,7 @@
         async function loadPaymentMethods() {
             try {
                 const { data, error } = await supabase
-                    .from('payment_method')
+                    .from('payment_methods')
                     .select('*')
                     .eq('user_id', currentUser.id)
                     .order('created_at', { ascending: false });
@@ -2441,22 +2441,22 @@
                 // If this is being set as default, unset all other defaults
                 if (isDefault) {
                     await supabase
-                        .from('payment_method')
+                        .from('payment_methods')
                         .update({ is_default: false })
                         .eq('user_id', currentUser.id);
                 }
 
                 // Insert new payment method
                 const { error: insertError } = await supabase
-                    .from('payment_method')
+                    .from('payment_methods')
                     .insert([{
                         user_id: currentUser.id,
                         card_type: cardType,
                         card_brand: cardBrand,
-                        last_four: lastFour,
-                        card_holder_name: cardHolderName,
-                        expiry_month: expiryMonth,
-                        expiry_year: expiryYear,
+                        card_number: `****${lastFour}`,
+                        cardholder_name: cardHolderName,
+                        expiry_month: expiryMonth.toString(),
+                        expiry_year: expiryYear.toString(),
                         is_default: isDefault,
                         billing_zip: billingZip
                     }]);
@@ -2479,13 +2479,13 @@
             try {
                 // Unset all defaults
                 await supabase
-                    .from('payment_method')
+                    .from('payment_methods')
                     .update({ is_default: false })
                     .eq('user_id', currentUser.id);
 
                 // Set this one as default
                 const { error } = await supabase
-                    .from('payment_method')
+                    .from('payment_methods')
                     .update({ is_default: true })
                     .eq('payment_method_id', methodId);
 
@@ -2507,7 +2507,7 @@
 
             try {
                 const { error } = await supabase
-                    .from('payment_method')
+                    .from('payment_methods')
                     .delete()
                     .eq('payment_method_id', methodId);
 
