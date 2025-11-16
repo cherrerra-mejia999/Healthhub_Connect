@@ -1021,13 +1021,6 @@
             <div id="paymentMethodMessage"></div>
             
             <form id="paymentMethodForm" onsubmit="addPaymentMethod(event)">
-                <div class="message" style="background: #e3f2fd; border-left: 4px solid #2196f3; margin-bottom: 20px;">
-                    <strong>Demo Mode:</strong> Test cards accepted!<br>
-                    <code>4242 4242 4242 4242</code> (Visa)<br>
-                    <code>5555 5555 5555 4444</code> (Mastercard)<br>
-                    <code>1234 5678 9012 3456</code> (Generic demo)
-                </div>
-
                 <label>Card Type *</label>
                 <select id="cardType" required>
                     <option value="">Select card type...</option>
@@ -1038,7 +1031,6 @@
                 <label>Card Brand</label>
                 <select id="cardBrand">
                     <option value="">Select brand...</option>
-                    <option value="Demo">🎭 Demo Card (Test)</option>
                     <option value="Visa">Visa</option>
                     <option value="Mastercard">Mastercard</option>
                     <option value="American Express">American Express</option>
@@ -1047,13 +1039,10 @@
                 </select>
 
                 <label>Cardholder Name *</label>
-                <input type="text" id="cardHolderName" placeholder="e.g., John Doe or Demo User" required>
+                <input type="text" id="cardHolderName" placeholder="Name on card" required>
 
                 <label>Card Number *</label>
-                <input type="text" id="cardNumber" placeholder="e.g., 4242 4242 4242 4242 (test card)" maxlength="19" required onkeyup="formatCardNumber(this)">
-                <small style="color: #64748b; display: block; margin-top: -10px; margin-bottom: 10px;">
-                    Demo mode: Any 4+ digit number works. We only store last 4 digits.
-                </small>
+                <input type="text" id="cardNumber" placeholder="Card number" maxlength="19" required onkeyup="formatCardNumber(this)">
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div>
@@ -1094,18 +1083,11 @@
                 </div>
 
                 <label>Billing ZIP Code</label>
-                <input type="text" id="billingZip" placeholder="12345 or any test ZIP" maxlength="10">
-                <small style="color: #64748b; display: block; margin-top: -10px; margin-bottom: 10px;">
-                    Demo mode: Any ZIP format accepted (e.g., 12345, 30301)
-                </small>
+                <input type="text" id="billingZip" placeholder="ZIP code" maxlength="10">
 
                 <div style="display: flex; align-items: center; margin: 15px 0;">
                     <input type="checkbox" id="isDefault" style="width: auto; margin-right: 10px;">
                     <label for="isDefault" style="margin: 0; font-weight: normal;">Set as default payment method</label>
-                </div>
-
-                <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px;">
-                    <strong>🔒 Demo Mode:</strong> This is a demo environment. Card information is stored but not processed. Only last 4 digits shown for security.
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -2288,22 +2270,11 @@
             const billingZip = document.getElementById('billingZip').value || null;
             const isDefault = document.getElementById('isDefault').checked;
 
-            // Demo mode - accept any card format for testing
-            // In production, this would validate against real card algorithms
+            // Accept any card for demo purposes
             if (cardNumber.length < 4) {
-                showPaymentMethodMessage('Card number too short (minimum 4 digits for demo)', 'error');
+                showPaymentMethodMessage('Card number too short', 'error');
                 return;
             }
-
-            // Accept common test card numbers
-            const isTestCard = [
-                '4111111111111111', // Visa test
-                '4242424242424242', // Stripe test Visa
-                '5555555555554444', // Mastercard test
-                '378282246310005',  // Amex test
-                '6011111111111117', // Discover test
-                '1234567890123456', // Generic demo
-            ].includes(cardNumber) || cardNumber.startsWith('4111') || cardNumber.startsWith('4242');
 
             try {
                 // If this is being set as default, unset all other defaults
