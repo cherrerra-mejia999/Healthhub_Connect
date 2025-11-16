@@ -2011,8 +2011,9 @@
                 let html = '';
                 data.forEach(med => {
                     const times = med.time_of_day ? med.time_of_day.join(', ') : 'Not specified';
-                    const startDate = med.start_date ? new Date(med.start_date).toLocaleDateString() : 'Not set';
-                    const endDate = med.end_date ? new Date(med.end_date).toLocaleDateString() : 'Ongoing';
+                    // Format dates without timezone conversion
+                    const startDate = med.start_date || 'Not set';
+                    const endDate = med.end_date || 'Ongoing';
                     
                     html += `
                         <div class="medication-item ${!med.is_active ? 'inactive' : ''}">
