@@ -1881,7 +1881,8 @@
                 actualEndDate = endDate;
             } else if (durationDays) {
                 const start = new Date(startDate);
-                start.setDate(start.getDate() + parseInt(durationDays));
+                // Duration of 4 days means start + 3 days (inclusive of start day)
+                start.setDate(start.getDate() + parseInt(durationDays) - 1);
                 actualEndDate = formatDate(start);
             }
             
