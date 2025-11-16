@@ -817,6 +817,54 @@
         </div>
     </div>
 
+    <!-- Bill Payment Modal -->
+    <div id="billPaymentModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-modal" onclick="closeBillPaymentModal()">&times;</span>
+            <h3>Pay Bill</h3>
+            
+            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span style="color: #64748b;">Bill Amount:</span>
+                    <span style="font-weight: 600;" id="billOriginalAmount">$0.00</span>
+                </div>
+                
+                <div id="insuranceCoverageSection" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #10b981;">
+                        <span>Insurance Coverage (<span id="coveragePercent">0</span>%):</span>
+                        <span style="font-weight: 600;" id="insuranceCoverageAmount">- $0.00</span>
+                    </div>
+                    <div style="padding: 10px; background: #d1fae5; border-radius: 6px; margin-bottom: 10px; font-size: 13px;">
+                        <strong>Insurance:</strong> <span id="insuranceProviderName"></span>
+                    </div>
+                </div>
+                
+                <div style="border-top: 2px solid #cbd5e1; padding-top: 10px; margin-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 18px;">
+                        <span style="font-weight: 700;">You Pay:</span>
+                        <span style="font-weight: 700; color: #7c3aed;" id="billFinalAmount">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Select Payment Method *</label>
+                <select id="billPaymentMethod" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    <option value="">Loading payment methods...</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="confirmBillPayment()" class="btn btn-primary" style="flex: 1;">
+                    Confirm Payment
+                </button>
+                <button onclick="closeBillPaymentModal()" class="btn btn-secondary" style="flex: 1;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <p><strong>HealthHub Connect</strong></p>
@@ -1543,39 +1591,94 @@
             }
         }
 
-        // Pay a bill
+        // Pay a bill - open modal
+        let currentBillId = null;
+        let currentBillAmount = 0;
+        
         async function payBill(billId, amount) {
-            if (!confirm(`Pay $${parseFloat(amount).toFixed(2)}?`)) return;
-
-            try {
-                // Get default payment method
-                const { data: paymentMethods, error: pmError } = await supabase
-                    .from('payment_methods')
-                    .select('*')
-                    .eq('user_id', currentUser.id)
-                    .order('is_default', { ascending: false })
-                    .limit(1);
-
-                console.log('Payment methods query:', paymentMethods, pmError);
-
-                if (pmError) throw pmError;
-
-                if (!paymentMethods || paymentMethods.length === 0) {
-                    alert('Please add a payment method first');
-                    return;
+            currentBillId = billId;
+            currentBillAmount = parseFloat(amount);
+            
+            // Show modal
+            document.getElementById('billPaymentModal').style.display = 'block';
+            document.getElementById('billOriginalAmount').textContent = `$${currentBillAmount.toFixed(2)}`;
+            
+            // Check for insurance
+            const { data: insurance, error: insError } = await supabase
+                .from('insurance')
+                .select('provider_name, coverage_percentage')
+                .eq('user_id', currentUser.id)
+                .eq('status', 'active')
+                .maybeSingle();
+            
+            if (insurance && insurance.coverage_percentage) {
+                // Show insurance coverage
+                const coveragePercent = insurance.coverage_percentage;
+                const coverageAmount = currentBillAmount * (coveragePercent / 100);
+                const finalAmount = currentBillAmount - coverageAmount;
+                
+                document.getElementById('insuranceCoverageSection').style.display = 'block';
+                document.getElementById('coveragePercent').textContent = coveragePercent;
+                document.getElementById('insuranceCoverageAmount').textContent = `- $${coverageAmount.toFixed(2)}`;
+                document.getElementById('insuranceProviderName').textContent = insurance.provider_name;
+                document.getElementById('billFinalAmount').textContent = `$${finalAmount.toFixed(2)}`;
+                currentBillAmount = finalAmount; // Update to final amount
+            } else {
+                // No insurance
+                document.getElementById('insuranceCoverageSection').style.display = 'none';
+                document.getElementById('billFinalAmount').textContent = `$${currentBillAmount.toFixed(2)}`;
+            }
+            
+            // Load payment methods
+            const { data: paymentMethods, error: pmError } = await supabase
+                .from('payment_methods')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('is_default', { ascending: false });
+            
+            const select = document.getElementById('billPaymentMethod');
+            select.innerHTML = '';
+            
+            if (!paymentMethods || paymentMethods.length === 0) {
+                select.innerHTML = '<option value="">No payment methods available</option>';
+                return;
+            }
+            
+            paymentMethods.forEach(method => {
+                const option = document.createElement('option');
+                option.value = method.payment_method_id;
+                option.textContent = `${method.card_brand || method.card_type} •••• ${method.card_number.slice(-4)}`;
+                if (method.is_default) {
+                    option.selected = true;
                 }
-
-                const defaultPaymentMethod = paymentMethods[0];
-
+                select.appendChild(option);
+            });
+        }
+        
+        function closeBillPaymentModal() {
+            document.getElementById('billPaymentModal').style.display = 'none';
+            currentBillId = null;
+            currentBillAmount = 0;
+        }
+        
+        async function confirmBillPayment() {
+            const paymentMethodId = document.getElementById('billPaymentMethod').value;
+            
+            if (!paymentMethodId) {
+                alert('Please select a payment method');
+                return;
+            }
+            
+            try {
                 // Update bill status
                 const { error: billError } = await supabase
                     .from('bills')
                     .update({
                         status: 'paid',
                         paid_date: new Date().toISOString().split('T')[0],
-                        payment_method_id: defaultPaymentMethod.payment_method_id
+                        payment_method_id: parseInt(paymentMethodId)
                     })
-                    .eq('bill_id', billId);
+                    .eq('bill_id', currentBillId);
 
                 if (billError) throw billError;
 
@@ -1584,15 +1687,16 @@
                     .from('payments')
                     .insert({
                         user_id: currentUser.id,
-                        amount: amount,
+                        amount: currentBillAmount,
                         payment_type: 'Bill Payment',
                         status: 'completed',
-                        payment_method_id: defaultPaymentMethod.payment_method_id
+                        payment_method_id: parseInt(paymentMethodId)
                     });
 
                 if (paymentError) throw paymentError;
 
                 alert('Payment successful!');
+                closeBillPaymentModal();
                 await loadBills();
                 await loadPayments();
 
