@@ -685,8 +685,8 @@
 
                 data.forEach(doc => {
                     const uploadDate = new Date(doc.uploaded_at).toLocaleDateString();
-                    const viewLink = doc.file_url 
-                        ? `<a href="${doc.file_url}" target="_blank" style="color: #5b21b6; text-decoration: underline;">View</a>`
+                    const downloadBtn = doc.file_path 
+                        ? `<button onclick="downloadDocument('${doc.file_path}', '${doc.file_name}')" style="background: #5b21b6; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">Download</button>`
                         : `<span style="color: #94a3b8;">No file available</span>`;
 
                     html += `
@@ -694,7 +694,7 @@
                             <td>${doc.file_name || 'Unknown'}</td>
                             <td>${doc.document_type || 'N/A'}</td>
                             <td>${uploadDate}</td>
-                            <td>${viewLink}</td>
+                            <td>${downloadBtn}</td>
                         </tr>
                     `;
                 });
@@ -705,6 +705,30 @@
             } catch (error) {
                 console.error('Error loading documents:', error);
                 document.getElementById('documentsSection').innerHTML = '<div class="empty-state"><p>Error loading documents</p></div>';
+            }
+        }
+
+        // Download document
+        async function downloadDocument(filePath, fileName) {
+            try {
+                const { data, error } = await supabase.storage
+                    .from('health-documents')
+                    .download(filePath);
+
+                if (error) throw error;
+
+                const url = URL.createObjectURL(data);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+            } catch (error) {
+                console.error('Error downloading document:', error);
+                alert('Error downloading document: ' + error.message);
             }
         }
 
