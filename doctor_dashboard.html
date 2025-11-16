@@ -109,6 +109,101 @@
             box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #64748b;
+            line-height: 1;
+            background: none;
+            border: none;
+        }
+
+        .close-modal:hover {
+            color: #1e293b;
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .modal-tab {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #64748b;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .modal-tab:hover {
+            color: #5b21b6;
+        }
+
+        .modal-tab.active {
+            color: #5b21b6;
+            border-bottom-color: #5b21b6;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+        }
+
         .container {
             max-width: 1200px;
             margin: 40px auto;
@@ -435,6 +530,129 @@
         </section>
     </div>
 
+    <!-- Patient Records Modal -->
+    <div id="patientRecordsModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closePatientRecordsModal()">&times;</button>
+            <h2 id="modalPatientName" style="margin-bottom: 20px;">Patient Records</h2>
+
+            <div class="modal-tabs">
+                <button class="modal-tab active" onclick="switchTab('medication')">Add Medication</button>
+                <button class="modal-tab" onclick="switchTab('summary')">Visit Summary</button>
+                <button class="modal-tab" onclick="switchTab('document')">Upload Document</button>
+            </div>
+
+            <div id="modalMessage"></div>
+
+            <!-- Add Medication Tab -->
+            <div id="medication-tab" class="tab-content active">
+                <form id="addMedicationForm" onsubmit="addPatientMedication(event)">
+                    <div class="form-group">
+                        <label>Medication Name *</label>
+                        <input type="text" id="medName" required placeholder="e.g., Amoxicillin">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dosage *</label>
+                        <input type="text" id="medDosage" required placeholder="e.g., 500mg">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Frequency *</label>
+                        <select id="medFrequency" required>
+                            <option value="">Select frequency...</option>
+                            <option value="once daily">Once Daily</option>
+                            <option value="twice daily">Twice Daily</option>
+                            <option value="three times daily">Three Times Daily</option>
+                            <option value="every 4 hours">Every 4 Hours</option>
+                            <option value="every 6 hours">Every 6 Hours</option>
+                            <option value="every 8 hours">Every 8 Hours</option>
+                            <option value="every 12 hours">Every 12 Hours</option>
+                            <option value="as needed">As Needed</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Start Date *</label>
+                        <input type="date" id="medStartDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>End Date / Duration</label>
+                        <input type="date" id="medEndDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Instructions / Notes</label>
+                        <textarea id="medNotes" rows="3" placeholder="Take with food, avoid alcohol, etc."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Add Medication</button>
+                </form>
+            </div>
+
+            <!-- Visit Summary Tab -->
+            <div id="summary-tab" class="tab-content">
+                <form id="visitSummaryForm" onsubmit="saveVisitSummary(event)">
+                    <div class="form-group">
+                        <label>Visit Summary / Doctor's Notes *</label>
+                        <textarea id="visitSummary" rows="10" required placeholder="Enter visit summary, diagnosis, treatment plan, etc."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Follow-up Required?</label>
+                        <select id="followupRequired">
+                            <option value="no">No</option>
+                            <option value="yes">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="followupDateGroup" style="display: none;">
+                        <label>Follow-up Date</label>
+                        <input type="date" id="followupDate">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Save Visit Summary</button>
+                </form>
+            </div>
+
+            <!-- Upload Document Tab -->
+            <div id="document-tab" class="tab-content">
+                <form id="uploadDocumentForm" onsubmit="uploadPatientDocument(event)">
+                    <div class="form-group">
+                        <label>Document Type *</label>
+                        <select id="docType" required>
+                            <option value="">Select type...</option>
+                            <option value="prescription">Prescription</option>
+                            <option value="lab_report">Lab Report</option>
+                            <option value="imaging">Imaging/X-Ray</option>
+                            <option value="referral">Referral</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Document File *</label>
+                        <input type="file" id="docFile" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        <small style="color: #64748b; font-size: 12px;">Accepted formats: PDF, JPG, PNG, DOC, DOCX (Max 10MB)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Document Name</label>
+                        <input type="text" id="docName" placeholder="Optional - will use filename if empty">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="docNotes" rows="3" placeholder="Any additional notes about this document..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Upload Document</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script>
         const supabaseUrl = 'https://hbtgwzneuhdqlmriwvje.supabase.co';
@@ -443,6 +661,8 @@
 
         let currentDoctorId = null;
         let selectedHospitals = [];
+        let currentPatientId = null;
+        let currentAppointmentId = null;
 
         const days = [
             { name: 'Monday', value: 1 },
@@ -545,12 +765,15 @@
                                 </div>
                                 <span class="status-badge status-${appointment.status}">${appointment.status}</span>
                             </div>
-                            ${appointment.status === 'pending' ? `
-                                <div class="appointment-actions">
+                            <div class="appointment-actions">
+                                ${appointment.status === 'pending' ? `
                                     <button class="btn btn-primary" onclick="confirmAppointment('${appointment.appointment_id}')">Confirm</button>
                                     <button class="btn btn-danger" onclick="declineAppointment('${appointment.appointment_id}')">Decline</button>
-                                </div>
-                            ` : ''}
+                                ` : ''}
+                                ${appointment.status === 'confirmed' || appointment.status === 'pending' ? `
+                                    <button class="btn btn-info" onclick="openPatientRecordsModal('${appointment.appointment_id}', '${appointment.user_id}', '${patientName}')">Manage Patient Records</button>
+                                ` : ''}
+                            </div>
                         </div>
                     `;
                 });
@@ -815,6 +1038,272 @@
                 container.innerHTML = '';
             }, 5000);
         }
+
+        function showModalMessage(message, type) {
+            const container = document.getElementById('modalMessage');
+            container.innerHTML = `<div class="message ${type}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        // Patient Records Modal Functions
+        function openPatientRecordsModal(appointmentId, patientId, patientName) {
+            currentAppointmentId = appointmentId;
+            currentPatientId = patientId;
+
+            document.getElementById('modalPatientName').textContent = `Patient Records - ${patientName}`;
+            document.getElementById('patientRecordsModal').classList.add('active');
+
+            // Set default start date to today
+            document.getElementById('medStartDate').valueAsDate = new Date();
+
+            // Load existing visit summary if available
+            loadExistingVisitSummary(appointmentId);
+        }
+
+        function closePatientRecordsModal() {
+            document.getElementById('patientRecordsModal').classList.remove('active');
+            currentPatientId = null;
+            currentAppointmentId = null;
+
+            // Reset forms
+            document.getElementById('addMedicationForm').reset();
+            document.getElementById('visitSummaryForm').reset();
+            document.getElementById('uploadDocumentForm').reset();
+            document.getElementById('modalMessage').innerHTML = '';
+
+            // Switch back to first tab
+            switchTab('medication');
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.modal-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event?.target?.classList.add('active') || document.querySelector(`.modal-tab[onclick*="${tabName}"]`)?.classList.add('active');
+
+            // Update tab content
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+
+            // Clear messages
+            document.getElementById('modalMessage').innerHTML = '';
+        }
+
+        async function loadExistingVisitSummary(appointmentId) {
+            try {
+                const { data, error } = await supabase
+                    .from('appointments')
+                    .select('doctor_notes')
+                    .eq('appointment_id', appointmentId)
+                    .single();
+
+                if (error) throw error;
+
+                if (data && data.doctor_notes) {
+                    document.getElementById('visitSummary').value = data.doctor_notes;
+                }
+            } catch (error) {
+                console.error('Error loading visit summary:', error);
+            }
+        }
+
+        // Add Medication for Patient
+        async function addPatientMedication(event) {
+            event.preventDefault();
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Adding...';
+
+            const medName = document.getElementById('medName').value;
+            const medDosage = document.getElementById('medDosage').value;
+            const medFrequency = document.getElementById('medFrequency').value;
+            const medStartDate = document.getElementById('medStartDate').value;
+            const medEndDate = document.getElementById('medEndDate').value || null;
+            const medNotes = document.getElementById('medNotes').value || null;
+
+            try {
+                const { error } = await supabase
+                    .from('medications')
+                    .insert([{
+                        user_id: currentPatientId,
+                        medication_name: medName,
+                        dosage: medDosage,
+                        frequency: medFrequency,
+                        start_date: medStartDate,
+                        end_date: medEndDate,
+                        refill_date: medEndDate,
+                        prescribing_doctor: `Dr. ${await getDoctorName()}`,
+                        notes: medNotes
+                    }]);
+
+                if (error) throw error;
+
+                showModalMessage('Medication added successfully for patient!', 'success');
+                document.getElementById('addMedicationForm').reset();
+                document.getElementById('medStartDate').valueAsDate = new Date();
+
+            } catch (error) {
+                console.error('Error adding medication:', error);
+                showModalMessage('Error adding medication: ' + error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Add Medication';
+            }
+        }
+
+        async function getDoctorName() {
+            try {
+                const { data } = await supabase
+                    .from('doctors')
+                    .select('first_name, last_name')
+                    .eq('doctor_id', currentDoctorId)
+                    .single();
+
+                return data ? `${data.first_name} ${data.last_name}` : 'Unknown';
+            } catch {
+                return 'Unknown';
+            }
+        }
+
+        // Save Visit Summary
+        async function saveVisitSummary(event) {
+            event.preventDefault();
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
+            const visitSummary = document.getElementById('visitSummary').value;
+            const followupRequired = document.getElementById('followupRequired').value;
+            const followupDate = document.getElementById('followupDate').value || null;
+
+            let summaryText = visitSummary;
+            if (followupRequired === 'yes' && followupDate) {
+                summaryText += `\n\n[Follow-up required on: ${followupDate}]`;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('appointments')
+                    .update({
+                        doctor_notes: summaryText,
+                        status: 'completed'
+                    })
+                    .eq('appointment_id', currentAppointmentId);
+
+                if (error) throw error;
+
+                showModalMessage('Visit summary saved successfully!', 'success');
+
+                // Reload appointments to show updated notes
+                setTimeout(() => {
+                    loadAppointments();
+                }, 1500);
+
+            } catch (error) {
+                console.error('Error saving visit summary:', error);
+                showModalMessage('Error saving visit summary: ' + error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save Visit Summary';
+            }
+        }
+
+        // Upload Document for Patient
+        async function uploadPatientDocument(event) {
+            event.preventDefault();
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Uploading...';
+
+            const docType = document.getElementById('docType').value;
+            const docFile = document.getElementById('docFile').files[0];
+            const docName = document.getElementById('docName').value || docFile.name;
+            const docNotes = document.getElementById('docNotes').value || null;
+
+            if (!docFile) {
+                showModalMessage('Please select a file to upload', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Upload Document';
+                return;
+            }
+
+            // Check file size (10MB max)
+            if (docFile.size > 10 * 1024 * 1024) {
+                showModalMessage('File size must be less than 10MB', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Upload Document';
+                return;
+            }
+
+            try {
+                // Upload file to Supabase Storage
+                const fileExt = docFile.name.split('.').pop();
+                const fileName = `${currentPatientId}/${Date.now()}_${docName.replace(/\s+/g, '_')}.${fileExt}`;
+
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('patient-documents')
+                    .upload(fileName, docFile);
+
+                if (uploadError) throw uploadError;
+
+                // Get public URL
+                const { data: { publicUrl } } = supabase.storage
+                    .from('patient-documents')
+                    .getPublicUrl(fileName);
+
+                // Insert document record
+                const { error: insertError } = await supabase
+                    .from('documents')
+                    .insert([{
+                        user_id: currentPatientId,
+                        document_type: docType,
+                        file_path: publicUrl,
+                        file_name: docName,
+                        file_size: docFile.size,
+                        notes: docNotes
+                    }]);
+
+                if (insertError) throw insertError;
+
+                showModalMessage('Document uploaded successfully!', 'success');
+                document.getElementById('uploadDocumentForm').reset();
+
+            } catch (error) {
+                console.error('Error uploading document:', error);
+
+                // Check if storage bucket exists
+                if (error.message?.includes('not found') || error.message?.includes('bucket')) {
+                    showModalMessage('Storage bucket not configured. Please create a "patient-documents" bucket in Supabase Storage with public access.', 'error');
+                } else {
+                    showModalMessage('Error uploading document: ' + error.message, 'error');
+                }
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Upload Document';
+            }
+        }
+
+        // Show/hide follow-up date based on selection
+        document.addEventListener('DOMContentLoaded', () => {
+            const followupSelect = document.getElementById('followupRequired');
+            const followupDateGroup = document.getElementById('followupDateGroup');
+
+            if (followupSelect) {
+                followupSelect.addEventListener('change', (e) => {
+                    if (e.target.value === 'yes') {
+                        followupDateGroup.style.display = 'block';
+                    } else {
+                        followupDateGroup.style.display = 'none';
+                    }
+                });
+            }
+        });
 
         init();
     </script>
