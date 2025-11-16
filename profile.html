@@ -1811,6 +1811,25 @@
                     return;
                 }
 
+                // Get all shared_with user IDs
+                const userIds = data.map(access => access.shared_with_user_id);
+
+                // Get user metadata for all shared users
+                const { data: usersData, error: usersError } = await supabase
+                    .rpc('get_user_metadata', { user_ids: userIds });
+
+                if (usersError) {
+                    console.error('Error getting user metadata:', usersError);
+                }
+
+                // Create a map of user_id to user info
+                const usersMap = {};
+                if (usersData) {
+                    usersData.forEach(user => {
+                        usersMap[user.user_id] = user;
+                    });
+                }
+
                 let html = `
                     <div class="table-container" style="margin-top: 20px;">
                         <table>
@@ -1829,17 +1848,16 @@
                 for (const access of data) {
                     const date = new Date(access.created_at).toLocaleDateString();
                     
-                    // Get user metadata from auth
-                    const { data: { user: sharedUser }, error: userError } = await supabase.auth.admin.getUserById(access.shared_with_user_id);
+                    const user = usersMap[access.shared_with_user_id];
                     
                     let userName = 'Unknown User';
                     let userEmail = '';
                     
-                    if (sharedUser) {
-                        const firstName = sharedUser.user_metadata?.first_name || '';
-                        const lastName = sharedUser.user_metadata?.last_name || '';
-                        userName = firstName && lastName ? `${firstName} ${lastName}` : sharedUser.email;
-                        userEmail = sharedUser.email;
+                    if (user) {
+                        const firstName = user.first_name || '';
+                        const lastName = user.last_name || '';
+                        userName = firstName && lastName ? `${firstName} ${lastName}` : user.email;
+                        userEmail = user.email;
                     }
                     
                     html += `
