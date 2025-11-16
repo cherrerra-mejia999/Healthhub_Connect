@@ -685,8 +685,8 @@
 
                 data.forEach(doc => {
                     const uploadDate = new Date(doc.uploaded_at).toLocaleDateString();
-                    const downloadBtn = doc.file_path 
-                        ? `<button onclick="downloadDocument('${doc.file_path}', '${doc.file_name}')" style="background: #5b21b6; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">Download</button>`
+                    const viewBtn = doc.file_path 
+                        ? `<button onclick="downloadDocument('${doc.file_path}', '${doc.file_name}')" style="background: #5b21b6; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">View</button>`
                         : `<span style="color: #94a3b8;">No file available</span>`;
 
                     html += `
@@ -694,7 +694,7 @@
                             <td>${doc.file_name || 'Unknown'}</td>
                             <td>${doc.document_type || 'N/A'}</td>
                             <td>${uploadDate}</td>
-                            <td>${downloadBtn}</td>
+                            <td>${viewBtn}</td>
                         </tr>
                     `;
                 });
@@ -717,18 +717,20 @@
 
                 if (error) throw error;
 
+                // Create blob URL and trigger download
                 const url = URL.createObjectURL(data);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = fileName;
+                a.target = '_blank'; // Open in new tab
+                a.download = fileName; // Still trigger download
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
 
             } catch (error) {
-                console.error('Error downloading document:', error);
-                alert('Error downloading document: ' + error.message);
+                console.error('Error viewing document:', error);
+                alert('Error viewing document: ' + error.message);
             }
         }
 
