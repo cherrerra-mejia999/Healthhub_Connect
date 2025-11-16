@@ -1880,8 +1880,9 @@
             if (endDate) {
                 actualEndDate = endDate;
             } else if (durationDays) {
-                const start = new Date(startDate);
-                // Duration of 4 days means start + 3 days (inclusive of start day)
+                // Use date string directly to avoid timezone issues
+                const [year, month, day] = startDate.split('-').map(Number);
+                const start = new Date(year, month - 1, day); // Local timezone
                 start.setDate(start.getDate() + parseInt(durationDays) - 1);
                 actualEndDate = formatDate(start);
             }
