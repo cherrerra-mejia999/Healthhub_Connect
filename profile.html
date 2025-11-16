@@ -1549,24 +1549,31 @@
 
             try {
                 // Get default payment method
-                const { data: paymentMethods } = await supabase
+                const { data: paymentMethods, error: pmError } = await supabase
                     .from('payment_methods')
                     .select('*')
                     .eq('user_id', currentUser.id)
-                    .eq('is_default', true)
-                    .single();
+                    .order('is_default', { ascending: false })
+                    .limit(1);
 
-                if (!paymentMethods) {
-                    alert('Please add a default payment method first');
+                console.log('Payment methods query:', paymentMethods, pmError);
+
+                if (pmError) throw pmError;
+
+                if (!paymentMethods || paymentMethods.length === 0) {
+                    alert('Please add a payment method first');
                     return;
                 }
+
+                const defaultPaymentMethod = paymentMethods[0];
 
                 // Update bill status
                 const { error: billError } = await supabase
                     .from('bills')
                     .update({
                         status: 'paid',
-                        paid_date: new Date().toISOString().split('T')[0]
+                        paid_date: new Date().toISOString().split('T')[0],
+                        payment_method_id: defaultPaymentMethod.payment_method_id
                     })
                     .eq('bill_id', billId);
 
@@ -1580,7 +1587,7 @@
                         amount: amount,
                         payment_type: 'Bill Payment',
                         status: 'completed',
-                        payment_method_id: paymentMethods.payment_method_id
+                        payment_method_id: defaultPaymentMethod.payment_method_id
                     });
 
                 if (paymentError) throw paymentError;
