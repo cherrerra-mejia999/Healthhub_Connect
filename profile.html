@@ -372,12 +372,13 @@
             height: 100%;
             background: rgba(0,0,0,0.5);
             z-index: 1000;
-            align-items: center;
-            justify-content: center;
         }
 
-        .modal.active {
-            display: flex;
+        .modal.active,
+        .modal[style*="display: block"] {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
         }
 
         .modal-content {
@@ -1670,6 +1671,33 @@
             }
             
             try {
+                // Get the original bill amount and calculate insurance
+                const { data: billData } = await supabase
+                    .from('bills')
+                    .select('amount')
+                    .eq('bill_id', currentBillId)
+                    .single();
+                
+                const originalAmount = parseFloat(billData.amount);
+                
+                // Get insurance info
+                const { data: insurance } = await supabase
+                    .from('insurance')
+                    .select('insurance_id, provider_name, coverage_percentage')
+                    .eq('user_id', currentUser.id)
+                    .eq('status', 'active')
+                    .maybeSingle();
+                
+                let insuranceCovered = 0;
+                let insuranceId = null;
+                let insuranceProvider = null;
+                
+                if (insurance && insurance.coverage_percentage) {
+                    insuranceCovered = originalAmount * (insurance.coverage_percentage / 100);
+                    insuranceId = insurance.insurance_id;
+                    insuranceProvider = insurance.provider_name;
+                }
+                
                 // Update bill status
                 const { error: billError } = await supabase
                     .from('bills')
@@ -1682,12 +1710,15 @@
 
                 if (billError) throw billError;
 
-                // Create payment record
+                // Create payment record with insurance info
                 const { error: paymentError } = await supabase
                     .from('payments')
                     .insert({
                         user_id: currentUser.id,
-                        amount: currentBillAmount,
+                        amount: currentBillAmount, // Amount paid after insurance
+                        total_charge: originalAmount, // Original bill amount
+                        insurance_coverage: insuranceCovered,
+                        insurance_id: insuranceId,
                         payment_type: 'Bill Payment',
                         status: 'completed',
                         payment_method_id: parseInt(paymentMethodId)
