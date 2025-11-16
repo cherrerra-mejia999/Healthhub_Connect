@@ -702,7 +702,6 @@
             <a href="appointments.html">Appointments</a>
             <a href="medications.html">Medications</a>
             <a href="profile.html">Profile</a>
-            <a href="family_dashboard.html" class="active">Family Dashboard</a>
             <a href="support.html">Support</a>
             <a href="helpfullink.html">Helpful Links</a>
         </div>
@@ -1984,15 +1983,19 @@
             const permission = document.getElementById('sharePermission').value;
 
             try {
-                // Query auth.users via RPC or admin API - but we don't have access
-                // Instead, try to lookup by email in a way that works
-                const { data: { users }, error: userError } = await supabase.auth.admin.listUsers();
-                
-                // Since we can't access admin, let's try a different approach
-                // Check if user exists by trying to find them in any table they might have data in
-                const { data: userData, error } = await supabase.rpc('get_user_by_email', { user_email: email });
+                // Use RPC to find user by email
+                const { data: userData, error: rpcError } = await supabase
+                    .rpc('get_user_by_email', { user_email: email });
 
-                if (error || !userData || userData.length === 0) {
+                console.log('RPC result:', userData, rpcError);
+
+                if (rpcError) {
+                    console.error('RPC Error:', rpcError);
+                    showShareMessage('Error looking up user: ' + rpcError.message, 'error');
+                    return;
+                }
+
+                if (!userData || userData.length === 0) {
                     showShareMessage('User not found with that email address', 'error');
                     return;
                 }
@@ -2001,6 +2004,19 @@
 
                 if (sharedWithUserId === currentUser.id) {
                     showShareMessage('You cannot share access with yourself', 'error');
+                    return;
+                }
+
+                // Check if already shared
+                const { data: existing } = await supabase
+                    .from('shared_health_records')
+                    .select('*')
+                    .eq('owner_id', currentUser.id)
+                    .eq('shared_with_user_id', sharedWithUserId)
+                    .maybeSingle();
+
+                if (existing) {
+                    showShareMessage('You have already shared access with this user', 'error');
                     return;
                 }
 
