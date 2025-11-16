@@ -1257,20 +1257,24 @@
                 if (error) throw error;
 
                 // Check if patient has insurance on file
-                const { data: patientData } = await supabase
-                    .from('users')
-                    .select('insurance_provider, insurance_policy_number')
+                // Check if patient has active insurance
+                const { data: insuranceData } = await supabase
+                    .from('insurance')
+                    .select('provider_name, policy_number, coverage_percentage')
                     .eq('user_id', currentPatientId)
-                    .single();
+                    .eq('status', 'active')
+                    .maybeSingle();
 
                 // Calculate amount based on insurance
                 let consultationFee = 150.00;
                 let description = 'Consultation Fee';
                 
-                if (patientData?.insurance_provider && patientData?.insurance_policy_number) {
+                if (insuranceData) {
                     // Patient has insurance - charge copay only
-                    consultationFee = 30.00; // Typical copay amount
-                    description = `Consultation Copay (Insurance: ${patientData.insurance_provider})`;
+                    const coveragePercent = insuranceData.coverage_percentage || 80;
+                    const insuranceCoverage = 150.00 * (coveragePercent / 100);
+                    consultationFee = 150.00 - insuranceCoverage; // Patient pays the rest
+                    description = `Consultation Copay (Insurance: ${insuranceData.provider_name}, ${coveragePercent}% covered)`;
                 } else {
                     // No insurance - full amount
                     consultationFee = 150.00;
