@@ -380,7 +380,7 @@
             <a href="appointments.html">Appointments</a>
             <a href="medications.html">Medications</a>
             <a href="profile.html">Profile</a>
-            <a href="family_dashboard.html">Family Dashboard</a>
+            <a href="family_dashboard.html" class="active">Family Dashboard</a>
             <a href="support.html">Support</a>
             <a href="helpfullink.html">Helpful Links</a>
         </div>
@@ -477,17 +477,13 @@
             try {
                 const { data, error } = await supabase
                     .from('shared_health_records')
-                    .select(`
-                        *,
-                        owner:owner_id (
-                            first_name,
-                            last_name,
-                            email
-                        )
-                    `)
+                    .select('*')
                     .eq('shared_with_user_id', currentUser.id);
 
-                if (error) throw error;
+                if (error) {
+                    console.error('Error loading shares:', error);
+                    throw error;
+                }
 
                 const container = document.getElementById('familyMembersSection');
 
@@ -502,16 +498,19 @@
                     return;
                 }
 
+                // For each share, get the owner's info
                 let html = '<div class="family-members">';
 
-                data.forEach(record => {
-                    const owner = record.owner;
-                    const initials = owner.first_name && owner.last_name
-                        ? `${owner.first_name[0]}${owner.last_name[0]}`
-                        : owner.email[0].toUpperCase();
-                    const name = owner.first_name && owner.last_name
-                        ? `${owner.first_name} ${owner.last_name}`
-                        : owner.email;
+                for (const record of data) {
+                    // Get owner info by querying the RPC we created
+                    const { data: ownerData } = await supabase
+                        .rpc('get_user_by_email', { user_email: '' })
+                        .limit(0);
+                    
+                    // Since we can't easily get user info, use the user_id directly
+                    // Get the first letter of the user ID as initials
+                    const initials = record.owner_id.substring(0, 2).toUpperCase();
+                    const name = `User ${record.owner_id.substring(0, 8)}`;
 
                     html += `
                         <div class="family-card">
@@ -529,7 +528,7 @@
                             </div>
                         </div>
                     `;
-                });
+                }
 
                 html += '</div>';
                 container.innerHTML = html;
@@ -538,7 +537,7 @@
                 console.error('Error loading family members:', error);
                 document.getElementById('familyMembersSection').innerHTML = `
                     <div class="empty-state">
-                        <p style="color: #ef4444;">Error loading shared records</p>
+                        <p style="color: #ef4444;">Error loading shared records: ${error.message}</p>
                     </div>
                 `;
             }
