@@ -1187,6 +1187,7 @@
             }
 
             try {
+                // Update appointment with notes and mark as completed
                 const { error } = await supabase
                     .from('appointments')
                     .update({
@@ -1197,7 +1198,45 @@
 
                 if (error) throw error;
 
-                showModalMessage('Visit summary saved successfully!', 'success');
+                // Check if patient has insurance on file
+                const { data: patientData } = await supabase
+                    .from('users')
+                    .select('insurance_provider, insurance_policy_number')
+                    .eq('user_id', currentPatientId)
+                    .single();
+
+                // Calculate amount based on insurance
+                let consultationFee = 150.00;
+                let description = 'Consultation Fee';
+                
+                if (patientData?.insurance_provider && patientData?.insurance_policy_number) {
+                    // Patient has insurance - charge copay only
+                    consultationFee = 30.00; // Typical copay amount
+                    description = `Consultation Copay (Insurance: ${patientData.insurance_provider})`;
+                } else {
+                    // No insurance - full amount
+                    consultationFee = 150.00;
+                    description = 'Consultation Fee (No Insurance)';
+                }
+
+                // Create a bill for the completed appointment
+                const { error: billError } = await supabase
+                    .from('bills')
+                    .insert([{
+                        user_id: currentPatientId,
+                        appointment_id: currentAppointmentId,
+                        amount: consultationFee,
+                        description: description,
+                        status: 'pending',
+                        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 30 days from now
+                    }]);
+
+                if (billError) {
+                    console.error('Error creating bill:', billError);
+                    showModalMessage('Visit summary saved but failed to create bill: ' + billError.message, 'error');
+                } else {
+                    showModalMessage('Visit summary saved and bill created successfully!', 'success');
+                }
 
                 // Reload appointments to show updated notes
                 setTimeout(() => {
