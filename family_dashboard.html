@@ -691,7 +691,7 @@
 
                     html += `
                         <tr>
-                            <td>${doc.document_name}</td>
+                            <td>${doc.file_name || 'Unknown'}</td>
                             <td>${doc.document_type || 'N/A'}</td>
                             <td>${uploadDate}</td>
                             <td>${viewLink}</td>
