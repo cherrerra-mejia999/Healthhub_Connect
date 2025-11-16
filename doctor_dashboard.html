@@ -611,6 +611,11 @@
                     </div>
 
                     <div class="form-group">
+                        <label>Appointment Fee *</label>
+                        <input type="number" id="appointmentFee" step="0.01" min="0" required placeholder="e.g., 150.00">
+                    </div>
+
+                    <div class="form-group">
                         <label>Follow-up Required?</label>
                         <select id="followupRequired">
                             <option value="no">No</option>
@@ -623,7 +628,7 @@
                         <input type="date" id="followupDate">
                     </div>
 
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Save Visit Summary</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Save Visit Summary & Create Bill</button>
                 </form>
             </div>
 
@@ -1272,6 +1277,7 @@
             submitBtn.textContent = 'Saving...';
 
             const visitSummary = document.getElementById('visitSummary').value;
+            const appointmentFee = parseFloat(document.getElementById('appointmentFee').value);
             const followupRequired = document.getElementById('followupRequired').value;
             const followupDate = document.getElementById('followupDate').value || null;
 
@@ -1281,7 +1287,8 @@
             }
 
             try {
-                const { error } = await supabase
+                // Update appointment with notes and status
+                const { error: aptError } = await supabase
                     .from('appointments')
                     .update({
                         doctor_notes: summaryText,
@@ -1289,9 +1296,22 @@
                     })
                     .eq('appointment_id', currentAppointmentId);
 
-                if (error) throw error;
+                if (aptError) throw aptError;
 
-                showModalMessage('Visit summary saved successfully!', 'success');
+                // Create bill for the appointment
+                const { error: billError } = await supabase
+                    .from('bills')
+                    .insert([{
+                        user_id: currentPatientId,
+                        description: `Appointment with Dr. ${await getDoctorName()}`,
+                        amount: appointmentFee,
+                        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
+                        status: 'unpaid'
+                    }]);
+
+                if (billError) throw billError;
+
+                showModalMessage('Visit summary saved and bill created successfully!', 'success');
 
                 // Reload appointments to show updated notes
                 setTimeout(() => {
@@ -1303,7 +1323,7 @@
                 showModalMessage('Error saving visit summary: ' + error.message, 'error');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Save Visit Summary';
+                submitBtn.textContent = 'Save Visit Summary & Create Bill';
             }
         }
 
