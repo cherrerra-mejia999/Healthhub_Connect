@@ -1365,7 +1365,7 @@
         async function loadPayments() {
             try {
                 const { data, error } = await supabase
-                    .from('payment')
+                    .from('payments')
                     .select(`
                         *,
                         insurance (
@@ -1373,7 +1373,7 @@
                         )
                     `)
                     .eq('user_id', currentUser.id)
-                    .order('transaction_date', { ascending: false });
+                    .order('transaction_date', { ascending: false});
 
                 if (error) throw error;
 
@@ -2433,7 +2433,7 @@
 
                 // Insert payment record
                 const { error: paymentError } = await supabase
-                    .from('payment')
+                    .from('payments')
                     .insert([{
                         user_id: currentUser.id,
                         insurance_id: insuranceId,
