@@ -1431,18 +1431,14 @@
             try {
                 const { data, error } = await supabase
                     .from('bills')
-                    .select(`
-                        *,
-                        appointments (
-                            appointment_date,
-                            appointment_time,
-                            reason
-                        )
-                    `)
+                    .select('*')
                     .eq('user_id', currentUser.id)
                     .order('created_at', { ascending: false });
 
-                if (error) throw error;
+                if (error) {
+                    console.error('Bills query error:', error);
+                    throw error;
+                }
 
                 const container = document.getElementById('billsSection');
                 
@@ -1469,7 +1465,6 @@
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Appointment</th>
                                         <th>Description</th>
                                         <th>Amount</th>
                                         <th>Due Date</th>
@@ -1480,14 +1475,10 @@
                     `;
 
                     pendingBills.forEach(bill => {
-                        const appointmentInfo = bill.appointments ? 
-                            `${new Date(bill.appointments.appointment_date).toLocaleDateString()} - ${bill.appointments.reason}` : 
-                            'N/A';
                         const dueDate = bill.due_date ? new Date(bill.due_date).toLocaleDateString() : 'N/A';
                         
                         html += `
                             <tr>
-                                <td>${appointmentInfo}</td>
                                 <td>${bill.description || 'Medical services'}</td>
                                 <td>$${parseFloat(bill.amount).toFixed(2)}</td>
                                 <td>${dueDate}</td>
@@ -1515,7 +1506,6 @@
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Appointment</th>
                                         <th>Description</th>
                                         <th>Amount</th>
                                         <th>Paid Date</th>
@@ -1525,14 +1515,10 @@
                     `;
 
                     paidBills.forEach(bill => {
-                        const appointmentInfo = bill.appointments ? 
-                            `${new Date(bill.appointments.appointment_date).toLocaleDateString()} - ${bill.appointments.reason}` : 
-                            'N/A';
                         const paidDate = bill.paid_date ? new Date(bill.paid_date).toLocaleDateString() : 'N/A';
                         
                         html += `
                             <tr>
-                                <td>${appointmentInfo}</td>
                                 <td>${bill.description || 'Medical services'}</td>
                                 <td>$${parseFloat(bill.amount).toFixed(2)}</td>
                                 <td>${paidDate}</td>
@@ -1552,7 +1538,7 @@
             } catch (error) {
                 console.error('Error loading bills:', error);
                 document.getElementById('billsSection').innerHTML = `
-                    <div class="error">Error loading bills</div>
+                    <div class="error">Error loading bills: ${error.message}</div>
                 `;
             }
         }
