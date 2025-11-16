@@ -1668,6 +1668,12 @@
 
             } catch (error) {
                 console.error('Error booking appointment:', error);
+                console.error('Error details:', {
+                    code: error.code,
+                    message: error.message,
+                    details: error.details,
+                    hint: error.hint
+                });
                 showMessage('Error booking appointment: ' + error.message, 'error');
             }
         }
