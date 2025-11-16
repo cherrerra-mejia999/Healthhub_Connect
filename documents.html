@@ -991,6 +991,13 @@
             if (!supabase) return;
             
             try {
+                // Check if filePath is already a full URL (from doctor uploads)
+                if (filePath.startsWith('http')) {
+                    window.open(filePath, '_blank');
+                    return;
+                }
+                
+                // Otherwise download from storage bucket
                 const { data: downloadData, error } = await supabase.storage
                     .from(STORAGE_BUCKET_NAME)
                     .download(filePath);
