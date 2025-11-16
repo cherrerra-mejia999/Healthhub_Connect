@@ -1895,17 +1895,6 @@
             }
         }
 
-                html += `</tbody></table></div>`;
-                container.innerHTML = html;
-
-            } catch (error) {
-                console.error('Error loading shared access:', error);
-                document.getElementById('sharedAccessSection').innerHTML = `
-                    <div class="error" style="margin-top: 20px;">Error loading shared access</div>
-                `;
-            }
-        }
-
         // Modal functions
         function openEditModal() {
             document.getElementById('editModal').classList.add('active');
