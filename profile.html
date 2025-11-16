@@ -1463,16 +1463,23 @@
         async function loadVisitSummaries() {
             try {
                 const { data, error } = await supabase
-                    .from('visit_summaries')
+                    .from('appointments')
                     .select(`
-                        *,
-                        doctor (
-                            name,
-                            specialty
+                        appointment_id,
+                        appointment_date,
+                        appointment_time,
+                        doctor_notes,
+                        status,
+                        doctors (
+                            first_name,
+                            last_name,
+                            specialization
                         )
                     `)
                     .eq('user_id', currentUser.id)
-                    .order('created_at', { ascending: false });
+                    .not('doctor_notes', 'is', null)
+                    .eq('status', 'completed')
+                    .order('appointment_date', { ascending: false });
 
                 if (error) throw error;
 
@@ -1493,6 +1500,7 @@
                             <thead>
                                 <tr>
                                     <th>Date</th>
+                                    <th>Time</th>
                                     <th>Doctor</th>
                                     <th>Specialty</th>
                                     <th>Notes</th>
@@ -1502,16 +1510,21 @@
                 `;
 
                 data.forEach(visit => {
-                    const date = new Date(visit.created_at).toLocaleDateString();
-                    const notes = visit.notes ? 
-                        (visit.notes.length > 100 ? visit.notes.substring(0, 100) + '...' : visit.notes) : 
+                    const date = new Date(visit.appointment_date).toLocaleDateString();
+                    const doctorName = visit.doctors ? 
+                        `Dr. ${visit.doctors.first_name} ${visit.doctors.last_name}` : 
+                        'N/A';
+                    const specialty = visit.doctors?.specialization || 'N/A';
+                    const notes = visit.doctor_notes ? 
+                        (visit.doctor_notes.length > 100 ? visit.doctor_notes.substring(0, 100) + '...' : visit.doctor_notes) : 
                         'No notes';
                     
                     html += `
                         <tr>
                             <td>${date}</td>
-                            <td>${visit.doctor?.name || 'N/A'}</td>
-                            <td>${visit.doctor?.specialty || 'N/A'}</td>
+                            <td>${visit.appointment_time}</td>
+                            <td>${doctorName}</td>
+                            <td>${specialty}</td>
                             <td>${notes}</td>
                         </tr>
                     `;
