@@ -1622,7 +1622,8 @@
                     .eq('user_id', currentUser.id)
                     .not('doctor_notes', 'is', null)
                     .eq('status', 'completed')
-                    .order('appointment_date', { ascending: false });
+                    .order('appointment_date', { ascending: false })
+                    .limit(5);
 
                 if (error) throw error;
 
