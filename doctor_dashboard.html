@@ -502,6 +502,12 @@
             <div class="card">
                 <h2>Manage My Availability</h2>
                 
+                <!-- Hospital Selection -->
+                <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 2px solid #86efac;">
+                    <h3>Select Hospitals/Locations</h3>
+                    <div id="hospitalsList">Loading...</div>
+                </div>
+
                 <!-- Slot Duration -->
                 <div class="form-group">
                     <label>Appointment Slot Duration</label>
@@ -564,6 +570,17 @@
                             <option value="every 12 hours">Every 12 Hours</option>
                             <option value="as needed">As Needed</option>
                         </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Medication Times *</label>
+                        <div id="medTimesList">
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
+                                <input type="time" class="med-time-input" value="08:00" style="flex: 1;">
+                                <button type="button" onclick="removeTimeInput(this)" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 18px; line-height: 1;">−</button>
+                            </div>
+                        </div>
+                        <button type="button" onclick="addTimeInput()" style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; margin-top: 5px; cursor: pointer;">+ Add Another Time</button>
                     </div>
 
                     <div class="form-group">
@@ -950,19 +967,11 @@
         }
 
         async function saveAvailability() {
-            // Get doctor's assigned hospital
-            const { data: doctorData, error: doctorError } = await supabase
-                .from('doctors')
-                .select('hospital_id')
-                .eq('doctor_id', currentDoctorId)
-                .single();
-
-            if (doctorError || !doctorData?.hospital_id) {
-                showMessage('Error: Could not find your assigned hospital', 'error');
+            if (selectedHospitals.length === 0) {
+                showMessage('Please select at least one hospital location', 'error');
                 return;
             }
 
-            const hospitalId = doctorData.hospital_id;
             const slotDuration = parseInt(document.getElementById('slotDuration').value);
             const availabilityData = [];
 
@@ -972,14 +981,16 @@
                     const startTime = document.getElementById(`start_${day.value}`).value;
                     const endTime = document.getElementById(`end_${day.value}`).value;
 
-                    availabilityData.push({
-                        doctor_id: currentDoctorId,
-                        hospital_id: hospitalId,
-                        day_of_week: day.value,
-                        start_time: startTime,
-                        end_time: endTime,
-                        slot_duration_minutes: slotDuration,
-                        is_active: true
+                    selectedHospitals.forEach(hospitalId => {
+                        availabilityData.push({
+                            doctor_id: currentDoctorId,
+                            hospital_id: hospitalId,
+                            day_of_week: day.value,
+                            start_time: startTime,
+                            end_time: endTime,
+                            slot_duration_minutes: slotDuration,
+                            is_active: true
+                        });
                     });
                 }
             });
@@ -990,18 +1001,33 @@
             }
 
             try {
-                // Delete old availability
                 await supabase
                     .from('doctor_availability')
                     .delete()
                     .eq('doctor_id', currentDoctorId);
 
-                // Insert new availability
+                await supabase
+                    .from('doctor_hospitals')
+                    .delete()
+                    .eq('doctor_id', currentDoctorId);
+
                 const { error: availError } = await supabase
                     .from('doctor_availability')
                     .insert(availabilityData);
 
                 if (availError) throw availError;
+
+                const hospitalData = selectedHospitals.map(hospitalId => ({
+                    doctor_id: currentDoctorId,
+                    hospital_id: hospitalId,
+                    is_primary_location: false
+                }));
+
+                const { error: hospitalError } = await supabase
+                    .from('doctor_hospitals')
+                    .insert(hospitalData);
+
+                if (hospitalError) throw hospitalError;
 
                 showMessage('Availability saved successfully! Patients can now book appointments during these times.', 'success');
                 await loadCurrentAvailability();
@@ -1110,8 +1136,20 @@
             const medEndDate = document.getElementById('medEndDate').value || null;
             const medNotes = document.getElementById('medNotes').value || null;
 
+            // Get all time inputs
+            const timeInputs = document.querySelectorAll('.med-time-input');
+            const times = Array.from(timeInputs).map(input => input.value).filter(time => time);
+
+            if (times.length === 0) {
+                showModalMessage('Please add at least one medication time', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Add Medication';
+                return;
+            }
+
             try {
-                const { error } = await supabase
+                // Insert medication
+                const { data: medication, error: medError } = await supabase
                     .from('medications')
                     .insert([{
                         user_id: currentPatientId,
@@ -1123,13 +1161,37 @@
                         refill_date: medEndDate,
                         prescribing_doctor: `Dr. ${await getDoctorName()}`,
                         notes: medNotes
-                    }]);
+                    }])
+                    .select()
+                    .single();
 
-                if (error) throw error;
+                if (medError) throw medError;
 
-                showModalMessage('Medication added successfully for patient!', 'success');
+                // Calculate days for schedule generation
+                const start = new Date(medStartDate);
+                const end = medEndDate ? new Date(medEndDate) : new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000);
+                const daysDiff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                const daysToGenerate = Math.min(daysDiff + 1, 365);
+
+                // Generate schedule
+                const { error: rpcError } = await supabase.rpc('generate_medication_schedule', {
+                    med_id: medication.medication_id,
+                    u_id: currentPatientId,
+                    times: times,
+                    start_date: medStartDate,
+                    days_ahead: daysToGenerate
+                });
+
+                if (rpcError) {
+                    console.error('Schedule generation error:', rpcError);
+                    showModalMessage('Medication added but schedule generation failed: ' + rpcError.message, 'error');
+                } else {
+                    showModalMessage('Medication added successfully for patient!', 'success');
+                }
+
                 document.getElementById('addMedicationForm').reset();
                 document.getElementById('medStartDate').valueAsDate = new Date();
+                document.getElementById('medTimesList').innerHTML = '<div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;"><input type="time" class="med-time-input" value="08:00" style="flex: 1;"><button type="button" onclick="removeTimeInput(this)" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 18px; line-height: 1;">−</button></div>';
 
             } catch (error) {
                 console.error('Error adding medication:', error);
@@ -1137,6 +1199,53 @@
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Add Medication';
+            }
+        }
+
+        function addTimeInput() {
+            const timesList = document.getElementById('medTimesList');
+            const container = document.createElement('div');
+            container.style.display = 'flex';
+            container.style.gap = '8px';
+            container.style.marginBottom = '8px';
+            container.style.alignItems = 'center';
+            
+            const newInput = document.createElement('input');
+            newInput.type = 'time';
+            newInput.className = 'med-time-input';
+            newInput.value = '08:00';
+            newInput.style.flex = '1';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.textContent = '−';
+            removeBtn.style.background = '#ef4444';
+            removeBtn.style.color = 'white';
+            removeBtn.style.border = 'none';
+            removeBtn.style.padding = '6px 12px';
+            removeBtn.style.borderRadius = '6px';
+            removeBtn.style.cursor = 'pointer';
+            removeBtn.style.fontSize = '18px';
+            removeBtn.style.lineHeight = '1';
+            removeBtn.onclick = function() {
+                if (timesList.children.length > 1) {
+                    container.remove();
+                } else {
+                    alert('You must have at least one medication time');
+                }
+            };
+            
+            container.appendChild(newInput);
+            container.appendChild(removeBtn);
+            timesList.appendChild(container);
+        }
+
+        function removeTimeInput(button) {
+            const timesList = document.getElementById('medTimesList');
+            if (timesList.children.length > 1) {
+                button.parentElement.remove();
+            } else {
+                alert('You must have at least one medication time');
             }
         }
 
