@@ -993,7 +993,19 @@
             try {
                 // Check if filePath is already a full URL (from doctor uploads)
                 if (filePath.startsWith('http')) {
-                    window.open(filePath, '_blank');
+                    // Download the file
+                    const response = await fetch(filePath);
+                    if (!response.ok) throw new Error('Failed to download file');
+                    
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => URL.revokeObjectURL(url), 100);
                     return;
                 }
                 
@@ -1007,26 +1019,18 @@
                 const blob = new Blob([downloadData], { type: downloadData.type });
                 const url = URL.createObjectURL(blob);
                 
-                const fileExt = fileName.split('.').pop().toLowerCase();
-                const isPDF = fileExt === 'pdf';
-                const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExt);
-                
-                if (isPDF || isImage) {
-                    window.open(url, '_blank');
-                } else {
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                }
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
                 
                 setTimeout(() => URL.revokeObjectURL(url), 100);
                 
             } catch (error) {
                 console.error('Error viewing document:', error);
-                showMessage('Error opening document: ' + error.message, 'error');
+                showMessage('Error downloading document: ' + error.message, 'error');
             }
         }
 
