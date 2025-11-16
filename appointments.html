@@ -1604,6 +1604,25 @@
             const patientNotes = document.getElementById('patientNotes').value;
 
             try {
+                // Check for existing active appointments at the same time slot
+                const { data: existingAppointments, error: checkError } = await supabase
+                    .from('appointments')
+                    .select('appointment_id, status')
+                    .eq('doctor_id', selectedDoctor.doctor_id)
+                    .eq('appointment_date', appointmentDate)
+                    .eq('appointment_time', selectedTimeSlot)
+                    .in('status', ['pending', 'confirmed']);
+
+                if (checkError) throw checkError;
+
+                if (existingAppointments && existingAppointments.length > 0) {
+                    showMessage('This time slot is no longer available. Please select another time.', 'error');
+                    // Reload slots to show current availability
+                    await loadAvailableSlots();
+                    return;
+                }
+
+                // Proceed with booking
                 const { error } = await supabase
                     .from('appointments')
                     .insert([{
@@ -1621,10 +1640,27 @@
                         status: 'pending'
                     }]);
 
-                if (error) throw error;
+                if (error) {
+                    console.error('Database error:', error);
+
+                    // Provide user-friendly error messages for common constraint violations
+                    if (error.code === '23505') { // Unique constraint violation
+                        if (error.message.includes('appointments_user_doctor_date_time')) {
+                            showMessage('You already have an appointment with this doctor at this time. Please choose a different time slot.', 'error');
+                        } else if (error.message.includes('appointments_doctor_date_time')) {
+                            showMessage('This time slot has just been booked. Please select another time.', 'error');
+                            await loadAvailableSlots();
+                        } else {
+                            showMessage('This appointment conflicts with an existing booking. Please select a different time or doctor.', 'error');
+                        }
+                    } else {
+                        showMessage('Error booking appointment: ' + error.message, 'error');
+                    }
+                    return;
+                }
 
                 showMessage('Appointment booked successfully! Waiting for doctor confirmation.', 'success');
-                
+
                 setTimeout(() => {
                     resetForm();
                     loadAppointments();
