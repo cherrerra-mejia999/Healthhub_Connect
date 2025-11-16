@@ -1959,14 +1959,29 @@
                 const daysDiff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
                 const daysToGenerate = Math.min(daysDiff + 1, 365); // Max 1 year
 
-                // Generate schedule with custom start date and duration
-                await supabase.rpc('generate_medication_schedule', {
+                console.log('Calling RPC with:', {
                     med_id: medication.medication_id,
                     u_id: currentUser.id,
                     times: times,
                     start_date: startDate,
                     days_ahead: daysToGenerate
                 });
+
+                // Generate schedule with custom start date and duration
+                const { data: rpcData, error: rpcError } = await supabase.rpc('generate_medication_schedule', {
+                    med_id: medication.medication_id,
+                    u_id: currentUser.id,
+                    times: times,
+                    start_date: startDate,
+                    days_ahead: daysToGenerate
+                });
+
+                if (rpcError) {
+                    console.error('RPC Error:', rpcError);
+                    alert('Warning: Medication added but schedule generation failed: ' + rpcError.message);
+                } else {
+                    console.log('RPC succeeded:', rpcData);
+                }
 
                 alert('Medication added successfully!');
                 closeAddMedicationModal();
