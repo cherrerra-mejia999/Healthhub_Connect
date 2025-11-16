@@ -608,7 +608,6 @@
             <a href="appointments.html">Appointments</a>
             <a href="medications.html">Medications</a>
             <a href="profile.html">Profile</a>
-            <a href="family_dashboard.html">Family Dashboard</a>
             <a href="support.html">Support</a>
             <a href="helpfullink.html">Helpful Links</a>
         </div>
@@ -902,6 +901,11 @@
                 
                 if (uploadError) throw uploadError;
                 
+                // Get the public URL for the uploaded file
+                const { data: urlData } = supabase.storage
+                    .from(STORAGE_BUCKET_NAME)
+                    .getPublicUrl(fileName);
+                
                 document.getElementById('uploadProgressBar').style.width = '100%';
                 document.getElementById('uploadProgressBar').textContent = '100%';
                 
@@ -910,8 +914,9 @@
                     .insert([{
                         user_id: currentUserId,
                         document_type: documentType,
+                        document_name: file.name,
                         file_path: fileName,
-                        file_name: file.name,
+                        file_url: urlData.publicUrl,
                         file_size: file.size
                     }]);
                 
@@ -992,37 +997,35 @@
             if (!supabase) return;
             
             try {
-                // First try patient-documents bucket (for doctor uploads)
-                let downloadData, error;
-                
-                ({ data: downloadData, error } = await supabase.storage
-                    .from('patient-documents')
-                    .download(filePath));
-                
-                // If not found, try health-documents bucket (for patient uploads)
-                if (error) {
-                    ({ data: downloadData, error } = await supabase.storage
-                        .from(STORAGE_BUCKET_NAME)
-                        .download(filePath));
-                }
+                const { data: downloadData, error } = await supabase.storage
+                    .from(STORAGE_BUCKET_NAME)
+                    .download(filePath);
                 
                 if (error) throw error;
                 
                 const blob = new Blob([downloadData], { type: downloadData.type });
                 const url = URL.createObjectURL(blob);
                 
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+                const fileExt = fileName.split('.').pop().toLowerCase();
+                const isPDF = fileExt === 'pdf';
+                const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExt);
+                
+                if (isPDF || isImage) {
+                    window.open(url, '_blank');
+                } else {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
                 
                 setTimeout(() => URL.revokeObjectURL(url), 100);
                 
             } catch (error) {
-                console.error('Error downloading document:', error);
-                showMessage('Error downloading document: ' + error.message, 'error');
+                console.error('Error viewing document:', error);
+                showMessage('Error opening document: ' + error.message, 'error');
             }
         }
 
