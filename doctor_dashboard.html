@@ -573,6 +573,14 @@
                     </div>
 
                     <div class="form-group">
+                        <label>Time(s) of Day *</label>
+                        <div id="medTimesList">
+                            <input type="time" class="med-time-input" value="08:00" style="margin-bottom: 8px; width: 100%;">
+                        </div>
+                        <button type="button" onclick="addMedTime()" class="btn btn-secondary" style="width: 100%; margin-top: 8px;">Add Another Time</button>
+                    </div>
+
+                    <div class="form-group">
                         <label>Start Date *</label>
                         <input type="date" id="medStartDate" required>
                     </div>
@@ -1110,6 +1118,18 @@
             }
         }
 
+        // Add another time slot for medication
+        function addMedTime() {
+            const container = document.getElementById('medTimesList');
+            const input = document.createElement('input');
+            input.type = 'time';
+            input.className = 'med-time-input';
+            input.style.marginBottom = '8px';
+            input.style.width = '100%';
+            input.value = '08:00';
+            container.appendChild(input);
+        }
+
         // Add Medication for Patient
         async function addPatientMedication(event) {
             event.preventDefault();
@@ -1124,27 +1144,65 @@
             const medStartDate = document.getElementById('medStartDate').value;
             const medEndDate = document.getElementById('medEndDate').value || null;
             const medNotes = document.getElementById('medNotes').value || null;
+            
+            // Get all time inputs
+            const timeInputs = document.querySelectorAll('.med-time-input');
+            const times = Array.from(timeInputs).map(input => input.value);
+
+            if (times.length === 0) {
+                showModalMessage('Please add at least one time', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Add Medication';
+                return;
+            }
 
             try {
-                const { error } = await supabase
+                // Insert medication
+                const { data: medication, error } = await supabase
                     .from('medications')
                     .insert([{
                         user_id: currentPatientId,
                         medication_name: medName,
                         dosage: medDosage,
                         frequency: medFrequency,
+                        time_of_day: times,
                         start_date: medStartDate,
                         end_date: medEndDate,
                         refill_date: medEndDate,
                         prescribing_doctor: `Dr. ${await getDoctorName()}`,
                         notes: medNotes
-                    }]);
+                    }])
+                    .select()
+                    .single();
 
                 if (error) throw error;
 
-                showModalMessage('Medication added successfully for patient!', 'success');
+                // Calculate days for schedule generation
+                const start = new Date(medStartDate);
+                const end = medEndDate ? new Date(medEndDate) : new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000); // Default 30 days
+                const daysDiff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                const daysToGenerate = Math.min(daysDiff + 1, 365);
+
+                // Generate schedule
+                const { error: rpcError } = await supabase.rpc('generate_medication_schedule', {
+                    med_id: medication.medication_id,
+                    u_id: currentPatientId,
+                    times: times,
+                    start_date: medStartDate,
+                    days_ahead: daysToGenerate
+                });
+
+                if (rpcError) {
+                    console.error('Schedule generation error:', rpcError);
+                    showModalMessage('Medication added but schedule generation failed: ' + rpcError.message, 'error');
+                } else {
+                    showModalMessage('Medication added successfully for patient!', 'success');
+                }
+
                 document.getElementById('addMedicationForm').reset();
                 document.getElementById('medStartDate').valueAsDate = new Date();
+                // Reset time inputs to just one
+                document.getElementById('medTimesList').innerHTML = '<input type="time" class="med-time-input" value="08:00" style="margin-bottom: 8px; width: 100%;">';
 
             } catch (error) {
                 console.error('Error adding medication:', error);

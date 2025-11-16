@@ -781,11 +781,13 @@
             </div>
         </div>
 
-        <!-- Make a Payment -->
+        <!-- My Bills & Payments -->
         <div class="card full-width">
-            <h2>Make a Payment</h2>
-            <p style="color: #64748b; margin-bottom: 20px;">Submit payment for medical services with automatic insurance coverage calculation</p>
-            <button onclick="openPaymentModal()" class="btn btn-primary">New Payment</button>
+            <h2>My Bills & Payments</h2>
+            <p style="color: #64748b; margin-bottom: 20px;">View and pay your medical bills</p>
+            <div id="billsSection">
+                <div class="loading">Loading bills...</div>
+            </div>
         </div>
 
         <!-- Payment History -->
@@ -1232,6 +1234,7 @@
                 }
                 
                 await loadPayments();
+                await loadBills();
                 await loadVisitSummaries();
                 await loadSharedAccess();
             } catch (error) {
@@ -1420,6 +1423,189 @@
                 document.getElementById('paymentsSection').innerHTML = `
                     <div class="error">Error loading payment history</div>
                 `;
+            }
+        }
+
+        // Load bills
+        async function loadBills() {
+            try {
+                const { data, error } = await supabase
+                    .from('bills')
+                    .select(`
+                        *,
+                        appointments (
+                            appointment_date,
+                            appointment_time,
+                            reason
+                        )
+                    `)
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const container = document.getElementById('billsSection');
+                
+                if (data.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>No bills found</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Separate pending and paid bills
+                const pendingBills = data.filter(b => b.status === 'pending');
+                const paidBills = data.filter(b => b.status === 'paid');
+
+                let html = '';
+
+                // Pending Bills
+                if (pendingBills.length > 0) {
+                    html += `
+                        <h3 style="margin-bottom: 15px; color: #7c3aed;">Pending Bills</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Appointment</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Due Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+
+                    pendingBills.forEach(bill => {
+                        const appointmentInfo = bill.appointments ? 
+                            `${new Date(bill.appointments.appointment_date).toLocaleDateString()} - ${bill.appointments.reason}` : 
+                            'N/A';
+                        const dueDate = bill.due_date ? new Date(bill.due_date).toLocaleDateString() : 'N/A';
+                        
+                        html += `
+                            <tr>
+                                <td>${appointmentInfo}</td>
+                                <td>${bill.description || 'Medical services'}</td>
+                                <td>$${parseFloat(bill.amount).toFixed(2)}</td>
+                                <td>${dueDate}</td>
+                                <td>
+                                    <button onclick="payBill('${bill.bill_id}', ${bill.amount})" class="btn btn-primary btn-small">
+                                        Pay Now
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+
+                // Paid Bills
+                if (paidBills.length > 0) {
+                    html += `
+                        <h3 style="margin: 25px 0 15px 0; color: #10b981;">Paid Bills</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Appointment</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Paid Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+
+                    paidBills.forEach(bill => {
+                        const appointmentInfo = bill.appointments ? 
+                            `${new Date(bill.appointments.appointment_date).toLocaleDateString()} - ${bill.appointments.reason}` : 
+                            'N/A';
+                        const paidDate = bill.paid_date ? new Date(bill.paid_date).toLocaleDateString() : 'N/A';
+                        
+                        html += `
+                            <tr>
+                                <td>${appointmentInfo}</td>
+                                <td>${bill.description || 'Medical services'}</td>
+                                <td>$${parseFloat(bill.amount).toFixed(2)}</td>
+                                <td>${paidDate}</td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading bills:', error);
+                document.getElementById('billsSection').innerHTML = `
+                    <div class="error">Error loading bills</div>
+                `;
+            }
+        }
+
+        // Pay a bill
+        async function payBill(billId, amount) {
+            if (!confirm(`Pay $${parseFloat(amount).toFixed(2)}?`)) return;
+
+            try {
+                // Get default payment method
+                const { data: paymentMethods } = await supabase
+                    .from('payment_methods')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .eq('is_default', true)
+                    .single();
+
+                if (!paymentMethods) {
+                    alert('Please add a default payment method first');
+                    return;
+                }
+
+                // Update bill status
+                const { error: billError } = await supabase
+                    .from('bills')
+                    .update({
+                        status: 'paid',
+                        paid_date: new Date().toISOString().split('T')[0]
+                    })
+                    .eq('bill_id', billId);
+
+                if (billError) throw billError;
+
+                // Create payment record
+                const { error: paymentError } = await supabase
+                    .from('payments')
+                    .insert({
+                        user_id: currentUser.id,
+                        amount: amount,
+                        payment_type: 'Bill Payment',
+                        status: 'completed',
+                        payment_method_id: paymentMethods.payment_method_id
+                    });
+
+                if (paymentError) throw paymentError;
+
+                alert('Payment successful!');
+                await loadBills();
+                await loadPayments();
+
+            } catch (error) {
+                console.error('Error paying bill:', error);
+                alert('Error processing payment: ' + error.message);
             }
         }
 
