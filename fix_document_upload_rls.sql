@@ -5,8 +5,16 @@
 -- DOCUMENTS TABLE RLS POLICIES
 -- ============================================================================
 
--- Drop the existing restrictive policy
+-- Drop ALL existing document policies (old and new)
 DROP POLICY IF EXISTS "Documents are user specific" ON documents;
+DROP POLICY IF EXISTS "Users can view own documents" ON documents;
+DROP POLICY IF EXISTS "Users can insert own documents" ON documents;
+DROP POLICY IF EXISTS "Users can update own documents" ON documents;
+DROP POLICY IF EXISTS "Users can delete own documents" ON documents;
+DROP POLICY IF EXISTS "Documents select policy" ON documents;
+DROP POLICY IF EXISTS "Documents insert policy" ON documents;
+DROP POLICY IF EXISTS "Documents update policy" ON documents;
+DROP POLICY IF EXISTS "Documents delete policy" ON documents;
 
 -- Create separate policies for different operations with role-based access
 
@@ -91,8 +99,16 @@ COMMENT ON POLICY "Documents delete policy" ON documents IS
 -- MEDICATIONS TABLE RLS POLICIES
 -- ============================================================================
 
--- Drop the existing restrictive policy
+-- Drop ALL existing medication policies (old and new)
 DROP POLICY IF EXISTS "Medications are user specific" ON medications;
+DROP POLICY IF EXISTS "Users can view own medications" ON medications;
+DROP POLICY IF EXISTS "Users can insert own medications" ON medications;
+DROP POLICY IF EXISTS "Users can update own medications" ON medications;
+DROP POLICY IF EXISTS "Users can delete own medications" ON medications;
+DROP POLICY IF EXISTS "Medications select policy" ON medications;
+DROP POLICY IF EXISTS "Medications insert policy" ON medications;
+DROP POLICY IF EXISTS "Medications update policy" ON medications;
+DROP POLICY IF EXISTS "Medications delete policy" ON medications;
 
 -- SELECT Policy: Users can view their own medications, doctors/admins can view all medications
 CREATE POLICY "Medications select policy" ON medications
