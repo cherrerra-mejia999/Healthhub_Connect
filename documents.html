@@ -991,28 +991,19 @@
             if (!supabase) return;
             
             try {
-                // Check if filePath is already a full URL (from doctor uploads)
-                if (filePath.startsWith('http')) {
-                    // Download the file
-                    const response = await fetch(filePath);
-                    if (!response.ok) throw new Error('Failed to download file');
-                    
-                    const blob = await response.blob();
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    setTimeout(() => URL.revokeObjectURL(url), 100);
-                    return;
-                }
+                // First try patient-documents bucket (for doctor uploads)
+                let downloadData, error;
                 
-                // Otherwise download from storage bucket
-                const { data: downloadData, error } = await supabase.storage
-                    .from(STORAGE_BUCKET_NAME)
-                    .download(filePath);
+                ({ data: downloadData, error } = await supabase.storage
+                    .from('patient-documents')
+                    .download(filePath));
+                
+                // If not found, try health-documents bucket (for patient uploads)
+                if (error) {
+                    ({ data: downloadData, error } = await supabase.storage
+                        .from(STORAGE_BUCKET_NAME)
+                        .download(filePath));
+                }
                 
                 if (error) throw error;
                 
@@ -1029,7 +1020,7 @@
                 setTimeout(() => URL.revokeObjectURL(url), 100);
                 
             } catch (error) {
-                console.error('Error viewing document:', error);
+                console.error('Error downloading document:', error);
                 showMessage('Error downloading document: ' + error.message, 'error');
             }
         }

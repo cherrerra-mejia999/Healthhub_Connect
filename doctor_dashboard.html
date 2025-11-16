@@ -1261,24 +1261,15 @@
 
                 console.log('File uploaded to storage successfully');
 
-                // Get signed URL (valid for 1 year)
-                const { data: signedUrlData, error: urlError } = await supabase.storage
-                    .from('patient-documents')
-                    .createSignedUrl(fileName, 31536000); // 1 year in seconds
-
-                if (urlError) {
-                    console.error('Error creating signed URL:', urlError);
-                    throw urlError;
-                }
-
-                const publicUrl = signedUrlData.signedUrl;
-                console.log('Signed URL:', publicUrl);
+                // Just use the fileName as the path
+                const filePath = fileName;
+                console.log('File path:', filePath);
 
                 // Try using RPC function first
                 console.log('Calling RPC function with:', {
                     p_user_id: currentPatientId,
                     p_document_type: docType,
-                    p_file_path: publicUrl,
+                    p_file_path: filePath,
                     p_file_name: docName,
                     p_file_size: docFile.size,
                     p_uploaded_by_doctor_id: currentDoctorId
@@ -1287,7 +1278,7 @@
                 const { data: rpcData, error: rpcError } = await supabase.rpc('insert_document_as_doctor', {
                     p_user_id: currentPatientId,
                     p_document_type: docType,
-                    p_file_path: publicUrl,
+                    p_file_path: filePath,
                     p_file_name: docName,
                     p_file_size: docFile.size,
                     p_uploaded_by_doctor_id: currentDoctorId
