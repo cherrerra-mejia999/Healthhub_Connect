@@ -498,19 +498,43 @@
                     return;
                 }
 
+                // Get all owner IDs
+                const ownerIds = data.map(record => record.owner_id);
+
+                // Get user metadata for all owners
+                const { data: usersData, error: usersError } = await supabase
+                    .rpc('get_user_metadata', { user_ids: ownerIds });
+
+                if (usersError) {
+                    console.error('Error getting user metadata:', usersError);
+                }
+
+                // Create a map of user_id to user info
+                const usersMap = {};
+                if (usersData) {
+                    usersData.forEach(user => {
+                        usersMap[user.user_id] = user;
+                    });
+                }
+
                 // For each share, get the owner's info
                 let html = '<div class="family-members">';
 
                 for (const record of data) {
-                    // Get owner info by querying the RPC we created
-                    const { data: ownerData } = await supabase
-                        .rpc('get_user_by_email', { user_email: '' })
-                        .limit(0);
+                    const user = usersMap[record.owner_id];
                     
-                    // Since we can't easily get user info, use the user_id directly
-                    // Get the first letter of the user ID as initials
-                    const initials = record.owner_id.substring(0, 2).toUpperCase();
-                    const name = `User ${record.owner_id.substring(0, 8)}`;
+                    let name = 'Unknown User';
+                    let initials = 'U';
+                    
+                    if (user) {
+                        if (user.first_name && user.last_name) {
+                            name = `${user.first_name} ${user.last_name}`;
+                            initials = `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
+                        } else if (user.email) {
+                            name = user.email;
+                            initials = user.email[0].toUpperCase();
+                        }
+                    }
 
                     html += `
                         <div class="family-card">
@@ -522,7 +546,7 @@
                                 </div>
                             </div>
                             <div class="family-card-actions">
-                                <button class="btn-view" onclick="viewFamilyRecords('${record.owner_id}', '${name}')">
+                                <button class="btn-view" onclick="viewFamilyRecords('${record.owner_id}', '${name.replace(/'/g, "\\'")}')">
                                     View Records
                                 </button>
                             </div>

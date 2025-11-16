@@ -1793,13 +1793,10 @@
         async function loadSharedAccess() {
             try {
                 const { data, error } = await supabase
-                    .from('shared_access')
-                    .select(`
-                        *,
-                        shared_with:users!shared_access_shared_with_id_fkey(username, email)
-                    `)
+                    .from('shared_health_records')
+                    .select('*')
                     .eq('owner_id', currentUser.id)
-                    .order('created_at', { ascending: false });
+                    .order('created_at', { ascending: false});
 
                 if (error) throw error;
 
@@ -1820,7 +1817,6 @@
                             <thead>
                                 <tr>
                                     <th>Shared With</th>
-                                    <th>Email</th>
                                     <th>Permission</th>
                                     <th>Shared On</th>
                                     <th>Action</th>
@@ -1829,24 +1825,57 @@
                             <tbody>
                 `;
 
-                data.forEach(access => {
+                // Get user info for each shared record
+                for (const access of data) {
                     const date = new Date(access.created_at).toLocaleDateString();
-                    const permissionClass = `permission-${access.permission}`;
+                    
+                    // Get user metadata from auth
+                    const { data: { user: sharedUser }, error: userError } = await supabase.auth.admin.getUserById(access.shared_with_user_id);
+                    
+                    let userName = 'Unknown User';
+                    let userEmail = '';
+                    
+                    if (sharedUser) {
+                        const firstName = sharedUser.user_metadata?.first_name || '';
+                        const lastName = sharedUser.user_metadata?.last_name || '';
+                        userName = firstName && lastName ? `${firstName} ${lastName}` : sharedUser.email;
+                        userEmail = sharedUser.email;
+                    }
                     
                     html += `
                         <tr>
-                            <td>${access.shared_with?.username || 'Unknown'}</td>
-                            <td>${access.shared_with?.email || 'N/A'}</td>
-                            <td><span class="permission-badge ${permissionClass}">${access.permission}</span></td>
+                            <td>
+                                <div style="font-weight: 600;">${userName}</div>
+                                <div style="font-size: 12px; color: #64748b;">${userEmail}</div>
+                            </td>
+                            <td><span class="badge badge-info">${access.permission_level}</span></td>
                             <td>${date}</td>
                             <td>
-                                <button onclick="revokeAccess('${access.access_id}')" class="btn btn-danger btn-small">
+                                <button onclick="revokeAccess('${access.share_id}')" class="btn btn-danger btn-small">
                                     Revoke
                                 </button>
                             </td>
                         </tr>
                     `;
-                });
+                }
+
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading shared access:', error);
+                document.getElementById('sharedAccessSection').innerHTML = `
+                    <div class="empty-state" style="margin-top: 20px;">
+                        <p style="color: #ef4444;">Error loading shared access</p>
+                    </div>
+                `;
+            }
+        }
 
                 html += `</tbody></table></div>`;
                 container.innerHTML = html;
@@ -2051,9 +2080,9 @@
 
             try {
                 const { error } = await supabase
-                    .from('shared_access')
+                    .from('shared_health_records')
                     .delete()
-                    .eq('access_id', accessId);
+                    .eq('share_id', accessId);
 
                 if (error) throw error;
 
