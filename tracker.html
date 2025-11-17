@@ -748,6 +748,128 @@
         height: calc(100% - 100px);
       }
     }
+
+    /* AI Analysis Section */
+    .ai-analysis-section {
+        background: linear-gradient(135deg, #00d4d4 0%, #00a8a8 100%);
+        padding: 30px;
+        border-radius: 12px;
+        color: white;
+        margin-bottom: 25px;
+    }
+
+    .ai-analysis-section h3 {
+        margin: 0 0 20px 0;
+        font-size: 22px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .ai-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .ai-btn {
+        background: white;
+        color: #00a8a8;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ai-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .ai-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .ai-analysis-container {
+        background: white;
+        border-radius: 8px;
+        padding: 25px;
+        margin-top: 20px;
+        color: #333;
+        display: none;
+    }
+
+    .ai-analysis-container.visible {
+        display: block;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .ai-analysis-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .ai-analysis-header h4 {
+        margin: 0;
+        color: #00a8a8;
+        font-size: 20px;
+    }
+
+    .ai-icon {
+        font-size: 24px;
+    }
+
+    .ai-content {
+        line-height: 1.8;
+        color: #475569;
+    }
+
+    .ai-content p {
+        margin: 0 0 15px 0;
+    }
+
+    .ai-content strong {
+        color: #1e293b;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #00a8a8;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -1075,6 +1197,28 @@
                                     <div class="chart-container">
                                         <canvas id="sleepChart"></canvas>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="ai-analysis-section">
+                            <h3>AI Health Analysis</h3>
+                            <div class="ai-buttons">
+                                <button class="ai-btn" onclick="generateAIReport('weekly')" id="weeklyAIBtn">
+                                    <span>📅</span>
+                                    Generate Weekly Report
+                                </button>
+                                <button class="ai-btn" onclick="generateAIReport('monthly')" id="monthlyAIBtn">
+                                    <span>📆</span>
+                                    Generate Monthly Report
+                                </button>
+                            </div>
+                            <div class="ai-analysis-container" id="aiAnalysisContainer">
+                                <div class="ai-analysis-header">
+                                    <h4 id="aiAnalysisTitle">Health Insights</h4>
+                                </div>
+                                <div class="ai-content" id="aiAnalysisContent">
+                                    <!-- AI analysis will be inserted here -->
                                 </div>
                             </div>
                         </div>
@@ -1489,6 +1633,180 @@
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Save Entry';
             }
+        }
+
+        async function generateAIReport(period) {
+            const btn = document.getElementById(period === 'weekly' ? 'weeklyAIBtn' : 'monthlyAIBtn');
+            const container = document.getElementById('aiAnalysisContainer');
+            const content = document.getElementById('aiAnalysisContent');
+            const title = document.getElementById('aiAnalysisTitle');
+            
+            // Get data for the period
+            const now = new Date();
+            let periodData = [];
+            let periodName = '';
+            
+            if (period === 'weekly') {
+                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                periodData = allUserData.filter(d => new Date(d.date) >= weekAgo);
+                periodName = 'Weekly';
+            } else {
+                const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                periodData = allUserData.filter(d => new Date(d.date) >= monthAgo);
+                periodName = 'Monthly';
+            }
+            
+            if (periodData.length === 0) {
+                showMessage(`No data available for ${period} analysis`, 'error');
+                return;
+            }
+            
+            // Disable button and show loading
+            btn.disabled = true;
+            btn.innerHTML = `<span class="loading-spinner"></span> Analyzing...`;
+            container.classList.add('visible');
+            title.textContent = `Generating ${periodName} Health Insights...`;
+            content.innerHTML = '<p style="text-align: center; color: #94a3b8;">AI is analyzing your health data...</p>';
+            
+            try {
+                // Calculate statistics
+                const stats = {
+                    totalDays: periodData.length,
+                    avgHeartRate: periodData.filter(d => d.heart_rate).length > 0
+                        ? Math.round(periodData.filter(d => d.heart_rate).reduce((sum, d) => sum + d.heart_rate, 0) / periodData.filter(d => d.heart_rate).length)
+                        : null,
+                    avgSleep: periodData.filter(d => d.sleep_cycles_hours).length > 0
+                        ? (periodData.filter(d => d.sleep_cycles_hours).reduce((sum, d) => sum + parseFloat(d.sleep_cycles_hours), 0) / periodData.filter(d => d.sleep_cycles_hours).length).toFixed(1)
+                        : null,
+                    avgSteps: periodData.filter(d => d.steps).length > 0
+                        ? Math.round(periodData.filter(d => d.steps).reduce((sum, d) => sum + d.steps, 0) / periodData.filter(d => d.steps).length)
+                        : null,
+                    avgCalories: periodData.filter(d => d.calories_burned).length > 0
+                        ? Math.round(periodData.filter(d => d.calories_burned).reduce((sum, d) => sum + d.calories_burned, 0) / periodData.filter(d => d.calories_burned).length)
+                        : null,
+                    bloodPressureReadings: periodData.filter(d => d.blood_pressure).map(d => d.blood_pressure)
+                };
+                
+                // Create a detailed prompt for the AI
+                const prompt = `Analyze this ${periodName.toLowerCase()} health data and give brief, specific recommendations:
+
+${stats.avgHeartRate ? `Heart Rate: ${stats.avgHeartRate} bpm` : ''}
+${stats.avgSleep ? `Sleep: ${stats.avgSleep} hours/night` : ''}
+${stats.avgSteps ? `Steps: ${stats.avgSteps.toLocaleString()} steps/day` : ''}
+${stats.avgCalories ? `Calories: ${stats.avgCalories} kcal/day` : ''}
+${stats.bloodPressureReadings.length > 0 ? `Blood Pressure: ${stats.bloodPressureReadings.join(', ')}` : ''}
+
+Provide a SHORT analysis (under 150 words total):
+1. One sentence on overall health
+2. Any concerning metrics (if any)
+3. 2-3 brief, specific action items
+
+Be direct and concise. No fluff.`;
+
+                // Use the existing AI function infrastructure
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                    throw new Error("Please sign in to use AI analysis");
+                }
+
+                const messages = [
+                    {
+                        role: "system",
+                        content: "You are a health advisor. Be brief, direct, and specific. Maximum 150 words. No introductions or conclusions - just facts and actionable advice."
+                    },
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                ];
+
+                const res = await fetch(AI_FUNCTION_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${session.access_token}`
+                    },
+                    body: JSON.stringify({ messages })
+                });
+
+                if (!res.ok) {
+                    throw new Error(`AI request failed: ${res.status}`);
+                }
+
+                const result = await res.json();
+                console.log('AI Response:', result); // Debug log
+                
+                // Parse the response - try multiple possible response formats
+                let aiAnalysis = '';
+                if (typeof result === 'string') {
+                    aiAnalysis = result;
+                } else if (result.reply) {
+                    // Handle {"reply": "..."} format
+                    aiAnalysis = result.reply;
+                } else if (result.content) {
+                    aiAnalysis = result.content;
+                } else if (result.message) {
+                    aiAnalysis = result.message;
+                } else if (result.choices && result.choices[0] && result.choices[0].message) {
+                    aiAnalysis = result.choices[0].message.content;
+                } else if (result.response) {
+                    aiAnalysis = result.response;
+                } else {
+                    aiAnalysis = JSON.stringify(result);
+                }
+                
+                // Clean up escape characters and formatting
+                aiAnalysis = aiAnalysis
+                    .replace(/\\n/g, '\n')  // Replace \n with actual line breaks
+                    .replace(/\\"/g, '"')   // Replace \" with "
+                    .replace(/\\\\/g, '\\') // Replace \\ with \
+                    .trim();
+                
+                // Format and display the analysis
+                title.textContent = `${periodName} Health Insights`;
+                content.innerHTML = formatAIResponse(aiAnalysis);
+                
+                showMessage(`${periodName} AI analysis generated successfully!`, 'success');
+                
+            } catch (error) {
+                console.error('AI Analysis Error:', error);
+                content.innerHTML = `
+                    <div style="padding: 15px; border-radius: 8px; background: #fef3c7; border-left: 4px solid #f59e0b; color: #92400e;">
+                        <strong>⚠️ Analysis Error</strong>
+                        <p>${error.message || "We couldn't generate the AI analysis at this time. Please try again later."}</p>
+                    </div>
+                `;
+                showMessage('Error generating AI analysis', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = period === 'weekly' 
+                    ? '<span>📅</span> Generate Weekly Report'
+                    : '<span>📆</span> Generate Monthly Report';
+            }
+        }
+
+        function formatAIResponse(text) {
+            // Convert the AI response to HTML with better formatting
+            let formatted = text
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>');
+            
+            // Wrap in paragraphs
+            formatted = '<p>' + formatted + '</p>';
+            
+            // Identify and highlight health alerts
+            formatted = formatted.replace(
+                /(high blood pressure|elevated|concerning|attention needed|insufficient|low sleep|below recommended)/gi,
+                '<span style="color: #f59e0b; font-weight: 600;">$1</span>'
+            );
+            
+            formatted = formatted.replace(
+                /(great job|excellent|good progress|keep up|congratulations|well done|improvement)/gi,
+                '<span style="color: #10b981; font-weight: 600;">$1</span>'
+            );
+            
+            return formatted;
         }
 
         async function exportPDF(period) {
