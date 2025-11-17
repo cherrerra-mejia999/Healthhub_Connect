@@ -608,7 +608,6 @@
             <a href="appointments.html">Appointments</a>
             <a href="medications.html">Medications</a>
             <a href="profile.html">Profile</a>
-            <a href="family_dashboard.html">Family Dashboard</a>
             <a href="support.html">Support</a>
             <a href="helpfullink.html">Helpful Links</a>
         </div>
@@ -656,7 +655,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script>
-        const STORAGE_BUCKET_NAME = 'health-documents';
+        const STORAGE_BUCKET_NAME = 'patient-documents';
         const supabaseUrl = 'https://hbtgwzneuhdqlmriwvje.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhidGd3em5ldWhkcWxtcml3dmplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzNDI5MTQsImV4cCI6MjA3NTkxODkxNH0.1v1OLYSEPRBKaZWQu1sJo8DoRzYePfdc7Zcs8i8TF78';
 
@@ -902,11 +901,6 @@
                 
                 if (uploadError) throw uploadError;
                 
-                // Get the public URL for the uploaded file
-                const { data: urlData } = supabase.storage
-                    .from(STORAGE_BUCKET_NAME)
-                    .getPublicUrl(fileName);
-                
                 document.getElementById('uploadProgressBar').style.width = '100%';
                 document.getElementById('uploadProgressBar').textContent = '100%';
                 
@@ -915,9 +909,8 @@
                     .insert([{
                         user_id: currentUserId,
                         document_type: documentType,
-                        file_name: file.name,
                         file_path: fileName,
-                        file_url: urlData.publicUrl,
+                        file_name: file.name,
                         file_size: file.size
                     }]);
                 
