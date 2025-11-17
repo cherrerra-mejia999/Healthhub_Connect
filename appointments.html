@@ -1503,10 +1503,9 @@
                     .from('doctor_availability')
                     .select('*')
                     .eq('doctor_id', selectedDoctor.doctor_id)
-                    .eq('hospital_id', selectedHospital.hospital_id)
                     .eq('day_of_week', dayOfWeek)
                     .eq('is_active', true)
-                    .single();
+                    .maybeSingle();
 
                 if (availError || !availability) {
                     slotsList.innerHTML = `
@@ -1528,7 +1527,6 @@
                     .from('appointments')
                     .select('appointment_time')
                     .eq('doctor_id', selectedDoctor.doctor_id)
-                    .eq('hospital_id', selectedHospital.hospital_id)
                     .eq('appointment_date', selectedDate)
                     .in('status', ['pending', 'confirmed']);
 
@@ -1631,7 +1629,7 @@
                     .insert([{
                         user_id: currentUser.id,
                         doctor_id: selectedDoctor.doctor_id,
-                        hospital_id: selectedHospital.hospital_id,
+                        hospital_id: null,
                         appointment_date: appointmentDate,
                         appointment_time: selectedTimeSlot,
                         appointment_type: appointmentType,
