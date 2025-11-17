@@ -1497,7 +1497,10 @@
 
                 // Fallback: use doctor_availability table and generate time slots on client
                 const selectedDate = date;
-                const dayOfWeek = new Date(selectedDate).getDay();
+                // Parse as local date to avoid UTC timezone issues
+                const [year, month, day] = selectedDate.split('-').map(Number);
+                const localDate = new Date(year, month - 1, day);
+                const dayOfWeek = localDate.getDay();
 
                 const { data: availability, error: availError } = await supabase
                     .from('doctor_availability')
@@ -1937,7 +1940,9 @@
         async function loadAvailableTimeSlots(doctorId, hospitalId, selectedDate) {
             try {
                 // Get day of week for the selected date (0 = Sunday, 6 = Saturday)
-                const date = new Date(selectedDate);
+                // Parse as local date to avoid UTC timezone issues
+                const [year, month, day] = selectedDate.split('-').map(Number);
+                const date = new Date(year, month - 1, day);
                 const dayOfWeek = date.getDay();
 
                 // Get doctor's availability for this day and hospital
