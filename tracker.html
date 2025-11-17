@@ -1205,11 +1205,9 @@
                             <h3>AI Health Analysis</h3>
                             <div class="ai-buttons">
                                 <button class="ai-btn" onclick="generateAIReport('weekly')" id="weeklyAIBtn">
-                                    <span>📅</span>
                                     Generate Weekly Report
                                 </button>
                                 <button class="ai-btn" onclick="generateAIReport('monthly')" id="monthlyAIBtn">
-                                    <span>📆</span>
                                     Generate Monthly Report
                                 </button>
                             </div>
@@ -1780,8 +1778,8 @@ Be direct and concise. No fluff.`;
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = period === 'weekly' 
-                    ? '<span>📅</span> Generate Weekly Report'
-                    : '<span>📆</span> Generate Monthly Report';
+                    ? 'Generate Weekly Report'
+                    : 'Generate Monthly Report';
             }
         }
 
