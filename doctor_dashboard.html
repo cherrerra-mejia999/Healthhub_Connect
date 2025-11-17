@@ -1320,10 +1320,12 @@
                     .insert([{
                         user_id: currentPatientId,
                         document_type: docType,
-                        file_path: publicUrl,
+                        file_path: fileName,
+                        file_url: publicUrl,
                         file_name: docName,
                         file_size: docFile.size,
-                        notes: docNotes
+                        notes: docNotes,
+                        uploaded_by_doctor_id: currentDoctorId
                     }]);
 
                 if (insertError) throw insertError;
