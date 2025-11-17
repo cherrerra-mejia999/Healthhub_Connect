@@ -1768,6 +1768,14 @@
                                 </div>
                             ` : ''}
 
+                            ${appt.status === 'completed' || appt.status === 'cancelled' ? `
+                                <div style="margin-top: 15px;">
+                                    <button onclick="deleteAppointment('${appt.appointment_id}')" class="btn btn-danger btn-small">
+                                        Delete Appointment
+                                    </button>
+                                </div>
+                            ` : ''}
+
                             ${appt.doctor_notes ? `
                                 <div style="margin-top: 15px; padding: 12px; background: #f8fafc; border-radius: 6px;">
                                     <strong style="color: #5b21b6;">Doctor's Notes:</strong><br>
@@ -1806,14 +1814,39 @@
                     })
                     .eq('appointment_id', appointmentId);
 
-                if (error) throw error;
+                if (error) {
+                    console.error('Cancel error details:', error);
+                    throw error;
+                }
 
                 alert('Appointment cancelled successfully');
                 loadAppointments();
 
             } catch (error) {
                 console.error('Error cancelling appointment:', error);
-                alert('Error cancelling appointment');
+                alert('Error cancelling appointment: ' + (error.message || 'Unknown error'));
+            }
+        }
+
+        async function deleteAppointment(appointmentId) {
+            if (!confirm('Are you sure you want to permanently delete this appointment? This cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('appointments')
+                    .delete()
+                    .eq('appointment_id', appointmentId);
+
+                if (error) throw error;
+
+                alert('Appointment deleted successfully');
+                loadAppointments();
+
+            } catch (error) {
+                console.error('Error deleting appointment:', error);
+                alert('Error deleting appointment: ' + error.message);
             }
         }
 
