@@ -968,7 +968,7 @@
                 <input type="text" id="insuranceCardNumber" placeholder="Insurance card number" required>
 
                 <label>Coverage Percentage (%)*</label>
-                <input type="number" id="coveragePercent" placeholder="80" min="0" max="100" value="80" required>
+                <input type="number" id="coveragePercent" name="coveragePercent" placeholder="Enter coverage percentage" min="0" max="100" step="1" required>
 
                 <label>Issue Date</label>
                 <input type="date" id="issueDate">
@@ -1480,7 +1480,12 @@
             try {
                 const { data, error } = await supabase
                     .from('bills')
-                    .select('*')
+                    .select(`
+                        *,
+                        appointments (
+                            insurance_card_id
+                        )
+                    `)
                     .eq('user_id', currentUser.id)
                     .order('created_at', { ascending: false });
 
@@ -1488,6 +1493,16 @@
                     console.error('Bills query error:', error);
                     throw error;
                 }
+                
+                // DEBUG: Log bills data to see structure
+                console.log('=== BILLS DATA DEBUG ===');
+                console.log('All bills:', data);
+                if (data && data.length > 0) {
+                    console.log('First bill structure:', data[0]);
+                    console.log('First bill appointments:', data[0].appointments);
+                    console.log('First bill insurance_card_id:', data[0].appointments?.insurance_card_id);
+                }
+                console.log('========================');
 
                 const container = document.getElementById('billsSection');
                 
@@ -1525,6 +1540,10 @@
 
                     pendingBills.forEach(bill => {
                         const dueDate = bill.due_date ? new Date(bill.due_date).toLocaleDateString() : 'N/A';
+                        const insuranceCardId = bill.appointments?.insurance_card_id || null;
+                        
+                        // Handle null properly - don't convert to string 'null'
+                        const insuranceParam = insuranceCardId ? `'${insuranceCardId}'` : 'null';
                         
                         html += `
                             <tr>
@@ -1532,7 +1551,7 @@
                                 <td>$${parseFloat(bill.amount).toFixed(2)}</td>
                                 <td>${dueDate}</td>
                                 <td>
-                                    <button onclick="payBill('${bill.bill_id}', ${bill.amount})" class="btn btn-primary btn-small">
+                                    <button onclick="payBill('${bill.bill_id}', ${bill.amount}, ${insuranceParam})" class="btn btn-primary btn-small">
                                         Pay Now
                                     </button>
                                 </td>
@@ -1595,36 +1614,76 @@
         // Pay a bill - open modal
         let currentBillId = null;
         let currentBillAmount = 0;
+        let currentInsuranceCardId = null;
         
-        async function payBill(billId, amount) {
+        async function payBill(billId, amount, insuranceCardId = null) {
             currentBillId = billId;
             currentBillAmount = parseFloat(amount);
+            currentInsuranceCardId = insuranceCardId;
+            
+            console.log('=== PAY BILL DEBUG ===');
+            console.log('Bill ID:', billId);
+            console.log('Amount:', amount);
+            console.log('Insurance Card ID (raw):', insuranceCardId);
+            console.log('Insurance Card ID type:', typeof insuranceCardId);
+            
+            // Fix: Convert string 'null' to actual null
+            if (insuranceCardId === 'null' || insuranceCardId === 'undefined' || !insuranceCardId) {
+                insuranceCardId = null;
+                currentInsuranceCardId = null;
+            }
+            
+            console.log('Insurance Card ID (processed):', insuranceCardId);
             
             // Show modal
             document.getElementById('billPaymentModal').style.display = 'block';
             document.getElementById('billOriginalAmount').textContent = `$${currentBillAmount.toFixed(2)}`;
             
-            // Check for insurance
-            const { data: insurance, error: insError } = await supabase
-                .from('insurance')
-                .select('provider_name, coverage_percentage')
-                .eq('user_id', currentUser.id)
-                .eq('status', 'active')
-                .maybeSingle();
-            
-            if (insurance && insurance.coverage_percentage) {
-                // Show insurance coverage
-                const coveragePercent = insurance.coverage_percentage;
-                const coverageAmount = currentBillAmount * (coveragePercent / 100);
-                const finalAmount = currentBillAmount - coverageAmount;
+            // Check for insurance - FIXED: Use insurance_card table with correct column
+            if (insuranceCardId) {
+                const { data: insuranceCard, error: insError } = await supabase
+                    .from('insurance_card')
+                    .select(`
+                        card_id,
+                        coverage_percent,
+                        insurance:insurance_id (
+                            provider_name,
+                            policy_number
+                        )
+                    `)
+                    .eq('card_id', insuranceCardId)
+                    .single();
                 
-                document.getElementById('insuranceCoverageSection').style.display = 'block';
-                document.getElementById('coveragePercent').textContent = coveragePercent;
-                document.getElementById('insuranceCoverageAmount').textContent = `- $${coverageAmount.toFixed(2)}`;
-                document.getElementById('insuranceProviderName').textContent = insurance.provider_name;
-                document.getElementById('billFinalAmount').textContent = `$${finalAmount.toFixed(2)}`;
-                currentBillAmount = finalAmount; // Update to final amount
+                console.log('Insurance card data:', insuranceCard);
+                console.log('Insurance error:', insError);
+                
+                if (insuranceCard && insuranceCard.coverage_percent) {
+                    // Show insurance coverage
+                    const coveragePercent = insuranceCard.coverage_percent;
+                    const coverageAmount = currentBillAmount * (coveragePercent / 100);
+                    const finalAmount = currentBillAmount - coverageAmount;
+                    
+                    console.log('Coverage calculation:', {
+                        billAmount: currentBillAmount,
+                        coveragePercent: coveragePercent,
+                        coverageAmount: coverageAmount,
+                        finalAmount: finalAmount
+                    });
+                    
+                    document.getElementById('insuranceCoverageSection').style.display = 'block';
+                    document.getElementById('coveragePercent').textContent = coveragePercent;
+                    document.getElementById('insuranceCoverageAmount').textContent = `- $${coverageAmount.toFixed(2)}`;
+                    document.getElementById('insuranceProviderName').textContent = insuranceCard.insurance.provider_name;
+                    document.getElementById('billFinalAmount').textContent = `$${finalAmount.toFixed(2)}`;
+                    currentBillAmount = finalAmount; // Update to final amount
+                } else {
+                    console.warn('Insurance card found but no coverage_percent');
+                    // No coverage percentage found
+                    document.getElementById('insuranceCoverageSection').style.display = 'none';
+                    document.getElementById('billFinalAmount').textContent = `$${currentBillAmount.toFixed(2)}`;
+                }
             } else {
+                console.log('No insurance card ID provided');
                 // No insurance
                 document.getElementById('insuranceCoverageSection').style.display = 'none';
                 document.getElementById('billFinalAmount').textContent = `$${currentBillAmount.toFixed(2)}`;
@@ -1654,6 +1713,8 @@
                 }
                 select.appendChild(option);
             });
+            
+            console.log('======================');
         }
         
         function closeBillPaymentModal() {
@@ -2211,8 +2272,20 @@
                 `;
 
                 data.forEach(card => {
-                    const expiryDate = card.expiry_date ? new Date(card.expiry_date).toLocaleDateString() : 'N/A';
-                    const isExpired = card.expiry_date && new Date(card.expiry_date) < new Date();
+                    // Parse expiry date as local timezone (EST fix)
+                    let expiryDate = 'N/A';
+                    let isExpired = false;
+                    
+                    if (card.expiry_date) {
+                        const [year, month, day] = card.expiry_date.split('-').map(Number);
+                        const expiryLocalDate = new Date(year, month - 1, day);
+                        expiryDate = expiryLocalDate.toLocaleDateString();
+                        
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        isExpired = expiryLocalDate < today;
+                    }
+                    
                     const expiryClass = isExpired ? 'badge-danger' : 'badge-success';
                     const expiryText = isExpired ? 'Expired' : 'Active';
                     
@@ -2272,9 +2345,45 @@
             const providerName = document.getElementById('insuranceProvider').value;
             const policyNumber = document.getElementById('policyNumber').value;
             const cardNumber = document.getElementById('insuranceCardNumber').value;
-            const coveragePercent = parseInt(document.getElementById('coveragePercent').value);
             const issueDate = document.getElementById('issueDate').value || null;
             const expiryDate = document.getElementById('expiryDate').value || null;
+            
+            // Get coverage percentage - bulletproof method
+            const coverageInput = document.getElementById('coveragePercent');
+            const coverageValue = coverageInput ? coverageInput.value : '';
+            const coveragePercent = parseInt(coverageValue, 10) || 80;
+            
+            // Validate range
+            if (coveragePercent < 0 || coveragePercent > 100) {
+                showInsuranceMessage('Coverage percentage must be between 0 and 100', 'error');
+                return;
+            }
+
+            // Validate issue date isn't in the future - TIMEZONE FIX for EST
+            if (issueDate) {
+                const [year, month, day] = issueDate.split('-').map(Number);
+                const issue = new Date(year, month - 1, day);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (issue > today) {
+                    showInsuranceMessage('Issue date cannot be in the future', 'error');
+                    return;
+                }
+            }
+
+            // Validate expiry date isn't in the past - TIMEZONE FIX for EST
+            if (expiryDate) {
+                const [year, month, day] = expiryDate.split('-').map(Number);
+                const expiry = new Date(year, month - 1, day);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (expiry < today) {
+                    showInsuranceMessage('Cannot add an expired insurance card', 'error');
+                    return;
+                }
+            }
 
             try {
                 // First, create or get insurance provider
@@ -2319,7 +2428,7 @@
 
                 if (cardError) throw cardError;
 
-                showInsuranceMessage('Insurance card added successfully!', 'success');
+                showInsuranceMessage(`Insurance card added successfully with ${coveragePercent}% coverage!`, 'success');
                 setTimeout(() => {
                     closeInsuranceModal();
                     loadInsuranceCards();
@@ -2385,7 +2494,16 @@
                 const providerName = card.insurance?.provider_name || 'Insurance Card';
                 const cardNumber = card.card_number || '';
                 const coveragePercent = card.coverage_percent || 80;
-                const isExpired = card.expiry_date && new Date(card.expiry_date) < new Date();
+                
+                // Check if expired using local timezone (EST fix)
+                let isExpired = false;
+                if (card.expiry_date) {
+                    const [year, month, day] = card.expiry_date.split('-').map(Number);
+                    const expiryLocalDate = new Date(year, month - 1, day);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    isExpired = expiryLocalDate < today;
+                }
                 
                 if (!isExpired) {
                     const option = document.createElement('option');
