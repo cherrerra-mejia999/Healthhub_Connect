@@ -1424,12 +1424,37 @@
 
                 const select = document.getElementById('insuranceSelect');
                 if (data && data.length > 0) {
+                    let activeCardCount = 0;
                     data.forEach(card => {
-                        const option = document.createElement('option');
-                        option.value = card.card_id;
-                        option.textContent = `${card.insurance.provider_name} - ${card.insurance.policy_number}`;
-                        select.appendChild(option);
+                        // Check if card is expired using local timezone (EST fix)
+                        let isExpired = false;
+                        if (card.expiry_date) {
+                            const [year, month, day] = card.expiry_date.split('-').map(Number);
+                            const expiryLocalDate = new Date(year, month - 1, day);
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            isExpired = expiryLocalDate < today;
+                        }
+                        
+                        // Only add active (non-expired) cards
+                        if (!isExpired) {
+                            const option = document.createElement('option');
+                            option.value = card.card_id;
+                            const coveragePercent = card.coverage_percent || 80;
+                            option.textContent = `${card.insurance.provider_name} (${coveragePercent}% coverage) - ${card.insurance.policy_number}`;
+                            select.appendChild(option);
+                            activeCardCount++;
+                        }
                     });
+                    
+                    // Show message if no active cards
+                    if (activeCardCount === 0) {
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.disabled = true;
+                        option.textContent = 'No active insurance cards (check expiry dates)';
+                        select.appendChild(option);
+                    }
                 }
             } catch (error) {
                 console.error('Error loading insurance:', error);
@@ -1526,17 +1551,30 @@
                 );
 
                 // Get already booked appointments for this doctor on this date
+                // Include 'completed' to prevent rebooking past appointment slots
                 const { data: bookedAppointments, error: bookError } = await supabase
                     .from('appointments')
                     .select('appointment_time')
                     .eq('doctor_id', selectedDoctor.doctor_id)
                     .eq('appointment_date', selectedDate)
-                    .in('status', ['pending', 'confirmed']);
+                    .in('status', ['pending', 'confirmed', 'completed']);
 
                 if (bookError) throw bookError;
 
                 const bookedTimes = bookedAppointments?.map(apt => apt.appointment_time) || [];
-                const availableSlots = slots.filter(slot => !bookedTimes.includes(slot));
+                
+                // CRITICAL: Filter out past time slots
+                const now = new Date();
+                const availableSlots = slots.filter(slot => {
+                    // Check if already booked
+                    if (bookedTimes.includes(slot)) return false;
+                    
+                    // Check if in the past
+                    const slotDateTime = new Date(selectedDate + 'T' + slot);
+                    if (slotDateTime < now) return false;
+                    
+                    return true;
+                });
 
                 if (!availableSlots || availableSlots.length === 0) {
                     slotsList.innerHTML = `
@@ -1608,14 +1646,15 @@
             const patientNotes = document.getElementById('patientNotes').value;
 
             try {
-                // Check for existing active appointments at the same time slot
+                // Check for existing appointments at the same time slot
+                // Include 'completed' to prevent rebooking past appointment slots
                 const { data: existingAppointments, error: checkError } = await supabase
                     .from('appointments')
                     .select('appointment_id, status')
                     .eq('doctor_id', selectedDoctor.doctor_id)
                     .eq('appointment_date', appointmentDate)
                     .eq('appointment_time', selectedTimeSlot)
-                    .in('status', ['pending', 'confirmed']);
+                    .in('status', ['pending', 'confirmed', 'completed']);
 
                 if (checkError) throw checkError;
 
@@ -1623,6 +1662,15 @@
                     showMessage('This time slot is no longer available. Please select another time.', 'error');
                     // Reload slots to show current availability
                     await loadAvailableSlots();
+                    return;
+                }
+                
+                // CRITICAL: Prevent booking in the past
+                const selectedDateTime = new Date(appointmentDate + 'T' + selectedTimeSlot);
+                const now = new Date();
+                
+                if (selectedDateTime < now) {
+                    showMessage('Cannot book appointments in the past. Please select a future date and time.', 'error');
                     return;
                 }
 
@@ -1721,7 +1769,11 @@
 
                 let html = '';
                 data.forEach(appt => {
-                    const date = new Date(appt.appointment_date).toLocaleDateString('en-US', {
+                    // Parse date as local timezone to prevent day shift (EST fix)
+                    const [year, month, day] = appt.appointment_date.split('-').map(Number);
+                    const localDate = new Date(year, month - 1, day);
+                    
+                    const date = localDate.toLocaleDateString('en-US', {
                         weekday: 'long',
                         year: 'numeric',
                         month: 'long',
@@ -1831,6 +1883,8 @@
             }
 
             try {
+                // Delete the appointment
+                // Past time slots are protected by the booking validation that prevents booking in the past
                 const { error } = await supabase
                     .from('appointments')
                     .delete()
@@ -1970,19 +2024,30 @@
                 );
 
                 // Get already booked appointments for this doctor on this date
+                // Include 'completed' to prevent rebooking past appointment slots
                 const { data: bookedAppointments, error: bookError } = await supabase
                     .from('appointments')
                     .select('appointment_time')
                     .eq('doctor_id', doctorId)
                     .eq('hospital_id', hospitalId)
                     .eq('appointment_date', selectedDate)
-                    .in('status', ['pending', 'confirmed']);
+                    .in('status', ['pending', 'confirmed', 'completed']);
 
                 if (bookError) throw bookError;
 
-                // Filter out booked slots
+                // Filter out booked slots and past times
                 const bookedTimes = bookedAppointments?.map(apt => apt.appointment_time) || [];
-                const availableSlots = slots.filter(slot => !bookedTimes.includes(slot));
+                const now = new Date();
+                const availableSlots = slots.filter(slot => {
+                    // Check if already booked
+                    if (bookedTimes.includes(slot)) return false;
+                    
+                    // Check if in the past
+                    const slotDateTime = new Date(selectedDate + 'T' + slot);
+                    if (slotDateTime < now) return false;
+                    
+                    return true;
+                });
 
                 // Display available slots
                 displayTimeSlots(availableSlots);

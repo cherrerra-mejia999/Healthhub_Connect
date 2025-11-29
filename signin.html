@@ -191,6 +191,30 @@
             });
         });
 
+        // Check for email verification on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const type = urlParams.get('type');
+            const accessToken = urlParams.get('access_token');
+            
+            // If this is an email verification callback
+            if (type === 'signup' && accessToken) {
+                showMessage('Email verified successfully! Please sign in to continue.', 'success');
+                // Clean up the URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (type === 'recovery' && accessToken) {
+                showMessage('Password reset link verified! Please set your new password.', 'success');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
+            // Check if there's a registration success message
+            const message = urlParams.get('message');
+            if (message === 'registration_success') {
+                showMessage('Registration successful! Please check your email to verify your account, then sign in.', 'success');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+
         document.getElementById('signinForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -260,7 +284,7 @@
                 if (error.message.includes('Invalid login credentials')) {
                     showMessage('Invalid email or password.', 'error');
                 } else if (error.message.includes('Email not confirmed')) {
-                    showMessage('Please verify your email first.', 'error');
+                    showMessage('Please verify your email first. Check your inbox for the verification link.', 'error');
                 } else {
                     showMessage('Error: ' + error.message, 'error');
                 }
