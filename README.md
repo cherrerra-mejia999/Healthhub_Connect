@@ -4,3 +4,38 @@ This will be a collaboration website which we will make a mock website where peo
 The database for HealthHub Connect is located on Supabase and is private. And the code can be loaded on to VS Code to access it. There is no specific dependencies or configuration details that needs to be done in order to access the project.
 
 To access the the website, simply go to the browser and plug in "https://cherrerra-mejia999.github.io/Healthhub_Connect/".
+
+The Key Feature in HealthHub Connect are:
+•	Document Upload
+    o Allows the user to upload documents onto the site which shared accounts can access.
+    o	Doctors can upload a document on behalf of a user after an appointment.
+•	Health Tracker
+    o	Users can track their health statics, get a statement based on all their inputs, and get an average score from the recent 7 days.
+•	Appointments
+    o	Can schedule an appointment at certain hospital with a certain doctor, at whatever time they are free at. 
+    o	Can cancel appointment if they cannot make it at that time
+    o	Can delete previous appointments to clear up clutter. 
+•	Medications
+    o	Can upload their medications that the user must take and have several dosages, how many times to take a day, and the time to take. 
+    o	Can mark if they have taken that day skipped. 
+    o	Doctors can upload medications on behalf of the patient after the appointment and can do everything stated in the first one. 
+•	Family Dashboard
+    o	Can share documentations, medications, appointments, and visit summaries whichever user they want. 
+•	Payment 
+    o	Can upload their insurance card
+    o	Upload a payment method
+    o	Can pay the bill after the doctor sets it after they finish their appointment. 
+•	Doctor Sign-in
+    o	A separate sign-in was made for doctors that will use this site. They will have to get a generated code to be given access to make an account of the site. 
+    o	The doctor can decline or accept appointments that patients try to schedule with him. 
+    •	Support
+    o	Different numbers so that patients need form of support
+•	AI Chat box
+    o	A chat box that user can use if they have any medical based questions 
+•	Reminder
+    o	A reminder that will pop up when a user has either medication or an appointment scheduled. 
+•	Health Tracker AI
+    o	Will give the user a weekly or monthly report of what they should work on based on their input. 
+•	Admin
+  o	Create a unique code for the doctor to register an account to not allow patients to create a doctor account. 
+
